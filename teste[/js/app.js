@@ -39,6 +39,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         criarProdutosExemplo();
     }
     
+    // Atualizar variável CSS da altura do header
+    atualizarAlturaHeader();
+    window.addEventListener('resize', atualizarAlturaHeader);
+    
     renderizarTodasCategorias();
     renderizarProdutos();
     renderizarCarrinho();
@@ -47,6 +51,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Verificar horário a cada minuto
     setInterval(verificarHorario, 60000);
 });
+
+function atualizarAlturaHeader() {
+    const header = document.querySelector('.header');
+    if (header) {
+        const altura = header.offsetHeight;
+        document.documentElement.style.setProperty('--header-height', altura + 'px');
+    }
+}
 
 // ============================================
 // ===== PRODUTOS DE EXEMPLO =================
@@ -132,27 +144,88 @@ function renderizarTodasCategorias() {
     const tabTodos = document.createElement('div');
     tabTodos.className = 'categoria-tab ativo';
     tabTodos.innerHTML = '📱 Todos';
-    tabTodos.onclick = () => filtrarPorCategoria('todos');
+    tabTodos.onclick = () => filtrarPorCategoria('todos', tabTodos);
     container.appendChild(tabTodos);
     
     categorias.forEach(cat => {
         const tab = document.createElement('div');
         tab.className = 'categoria-tab';
         tab.innerHTML = getIconeCategoria(cat) + ' ' + getNomeCategoria(cat);
-        tab.onclick = () => filtrarPorCategoria(cat);
+        tab.onclick = () => filtrarPorCategoria(cat, tab);
         container.appendChild(tab);
     });
 }
 
-function filtrarPorCategoria(categoria) {
+function filtrarPorCategoria(categoria, tabElement = null) {
     categoriaAtual = categoria;
     
     document.querySelectorAll('.categoria-tab').forEach(tab => {
         tab.classList.remove('ativo');
-        if (tab.innerText.includes(categoria === 'todos' ? 'Todos' : getNomeCategoria(categoria))) {
-            tab.classList.add('ativo');
-        }
     });
+    
+    // Ativar a tab correta
+    const tabs = document.querySelectorAll('.categoria-tab');
+    if (categoria === 'todos') {
+        tabs[0].classList.add('ativo');
+        tabElement = tabs[0];
+    } else {
+        tabs.forEach(tab => {
+            if (tab.innerText.includes(getNomeCategoria(categoria))) {
+                tab.classList.add('ativo');
+                tabElement = tab;
+            }
+        });
+    }
+    
+    // ===== SCROLL HORIZONTAL MÍNIMO =====
+    if (tabElement) {
+        const container = document.getElementById('categoriasTabs');
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = tabElement.getBoundingClientRect();
+        
+        // Verificar se a tab está completamente visível
+        const tabInicio = tabRect.left - containerRect.left;
+        const tabFim = tabRect.right - containerRect.left;
+        const containerLargura = containerRect.width;
+        
+        if (tabInicio < 0 || tabFim > containerLargura) {
+            // Calcular scroll necessário (mínimo possível)
+            let scrollPara = container.scrollLeft;
+            
+            if (tabInicio < 0) {
+                // Tab está à esquerda da área visível
+                scrollPara += tabInicio - 20; // 20px de margem
+            } else if (tabFim > containerLargura) {
+                // Tab está à direita da área visível
+                scrollPara += tabFim - containerLargura + 20; // 20px de margem
+            }
+            
+            container.scrollTo({
+                left: scrollPara,
+                behavior: 'smooth'
+            });
+        }
+    }
+    
+    // ===== ROLAGEM SUAVE ATÉ OS PRODUTOS =====
+    const produtosGrid = document.getElementById('produtosGrid');
+    
+    if (produtosGrid) {
+        // Pequeno delay para garantir que o DOM foi atualizado
+        setTimeout(() => {
+            const headerHeight = document.querySelector('.header')?.offsetHeight || 80;
+            const categoriasHeight = document.getElementById('categoriasTabs')?.offsetHeight || 60;
+            const offset = headerHeight + categoriasHeight + 20; // 20px de folga
+            
+            const elementPosition = produtosGrid.getBoundingClientRect().top + window.pageYOffset;
+            const offsetPosition = elementPosition - offset;
+            
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }, 100);
+    }
     
     renderizarProdutos();
 }
