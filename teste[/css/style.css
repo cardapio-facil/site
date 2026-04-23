@@ -188,7 +188,7 @@ main {
     align-items: center;
     gap: 0;
     padding-bottom: 5px;
-    overflow: hidden;
+    overflow: visible;
     max-width: 100%;
 }
 
