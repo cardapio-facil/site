@@ -37,7 +37,7 @@ body {
     background: var(--cor-fundo);
     color: var(--cor-texto);
     -webkit-font-smoothing: antialiased;
-    overflow-x: clip;
+    overflow-x: hidden;
     max-width: 100vw;
     height: auto;
 }
@@ -81,6 +81,7 @@ img {
     position: sticky;
     top: 0;
     z-index: 100;
+    width: 100%;
 }
 
 .logo-area {
@@ -186,8 +187,7 @@ main {
     align-items: center;
     gap: 0;
     padding-bottom: 5px;
-    overflow: visible;
-    max-width: 100%;
+    width: 100%;
 }
 
 .categorias-tabs {
@@ -205,6 +205,7 @@ main {
     -ms-overflow-style: none;
     max-width: 100%;
     scroll-snap-type: x mandatory;
+    min-height: 45px;
 }
 
 .categorias-tabs::-webkit-scrollbar {
@@ -236,23 +237,6 @@ main {
     color: white;
 }
 
-.categorias-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 0;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    padding: 5px 0;
-    flex: 1;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    max-width: 100%;
-    scroll-snap-type: x mandatory;
-    min-height: 45px;
-}
 /* ===== SETINHAS NAVEGAÇÃO ===== */
 .categoria-nav-btn {
     width: 28px;
@@ -297,6 +281,13 @@ main {
 
 .categoria-nav-right {
     margin-left: 4px;
+}
+
+/* Esconder setinhas no mobile */
+@media (max-width: 768px) {
+    .categoria-nav-btn {
+        display: none !important;
+    }
 }
 
 /* ===== SEÇÃO DESTAQUES ===== */
@@ -1327,6 +1318,7 @@ input:focus, textarea:focus, select:focus {
 .theme-toggle-btn i {
     font-size: 1rem;
 }
+
 /* ===== CORREÇÃO STICKY MOBILE ===== */
 @media (max-width: 900px) {
     body {
