@@ -1327,3 +1327,21 @@ input:focus, textarea:focus, select:focus {
 .theme-toggle-btn i {
     font-size: 1rem;
 }
+/* ===== CORREÇÃO STICKY MOBILE ===== */
+@media (max-width: 900px) {
+    body {
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .categorias-wrapper {
+        position: -webkit-sticky;
+        position: sticky;
+    }
+    
+    .header {
+        position: -webkit-sticky;
+        position: sticky;
+    }
+}
