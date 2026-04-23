@@ -16,6 +16,8 @@
     --border-radius: 18px;
     --shadow: 0 6px 18px rgba(0,0,0,0.06);
     --shadow-hover: 0 14px 30px rgba(0,0,0,0.12);
+    --header-height: 80px;
+    --categorias-height: 60px;
 }
 
 /* ===== RESET ===== */
@@ -169,7 +171,22 @@ img {
     display: flex;
     gap: 10px;
     margin-bottom: 20px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 5px 0;
+    position: sticky;
+    top: var(--header-height);
+    z-index: 99;
+    background: var(--cor-fundo);
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.categorias-tabs::-webkit-scrollbar {
+    display: none;
 }
 
 .categoria-tab {
@@ -180,6 +197,10 @@ img {
     transition: all 0.3s;
     will-change: transform;
     font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .categoria-tab:hover {
@@ -222,6 +243,10 @@ img {
 }
 
 /* ===== CARDS DE PRODUTOS ===== */
+#produtosGrid {
+    scroll-margin-top: calc(var(--header-height) + var(--categorias-height) + 20px);
+}
+
 .produtos-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -1128,6 +1153,10 @@ input:focus, textarea:focus, select:focus {
 
 [data-theme="dark"] .header {
     background: rgba(30, 30, 30, 0.9);
+}
+
+[data-theme="dark"] .categorias-tabs {
+    background: #121212;
 }
 
 [data-theme="dark"] .status-horario {
