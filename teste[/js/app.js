@@ -138,6 +138,31 @@ function criarProdutosExemplo() {
 
 function renderizarTodasCategorias() {
     const container = document.getElementById('categoriasTabs');
+    
+    // Criar wrapper se não existir
+    let wrapper = document.querySelector('.categorias-wrapper');
+    if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'categorias-wrapper';
+        container.parentNode.insertBefore(wrapper, container);
+        
+        // Botão esquerda
+        const btnLeft = document.createElement('button');
+        btnLeft.className = 'categoria-nav-btn categoria-nav-left';
+        btnLeft.innerHTML = '◀';
+        btnLeft.onclick = () => scrollCategorias(-200);
+        
+        // Botão direita
+        const btnRight = document.createElement('button');
+        btnRight.className = 'categoria-nav-btn categoria-nav-right';
+        btnRight.innerHTML = '▶';
+        btnRight.onclick = () => scrollCategorias(200);
+        
+        wrapper.appendChild(btnLeft);
+        wrapper.appendChild(container);
+        wrapper.appendChild(btnRight);
+    }
+    
     container.innerHTML = '';
     
     // Tab "Todos"
@@ -154,6 +179,53 @@ function renderizarTodasCategorias() {
         tab.onclick = () => filtrarPorCategoria(cat, tab);
         container.appendChild(tab);
     });
+    
+    // Verificar setinhas
+    verificarSetinhas();
+    
+    // Listener de scroll para atualizar setinhas
+    container.removeEventListener('scroll', verificarSetinhas);
+    container.addEventListener('scroll', verificarSetinhas);
+    
+    // Verificar ao redimensionar
+    window.removeEventListener('resize', verificarSetinhas);
+    window.addEventListener('resize', verificarSetinhas);
+}
+
+function scrollCategorias(distancia) {
+    const container = document.getElementById('categoriasTabs');
+    container.scrollBy({
+        left: distancia,
+        behavior: 'smooth'
+    });
+    
+    setTimeout(verificarSetinhas, 400);
+}
+
+function verificarSetinhas() {
+    const container = document.getElementById('categoriasTabs');
+    const wrapper = document.querySelector('.categorias-wrapper');
+    if (!container || !wrapper) return;
+    
+    const btnLeft = wrapper.querySelector('.categoria-nav-left');
+    const btnRight = wrapper.querySelector('.categoria-nav-right');
+    if (!btnLeft || !btnRight) return;
+    
+    const podeScrollar = container.scrollWidth > container.clientWidth + 2;
+    const noInicio = container.scrollLeft <= 2;
+    const noFim = container.scrollLeft + container.clientWidth >= container.scrollWidth - 2;
+    
+    if (podeScrollar && !noInicio) {
+        btnLeft.classList.add('visivel');
+    } else {
+        btnLeft.classList.remove('visivel');
+    }
+    
+    if (podeScrollar && !noFim) {
+        btnRight.classList.add('visivel');
+    } else {
+        btnRight.classList.remove('visivel');
+    }
 }
 
 function filtrarPorCategoria(categoria, tabElement = null) {
@@ -177,45 +249,33 @@ function filtrarPorCategoria(categoria, tabElement = null) {
         });
     }
     
-    // ===== SCROLL HORIZONTAL MÍNIMO =====
+    // ===== SCROLL HORIZONTAL - CENTRALIZAR =====
     if (tabElement) {
         const container = document.getElementById('categoriasTabs');
         const containerRect = container.getBoundingClientRect();
         const tabRect = tabElement.getBoundingClientRect();
         
-        // Verificar se a tab está completamente visível
-        const tabInicio = tabRect.left - containerRect.left;
-        const tabFim = tabRect.right - containerRect.left;
-        const containerLargura = containerRect.width;
+        // Calcular posição para centralizar
+        const tabCentro = tabRect.left - containerRect.left + (tabRect.width / 2);
+        const containerCentro = containerRect.width / 2;
+        const scrollPara = container.scrollLeft + tabCentro - containerCentro;
         
-        if (tabInicio < 0 || tabFim > containerLargura) {
-            // Calcular scroll necessário (mínimo possível)
-            let scrollPara = container.scrollLeft;
-            
-            if (tabInicio < 0) {
-                // Tab está à esquerda da área visível
-                scrollPara += tabInicio - 20; // 20px de margem
-            } else if (tabFim > containerLargura) {
-                // Tab está à direita da área visível
-                scrollPara += tabFim - containerLargura + 20; // 20px de margem
-            }
-            
-            container.scrollTo({
-                left: scrollPara,
-                behavior: 'smooth'
-            });
-        }
+        container.scrollTo({
+            left: Math.max(0, scrollPara),
+            behavior: 'smooth'
+        });
+        
+        setTimeout(verificarSetinhas, 400);
     }
     
     // ===== ROLAGEM SUAVE ATÉ OS PRODUTOS =====
     const produtosGrid = document.getElementById('produtosGrid');
     
     if (produtosGrid) {
-        // Pequeno delay para garantir que o DOM foi atualizado
         setTimeout(() => {
             const headerHeight = document.querySelector('.header')?.offsetHeight || 80;
             const categoriasHeight = document.getElementById('categoriasTabs')?.offsetHeight || 60;
-            const offset = headerHeight + categoriasHeight + 20; // 20px de folga
+            const offset = headerHeight + categoriasHeight + 20;
             
             const elementPosition = produtosGrid.getBoundingClientRect().top + window.pageYOffset;
             const offsetPosition = elementPosition - offset;
