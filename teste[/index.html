@@ -24,10 +24,17 @@
         <img id="logoImg" class="logo-img" src="https://png.pngtree.com/png-clipart/20200727/original/pngtree-pin-food-delivery-map-location-delivery-logo-concept-png-image_5137624.jpg" alt="Logo" onerror="this.classList.add('placeholder'); this.src=''">
         <span class="restaurante-nome" id="restauranteNome">Delivery Pro</span>
     </div>
-    <div class="header-info">
-        <div class="status-horario" id="statusHorarioHeader">🟢 ABERTO</div>
-        <button class="admin-btn" id="adminBtn" onclick="abrirModalLogin()">👤 Área Admin</button>
-    </div>
+<div class="header-info">
+    <div class="status-horario" id="statusHorarioHeader">🟢 ABERTO</div>
+    
+    
+    <button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTema()" title="Alternar tema">
+        <i class="fas fa-moon" id="themeIcon"></i>
+        <span id="themeText">Escuro</span>
+    </button>
+    
+    <button class="admin-btn" id="adminBtn" onclick="abrirModalLogin()">👤 Área Admin</button>
+</div>
 </div>
 
 <!-- ============================================ -->
