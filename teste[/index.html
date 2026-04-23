@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Delivery Pro - Sistema de Pedidos</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================================ -->
+<!-- ===== HEADER =============================== -->
+<!-- ============================================ -->
+<div class="header">
+    <div class="logo-area">
+        <img id="logoImg" class="logo-img" src="https://png.pngtree.com/png-clipart/20200727/original/pngtree-pin-food-delivery-map-location-delivery-logo-concept-png-image_5137624.jpg" alt="Logo" onerror="this.classList.add('placeholder'); this.src=''">
+        <span class="restaurante-nome" id="restauranteNome">Delivery Pro</span>
+    </div>
+    <div class="header-info">
+        <div class="status-horario" id="statusHorarioHeader">🟢 ABERTO</div>
+        <button class="admin-btn" id="adminBtn" onclick="abrirModalLogin()">👤 Área Admin</button>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ===== CONTAINER PRINCIPAL ================= -->
+<!-- ============================================ -->
+<div class="container">
+    <!-- LADO ESQUERDO: CARDÁPIO -->
+    <div>
+        <!-- CATEGORIAS TABS -->
+        <div class="categorias-tabs" id="categoriasTabs"></div>
+
+        <!-- SEÇÃO DESTAQUES -->
+        <div class="destaques-section" id="destaquesSection" style="display: none;">
+            <div class="destaques-header">
+                <h2><i class="fas fa-fire"></i> Promoções em Destaque</h2>
+                <button class="admin-btn" id="gerenciarDestaquesBtn" onclick="abrirGerenciarDestaques()" style="display: none;">⭐ Gerenciar</button>
+            </div>
+            <div class="destaques-grid" id="destaquesGrid"></div>
+        </div>
+
+        <!-- PRODUTOS -->
+        <div class="produtos-grid" id="produtosGrid"></div>
+    </div>
+
+    <!-- LADO DIREITO: CARRINHO -->
+    <div class="sidebar">
+        <h2><i class="fas fa-shopping-cart"></i> Seu Pedido</h2>
+        <div id="carrinhoContainer"></div>
+        
+        <div id="observacaoGeralDiv" style="margin-top: 15px;">
+            <label style="font-size: 0.8rem; color: var(--cor-texto-claro);">📝 Observação geral do pedido:</label>
+            <textarea id="observacaoGeral" rows="2" placeholder="Ex: Sem talheres, entregar rápido..."></textarea>
+        </div>
+        
+        <div class="total-carrinho">
+            <span>Total:</span>
+            <span id="totalCarrinho">R$ 0,00</span>
+        </div>
+        
+        <button class="btn-finalizar" id="btnFinalizar" onclick="abrirCheckout()">📱 FINALIZAR PEDIDO</button>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ===== MODAL DE PRODUTO ==================== -->
+<!-- ============================================ -->
+<div class="modal" id="modalProduto">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalProdutoNome">Produto</h3>
+            <button class="close-modal" onclick="fecharModalProduto()">&times;</button>
+        </div>
+        <img id="modalProdutoImg" class="modal-produto-img" src="" alt="">
+        <p id="modalProdutoDesc" class="modal-produto-desc"></p>
+        <div class="modal-preco" id="modalProdutoPreco">R$ 0,00</div>
+        
+        <!-- Sabores da Pizza -->
+        <div id="saboresPizzaDiv" style="display: none;">
+            <div class="sabores-pizza">
+                <h4>🍕 Escolha os sabores (até 2)</h4>
+                <div id="saboresLista"></div>
+                <small style="color: var(--cor-texto-claro);">* Quando 2 sabores, paga o valor do mais caro</small>
+            </div>
+        </div>
+        
+        <!-- Adicionais da Categoria -->
+        <div id="adicionaisDiv" style="display: none;">
+            <div class="adicionais-group">
+                <h4>➕ Adicionais</h4>
+                <div id="adicionaisLista"></div>
+            </div>
+        </div>
+        
+        <!-- Quantidade -->
+        <div class="quantidade-selector">
+            <button onclick="diminuirQuantidade()">-</button>
+            <span id="quantidadeProduto">1</span>
+            <button onclick="aumentarQuantidade()">+</button>
+        </div>
+        
+        <!-- Observação do item -->
+        <textarea id="obsItem" class="obs-input" placeholder="📝 Observação para este item (ex: sem cebola, bem passado...)"></textarea>
+        
+        <button class="btn-adicionar-carrinho" onclick="adicionarAoCarrinho()">
+            <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+        </button>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ===== MODAL DE LOGIN ADMIN ================ -->
+<!-- ============================================ -->
+<div class="modal" id="modalLogin">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🔐 Área Administrativa</h3>
+            <button class="close-modal" onclick="fecharModalLogin()">&times;</button>
+        </div>
+        <div style="position: relative;">
+            <input type="password" id="senhaAdmin" placeholder="Digite a senha" class="input-password">
+            <button onclick="toggleSenha()" class="toggle-password-btn">👁️</button>
+        </div>
+        <button class="btn-adicionar-carrinho" onclick="verificarLogin()" style="background: var(--cor-primaria);">ENTRAR</button>
+        <div id="erroLogin" class="erro-login">Senha incorreta!</div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ===== MODAL DE ADMIN (PAINEL COMPLETO) ==== -->
+<!-- ============================================ -->
+<div class="modal" id="modalAdmin">
+    <div class="modal-content modal-content-large">
+        <div class="modal-header">
+            <h3>👑 Painel Administrativo</h3>
+            <button class="close-modal" onclick="fecharModalAdmin()">&times;</button>
+        </div>
+        
+        <!-- TABS DO ADMIN -->
+        <div class="admin-tabs">
+            <button class="categoria-tab ativo" onclick="mostrarAbaAdmin('produtos')">📦 Produtos</button>
+            <button class="categoria-tab" onclick="mostrarAbaAdmin('categorias')">🏷️ Categorias</button>
+            <button class="categoria-tab" onclick="mostrarAbaAdmin('adicionais')">➕ Adicionais</button>
+            <button class="categoria-tab" onclick="mostrarAbaAdmin('pedidos')">📋 Pedidos</button>
+            <button class="categoria-tab" onclick="mostrarAbaAdmin('config')">⚙️ Configurações</button>
+        </div>
+        
+        <!-- ABA PRODUTOS -->
+        <div id="adminProdutos">
+            <button class="btn-add-full" onclick="abrirModalCadastroProduto()">+ Novo Produto</button>
+            <div id="adminProdutosLista" class="admin-list"></div>
+        </div>
+        
+        <!-- ABA CATEGORIAS -->
+        <div id="adminCategorias" style="display: none;">
+            <div class="admin-form-row">
+                <input type="text" id="novaCategoria" placeholder="Nova categoria" class="input-field">
+                <button onclick="adicionarCategoria()" class="btn-primary">Adicionar</button>
+            </div>
+            <div id="listaCategorias"></div>
+        </div>
+        
+        <!-- ABA ADICIONAIS -->
+        <div id="adminAdicionais" style="display: none;">
+            <div class="admin-form-row">
+                <select id="categoriaAdicional" class="select-field"></select>
+                <input type="text" id="nomeAdicional" placeholder="Nome do adicional" class="input-field">
+                <input type="number" id="precoAdicional" placeholder="Preço" step="0.01" class="input-field-small">
+                <button onclick="adicionarAdicional()" class="btn-primary">+</button>
+            </div>
+            <div id="listaAdicionais"></div>
+        </div>
+        
+        <!-- ABA PEDIDOS -->
+        <div id="adminPedidos" style="display: none;">
+            <div id="listaPedidosAdmin" class="admin-list"></div>
+        </div>
+        
+        <!-- ABA CONFIG -->
+        <div id="adminConfig" style="display: none;">
+            <div class="config-field">
+                <label>Horário de funcionamento:</label>
+                <input type="time" id="configHoraAbre" value="11:00"> até
+                <input type="time" id="configHoraFecha" value="23:00">
+            </div>
+            <div class="config-field">
+                <label>Tipo de frete:</label>
+                <select id="configTipoFrete" onchange="toggleFreteFixo()">
+                    <option value="bairro">Por bairro</option>
+                    <option value="fixo">Valor fixo</option>
+                </select>
+                <input type="number" id="configFreteFixo" placeholder="Valor fixo R$" step="0.01" style="display: none;">
+            </div>
+            <button onclick="salvarConfiguracoes()" class="btn-adicionar-carrinho" style="background: var(--cor-primaria);">Salvar Configurações</button>
+        </div>
+        
+        <button onclick="logout()" class="btn-logout">Sair do Admin</button>
+    </div>
+</div>
+
+
+<!-- ===== MODAL DE CHECKOUT =================== -->
+<!-- ============================================ -->
+<div class="modal" id="modalCheckout">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📋 Finalizar Pedido</h3>
+            <button class="close-modal" onclick="fecharModalCheckout()">&times;</button>
+        </div>
+        
+        <div>
+            <!-- Nome -->
+            <label>Nome completo *</label>
+            <input type="text" id="checkoutNome" class="checkout-input">
+            
+            <!-- Telefone -->
+            <label>Telefone *</label>
+            <input type="tel" id="checkoutTelefone" class="checkout-input">
+            
+            <!-- Tipo de entrega -->
+            <label>Tipo de entrega</label>
+            <select id="checkoutTipoEntrega" onchange="toggleCamposEntrega()" class="checkout-select">
+                <option value="entrega">🛵 Entrega</option>
+                <option value="retirada">🏃 Retirada no local</option>
+            </select>
+            
+            <!-- CAMPOS DE ENDEREÇO -->
+            <div id="camposEntrega">
+                <label>CEP *</label>
+                <div class="cep-container">
+                    <input type="text" 
+                           id="checkoutCep" 
+                           class="checkout-input cep-input" 
+                           placeholder="00000-000" 
+                           maxlength="9"
+                           onkeyup="formatarCep(this)"
+                           onblur="buscarCep()">
+                    <button type="button" 
+                            class="btn-buscar-cep" 
+                            onclick="buscarCep()" 
+                            title="Buscar CEP">
+                        🔍
+                    </button>
+                </div>
+                
+                <div class="checkout-row">
+                    <div>
+                        <label>Bairro *</label>
+                        <input type="text" id="checkoutBairro" class="checkout-input readonly" readonly>
+                    </div>
+                    <div>
+                        <label>Cidade</label>
+                        <input type="text" id="checkoutCidade" class="checkout-input readonly" readonly>
+                    </div>
+                </div>
+
+                <label>Rua *</label>
+                <input type="text" id="checkoutRua" class="checkout-input readonly" readonly>
+
+                <div class="checkout-row">
+                    <div>
+                        <label>Número *</label>
+                        <input type="text" id="checkoutNumero" class="checkout-input">
+                    </div>
+                    <div>
+                        <label>Complemento</label>
+                        <input type="text" id="checkoutComplemento" class="checkout-input">
+                    </div>
+                </div>
+                
+                <label>Taxa de entrega</label>
+                <input type="text" id="checkoutFrete" readonly class="checkout-input readonly">
+                
+                <!-- ⭐ BOTÃO AGORA DENTRO DA DIV ⭐ -->
+                <button type="button" id="btnSalvarEndereco" class="btn-salvar-endereco" onclick="salvarEndereco()">
+                    💾 Salvar endereço para próximos pedidos
+                </button>
+            </div>   <!-- ⭐ AQUI FECHA CORRETAMENTE ⭐ -->
+            
+            <!-- Forma de pagamento -->
+            <label>Forma de pagamento</label>
+            <select id="checkoutPagamento" onchange="toggleCampoTroco()" class="checkout-select">
+                <option value="pix">📱 Pix</option>
+                <option value="cartao">💳 Cartão</option>
+                <option value="dinheiro">💵 Dinheiro</option>
+            </select>
+            <div id="campoTroco" style="display: none;">
+                <label>Troco para quanto?</label>
+                <input type="number" id="checkoutTroco" step="0.01" class="checkout-input">
+            </div>
+            
+            <!-- Resumo -->
+            <div class="checkout-resumo">
+                <div class="resumo-linha">
+                    <span>Subtotal:</span>
+                    <span id="checkoutSubtotal">R$ 0,00</span>
+                </div>
+                <div class="resumo-linha">
+                    <span>Frete:</span>
+                    <span id="checkoutFreteValor">R$ 0,00</span>
+                </div>
+                <div class="resumo-total">
+                    <span>TOTAL:</span>
+                    <span id="checkoutTotal">R$ 0,00</span>
+                </div>
+            </div>
+            
+            <button class="btn-adicionar-carrinho" onclick="confirmarPedido()" style="background: var(--cor-sucesso);">
+                ✅ CONFIRMAR PEDIDO
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ===== MODAL DE CADASTRO/EDIÇÃO DE PRODUTO = -->
+<!-- ============================================ -->
+<div class="modal" id="modalCadastroProduto">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="cadastroProdutoTitulo">➕ Novo Produto</h3>
+            <button class="close-modal" onclick="fecharModalCadastroProduto()">&times;</button>
+        </div>
+        
+        <input type="hidden" id="editProdutoId">
+        
+        <label>Nome do produto *</label>
+        <input type="text" id="produtoNome" class="checkout-input">
+        
+        <label>Descrição</label>
+        <textarea id="produtoDesc" rows="2" class="checkout-input"></textarea>
+        
+        <label>Preço *</label>
+        <input type="number" id="produtoPreco" step="0.01" class="checkout-input">
+        
+        <label>Categoria *</label>
+        <select id="produtoCategoria" class="checkout-select"></select>
+        
+        <label>URL da imagem (opcional)</label>
+        <input type="text" id="produtoImagem" placeholder="https://..." class="checkout-input">
+        
+        <div class="checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="produtoDisponivel" checked> Disponível
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="produtoDestaque"> Em destaque
+            </label>
+        </div>
+        
+        <!-- Sabores para Pizza -->
+        <div id="saboresCadastro" style="display: none;">
+            <label>Sabores da Pizza (separados por vírgula)</label>
+            <input type="text" id="produtoSabores" placeholder="Ex: Calabresa, Portuguesa, Mussarela" class="checkout-input">
+            <small>Cada sabor terá o mesmo preço do produto base</small>
+        </div>
+        
+        <button class="btn-adicionar-carrinho" onclick="salvarProduto()" style="background: var(--cor-primaria);">Salvar Produto</button>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ===== MODAL DE GERENCIAR DESTAQUES ======== -->
+<!-- ============================================ -->
+<div class="modal" id="modalGerenciarDestaques">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>⭐ Gerenciar Produtos em Destaque</h3>
+            <button class="close-modal" onclick="fecharModalGerenciarDestaques()">&times;</button>
+        </div>
+        <div id="listaProdutosDestaques"></div>
+        <button onclick="salvarDestaques()" class="btn-adicionar-carrinho" style="background: var(--cor-primaria); margin-top: 15px;">Salvar</button>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+
+<!-- ============================================ -->
+<!-- ===== MODAL DE BUSCA AVANÇADA DE ENDEREÇO == -->
+<!-- ============================================ -->
+<div class="modal" id="modalBuscaEndereco">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <h3>🔍 Buscar Endereço</h3>
+            <button class="close-modal" onclick="fecharModalBuscaEndereco()">&times;</button>
+        </div>
+        
+        <div style="padding: 10px 0;">
+            <p style="margin-bottom: 15px; color: var(--cor-texto-claro);">
+                Digite o nome da rua, avenida ou bairro
+            </p>
+            
+            <div class="busca-endereco-container">
+                <input type="text" 
+                       id="buscaEnderecoInput" 
+                       class="busca-endereco-input" 
+                       placeholder="Ex: Av Paulista, Rua das Flores..."
+                       onkeypress="buscarEnderecoEnter(event)">
+                <button class="btn-buscar-endereco" onclick="buscarEnderecoAvancado()">
+                    <i class="fas fa-search"></i> BUSCAR
+                </button>
+            </div>
+            
+            <div id="cidadeInfoBusca" class="cidade-info-busca">
+                🏙️ Buscando em: <strong id="cidadeUfBusca">Carregando...</strong>
+            </div>
+            
+            <div id="resultadosBuscaEndereco" class="resultados-busca-container">
+                <!-- Resultados aparecem aqui -->
+                <div style="text-align: center; padding: 30px; color: var(--cor-texto-claro);">
+                    <i class="fas fa-search" style="font-size: 2rem; opacity: 0.3; margin-bottom: 10px;"></i>
+                    <p>Digite o nome da rua e clique em BUSCAR</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- ===== SCRIPTS ============================= -->
+<!-- ============================================ -->
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<!-- html2canvas para exportação -->
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+<!-- Scripts do Sistema -->
+<script src="js/config.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/app.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/checkout.js"></script>
+
+</body>
+</html>
