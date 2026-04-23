@@ -37,7 +37,7 @@ body {
     background: var(--cor-fundo);
     color: var(--cor-texto);
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
     max-width: 100vw;
     height: auto;
 }
@@ -163,7 +163,6 @@ img {
     grid-template-columns: 1fr 380px;
     gap: 30px;
     align-items: start;
-    overflow-x: hidden;
 }
 
 main {
@@ -237,6 +236,23 @@ main {
     color: white;
 }
 
+.categorias-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    padding: 5px 0;
+    flex: 1;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    max-width: 100%;
+    scroll-snap-type: x mandatory;
+    min-height: 45px;
+}
 /* ===== SETINHAS NAVEGAÇÃO ===== */
 .categoria-nav-btn {
     width: 28px;
