@@ -167,20 +167,28 @@ img {
 }
 
 /* ===== CATEGORIAS TABS ===== */
+.categorias-wrapper {
+    position: sticky;
+    top: var(--header-height);
+    z-index: 99;
+    background: var(--cor-fundo);
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding-bottom: 5px;
+}
+
 .categorias-tabs {
     display: flex;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 0;
     flex-wrap: nowrap;
     overflow-x: auto;
     overflow-y: hidden;
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     padding: 5px 0;
-    position: sticky;
-    top: var(--header-height);
-    z-index: 99;
-    background: var(--cor-fundo);
+    flex: 1;
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
@@ -210,6 +218,73 @@ img {
 .categoria-tab.ativo {
     background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria));
     color: white;
+}
+
+/* ===== SETINHAS NAVEGAÇÃO ===== */
+.categoria-nav-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--cor-borda);
+    background: var(--cor-card);
+    color: var(--cor-texto);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+    opacity: 0;
+    pointer-events: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.categoria-nav-btn.visivel {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.categoria-nav-btn:hover {
+    background: var(--cor-primaria);
+    color: white;
+    border-color: var(--cor-primaria);
+    transform: scale(1.1);
+}
+
+.categoria-nav-btn:active {
+    transform: scale(0.95);
+}
+
+.categoria-nav-left {
+    margin-right: 4px;
+}
+
+.categoria-nav-right {
+    margin-left: 4px;
+}
+
+/* Esconder setinhas no mobile */
+@media (max-width: 768px) {
+    .categoria-nav-btn {
+        display: none !important;
+    }
+}
+
+/* Tema escuro */
+[data-theme="dark"] .categorias-wrapper {
+    background: #121212;
+}
+
+[data-theme="dark"] .categoria-nav-btn {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #fff;
+}
+
+[data-theme="dark"] .categoria-nav-btn:hover {
+    background: var(--cor-primaria);
 }
 
 /* ===== SEÇÃO DESTAQUES ===== */
