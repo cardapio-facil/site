@@ -25,6 +25,7 @@ let categoriaAtual = 'todos';
 
 document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('restauranteNome').innerText = NOME_RESTAURANTE;
+    carregarTemaSalvo();
     
     const data = await carregarDadosFirebase();
     
@@ -37,23 +38,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         criarProdutosExemplo();
     }
     
-    // Atualizar variável CSS da altura do header
     atualizarAlturaHeader();
-    window.addEventListener('resize', atualizarAlturaHeader);
+    window.addEventListener('resize', debounce(atualizarAlturaHeader, 200));
     
     renderizarTodasCategorias();
     renderizarProdutos();
     renderizarCarrinho();
     verificarHorario();
+    setupAtalhoSecreto();
     
     setInterval(verificarHorario, 60000);
 });
 
+// ============================================
+// ===== HELPERS ==============================
+// ============================================
+
+function debounce(fn, delay) {
+    let t;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), delay);
+    };
+}
+
 function atualizarAlturaHeader() {
     const header = document.querySelector('.header');
     if (header) {
-        const altura = header.offsetHeight;
-        document.documentElement.style.setProperty('--header-height', altura + 'px');
+        document.documentElement.style.setProperty('--header-height', header.offsetHeight + 'px');
     }
 }
 
@@ -79,30 +91,9 @@ function criarProdutosExemplo() {
 
 function renderizarTodasCategorias() {
     const container = document.getElementById('categoriasTabs');
-    
-    // Criar wrapper se não existir
-    let wrapper = document.querySelector('.categorias-wrapper');
-    if (!wrapper) {
-        wrapper = document.createElement('div');
-        wrapper.className = 'categorias-wrapper';
-        container.parentNode.insertBefore(wrapper, container);
-        
-        const btnLeft = document.createElement('button');
-        btnLeft.className = 'categoria-nav-btn categoria-nav-left';
-        btnLeft.innerHTML = '◀';
-        btnLeft.onclick = () => scrollCategorias(-200);
-        
-        const btnRight = document.createElement('button');
-        btnRight.className = 'categoria-nav-btn categoria-nav-right';
-        btnRight.innerHTML = '▶';
-        btnRight.onclick = () => scrollCategorias(200);
-        
-        wrapper.appendChild(btnLeft);
-        wrapper.appendChild(container);
-        wrapper.appendChild(btnRight);
-    }
-    
     container.innerHTML = '';
+    
+    criarWrapperCategorias(container);
     
     // Tab "Todos"
     const tabTodos = document.createElement('div');
@@ -120,12 +111,32 @@ function renderizarTodasCategorias() {
     });
     
     verificarSetinhas();
+    container.addEventListener('scroll', debounce(verificarSetinhas, 100));
+    window.addEventListener('resize', debounce(verificarSetinhas, 200));
+}
+
+function criarWrapperCategorias(container) {
+    let wrapper = document.querySelector('.categorias-wrapper');
     
-    container.removeEventListener('scroll', verificarSetinhas);
-    container.addEventListener('scroll', verificarSetinhas);
-    
-    window.removeEventListener('resize', verificarSetinhas);
-    window.addEventListener('resize', verificarSetinhas);
+    if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'categorias-wrapper';
+        
+        const btnLeft = document.createElement('button');
+        btnLeft.className = 'categoria-nav-btn categoria-nav-left';
+        btnLeft.innerHTML = '◀';
+        btnLeft.onclick = () => scrollCategorias(-200);
+        
+        const btnRight = document.createElement('button');
+        btnRight.className = 'categoria-nav-btn categoria-nav-right';
+        btnRight.innerHTML = '▶';
+        btnRight.onclick = () => scrollCategorias(200);
+        
+        container.parentNode.insertBefore(wrapper, container);
+        wrapper.appendChild(btnLeft);
+        wrapper.appendChild(container);
+        wrapper.appendChild(btnRight);
+    }
 }
 
 function scrollCategorias(distancia) {
@@ -170,20 +181,11 @@ function filtrarPorCategoria(categoria, tabElement = null) {
         tab.classList.remove('ativo');
     });
     
-    const tabs = document.querySelectorAll('.categoria-tab');
-    if (categoria === 'todos') {
-        tabs[0].classList.add('ativo');
-        tabElement = tabs[0];
-    } else {
-        tabs.forEach(tab => {
-            if (tab.innerText.includes(getNomeCategoria(categoria))) {
-                tab.classList.add('ativo');
-                tabElement = tab;
-            }
-        });
+    if (tabElement) {
+        tabElement.classList.add('ativo');
     }
     
-    // ===== SCROLL HORIZONTAL - CENTRALIZAR =====
+    // Centralizar tab
     if (tabElement) {
         const container = document.getElementById('categoriasTabs');
         const containerRect = container.getBoundingClientRect();
@@ -201,15 +203,16 @@ function filtrarPorCategoria(categoria, tabElement = null) {
         setTimeout(verificarSetinhas, 400);
     }
     
-    // ===== ROLAGEM SUAVE ATÉ OS PRODUTOS =====
-    const produtosGrid = document.getElementById('produtosGrid');
+    renderizarProdutos();
     
-    if (produtosGrid) {
-        setTimeout(() => {
-            const headerHeight = document.querySelector('.header')?.offsetHeight || 80;
-            const categoriasHeight = document.getElementById('categoriasTabs')?.offsetHeight || 50;
-            const offset = headerHeight + categoriasHeight + 20;
-            
+    // Scroll até produtos
+    setTimeout(() => {
+        const headerHeight = document.querySelector('.header')?.offsetHeight || 80;
+        const categoriasHeight = document.getElementById('categoriasTabs')?.offsetHeight || 50;
+        const offset = headerHeight + categoriasHeight + 20;
+        
+        const produtosGrid = document.getElementById('produtosGrid');
+        if (produtosGrid) {
             const elementPosition = produtosGrid.getBoundingClientRect().top + window.pageYOffset;
             const offsetPosition = elementPosition - offset;
             
@@ -217,10 +220,8 @@ function filtrarPorCategoria(categoria, tabElement = null) {
                 top: offsetPosition,
                 behavior: 'smooth'
             });
-        }, 150);
-    }
-    
-    renderizarProdutos();
+        }
+    }, 150);
 }
 
 // ============================================
@@ -274,6 +275,9 @@ function renderizarProdutos() {
     });
     
     renderizarDestaques();
+    
+    // Atualizar sticky mobile
+    initMobileFixes();
 }
 
 function renderizarDestaques() {
@@ -538,38 +542,37 @@ function editarItemCarrinho(index) {
 // ===== ATALHO SECRETO ======================
 // ============================================
 
-document.addEventListener('DOMContentLoaded', function() {
+function setupAtalhoSecreto() {
     const logoArea = document.querySelector('.logo-area');
+    if (!logoArea) return;
     
-    if (logoArea) {
-        logoArea.style.cursor = 'pointer';
-        
-        logoArea.addEventListener('dblclick', function(e) {
+    logoArea.style.cursor = 'pointer';
+    
+    logoArea.addEventListener('dblclick', function(e) {
+        e.stopPropagation();
+        if (typeof abrirModalLogin === 'function') {
+            abrirModalLogin();
+        }
+    });
+    
+    let toques = 0;
+    let timeout;
+    
+    logoArea.addEventListener('touchstart', function(e) {
+        toques++;
+        if (toques === 1) {
+            timeout = setTimeout(() => { toques = 0; }, 300);
+        } else if (toques === 2) {
+            clearTimeout(timeout);
+            e.preventDefault();
             e.stopPropagation();
             if (typeof abrirModalLogin === 'function') {
                 abrirModalLogin();
             }
-        });
-        
-        let toques = 0;
-        let timeout;
-        
-        logoArea.addEventListener('touchstart', function(e) {
-            toques++;
-            if (toques === 1) {
-                timeout = setTimeout(() => { toques = 0; }, 300);
-            } else if (toques === 2) {
-                clearTimeout(timeout);
-                e.preventDefault();
-                e.stopPropagation();
-                if (typeof abrirModalLogin === 'function') {
-                    abrirModalLogin();
-                }
-                toques = 0;
-            }
-        });
-    }
-});
+            toques = 0;
+        }
+    });
+}
 
 // ============================================
 // ===== TOGGLE TEMA =========================
@@ -592,26 +595,16 @@ function toggleTema() {
         if (themeText) themeText.textContent = 'Claro';
         localStorage.setItem('tema', 'escuro');
     }
+    
+    initMobileFixes();
 }
 
 function carregarTemaSalvo() {
     const temaSalvo = localStorage.getItem('tema');
-    const html = document.documentElement;
-    const themeIcon = document.getElementById('themeIcon');
-    const themeText = document.getElementById('themeText');
-    
     if (temaSalvo === 'escuro') {
-        html.setAttribute('data-theme', 'dark');
-        if (themeIcon) themeIcon.className = 'fas fa-sun';
-        if (themeText) themeText.textContent = 'Claro';
+        document.documentElement.setAttribute('data-theme', 'dark');
     }
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    carregarTemaSalvo();
-});
-
-window.toggleTema = toggleTema;
 
 // ============================================
 // ===== VERIFICAÇÃO DE HORÁRIO ==============
@@ -646,9 +639,74 @@ function verificarHorario() {
 }
 
 // ============================================
+// ===== FIX STICKY MOBILE ====================
+// ============================================
+
+function initMobileFixes() {
+    const isMobile = window.innerWidth <= 900;
+    
+    const header = document.querySelector('.header');
+    const categoriasWrapper = document.querySelector('.categorias-wrapper');
+    
+    if (!header || !categoriasWrapper) return;
+    
+    if (!isMobile) {
+        // Reset para desktop (usa CSS sticky)
+        header.style.position = '';
+        header.style.top = '';
+        header.style.left = '';
+        header.style.right = '';
+        header.style.zIndex = '';
+        header.style.width = '';
+        
+        categoriasWrapper.style.position = '';
+        categoriasWrapper.style.top = '';
+        categoriasWrapper.style.left = '';
+        categoriasWrapper.style.right = '';
+        categoriasWrapper.style.zIndex = '';
+        categoriasWrapper.style.width = '';
+        
+        document.body.style.paddingTop = '';
+        return;
+    }
+    
+    // Mobile: usa position fixed (JavaScript)
+    header.style.position = 'fixed';
+    header.style.top = '0';
+    header.style.left = '0';
+    header.style.right = '0';
+    header.style.width = '100%';
+    header.style.zIndex = '999';
+    
+    const headerHeight = header.offsetHeight;
+    
+    categoriasWrapper.style.position = 'fixed';
+    categoriasWrapper.style.top = headerHeight + 'px';
+    categoriasWrapper.style.left = '0';
+    categoriasWrapper.style.right = '0';
+    categoriasWrapper.style.width = '100%';
+    categoriasWrapper.style.zIndex = '998';
+    
+    // Empurra o conteúdo pra não ficar escondido atrás
+    document.body.style.paddingTop = (headerHeight + categoriasWrapper.offsetHeight + 10) + 'px';
+}
+
+// Roda ao carregar
+window.addEventListener('load', initMobileFixes);
+
+// Roda ao redimensionar
+window.addEventListener('resize', debounce(initMobileFixes, 200));
+
+// Também roda após renderizar produtos
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initMobileFixes, 500);
+});
+
+// ============================================
 // ===== EXPOR FUNÇÕES GLOBALMENTE ===========
 // ============================================
 
+window.toggleTema = toggleTema;
 window.abrirModalProduto = abrirModalProduto;
 window.fecharModalProduto = fecharModalProduto;
 window.toggleSaborPizza = toggleSaborPizza;
@@ -660,3 +718,4 @@ window.alterarQuantidade = alterarQuantidade;
 window.removerItemCarrinho = removerItemCarrinho;
 window.duplicarItemCarrinho = duplicarItemCarrinho;
 window.editarItemCarrinho = editarItemCarrinho;
+window.initMobileFixes = initMobileFixes;
