@@ -1322,3 +1322,401 @@ input:focus, textarea:focus, select:focus {
         padding: 14px;
     }
 }
+
+/* ============================================ */
+/* ===== CORREÇÃO BOTÃO OLHO SENHA ============ */
+/* ============================================ */
+
+#modalLogin .modal-content > div {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.input-password {
+    width: 100%;
+    padding: 14px 50px 14px 14px !important;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s;
+    background: #fafafa;
+}
+
+.input-password:focus {
+    border-color: var(--cor-primaria);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+}
+
+.toggle-password-btn {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #f0f0f0;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    z-index: 2;
+}
+
+.toggle-password-btn:hover {
+    background: #e0e0e0;
+    transform: translateY(-50%) scale(1.1);
+}
+
+/* ============================================ */
+/* ===== FORMULÁRIOS ADMIN MELHORADOS ========= */
+/* ============================================ */
+
+/* Container dos formulários */
+#adminCategorias,
+#adminAdicionais,
+#adminConfig {
+    background: #fafafa;
+    padding: 20px;
+    border-radius: 16px;
+    margin-top: 10px;
+}
+
+/* Linha de formulário */
+.admin-form-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* Inputs dos formulários admin */
+.input-field {
+    flex: 1;
+    min-width: 150px;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: white;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+}
+
+.input-field:focus {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+    outline: none;
+}
+
+.input-field::placeholder {
+    color: #bdbdbd;
+}
+
+/* Input pequeno (preço) */
+.input-field-small {
+    width: 140px;
+    min-width: 100px;
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    background: white;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+}
+
+.input-field-small:focus {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+    outline: none;
+}
+
+/* Select dos formulários */
+.select-field {
+    padding: 14px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    background: white;
+    font-size: 0.95rem;
+    min-width: 180px;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+}
+
+.select-field:focus {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+    outline: none;
+}
+
+/* ============================================ */
+/* ===== BOTÕES DE AÇÃO ADMIN ================= */
+/* ============================================ */
+
+/* Botão primário (adicionar categoria, adicional) */
+.btn-primary {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #ff3d00, #ff6d00);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
+    background: linear-gradient(135deg, #e53935, #ff3d00);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* Botão adicionar (sinal de +) */
+.btn-primary::before {
+    content: '+';
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+/* ============================================ */
+/* ===== LISTA DE CATEGORIAS E ADICIONAIS ===== */
+/* ============================================ */
+
+#listaCategorias,
+#listaAdicionais {
+    margin-top: 20px;
+    background: white;
+    border-radius: 16px;
+    border: 2px solid #f0f0f0;
+    overflow: hidden;
+}
+
+#listaCategorias > div,
+#listaAdicionais > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f5f5f5;
+    transition: all 0.2s;
+    background: white;
+}
+
+#listaCategorias > div:hover,
+#listaAdicionais > div:hover {
+    background: #fafafa;
+    padding-left: 25px;
+}
+
+#listaCategorias > div:last-child,
+#listaAdicionais > div:last-child {
+    border-bottom: none;
+}
+
+#listaCategorias > div span,
+#listaAdicionais > div span {
+    font-weight: 500;
+    color: var(--cor-texto);
+    font-size: 0.95rem;
+}
+
+/* Botão excluir categoria/adicional */
+#listaCategorias button,
+#listaAdicionais button {
+    background: #ffebee;
+    border: none;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f44336;
+}
+
+#listaCategorias button:hover,
+#listaAdicionais button:hover {
+    background: #f44336;
+    color: white;
+    transform: scale(1.1) rotate(90deg);
+}
+
+/* Título da categoria na lista de adicionais */
+#listaAdicionais strong {
+    display: block;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    color: #e65100;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-bottom: 2px solid #ffcc80;
+    margin: 0;
+}
+
+/* ============================================ */
+/* ===== CONFIGURAÇÕES (HORÁRIO/FRETE) ======== */
+/* ============================================ */
+
+.config-field {
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    background: white;
+    padding: 16px;
+    border-radius: 12px;
+    border: 2px solid #f0f0f0;
+}
+
+.config-field label {
+    min-width: 100px;
+    font-weight: 600;
+    color: var(--cor-texto);
+    font-size: 0.9rem;
+}
+
+.config-field input[type="time"],
+.config-field input[type="number"] {
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    background: #fafafa;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+}
+
+.config-field input:focus {
+    border-color: var(--cor-primaria);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+    outline: none;
+}
+
+.config-field select {
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    background: white;
+    transition: all 0.3s;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+}
+
+.config-field select:focus {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+    outline: none;
+}
+
+/* ============================================ */
+/* ===== MODAL LOGIN MELHORADO ================ */
+/* ============================================ */
+
+#modalLogin .modal-content {
+    max-width: 400px;
+    padding: 35px;
+}
+
+#modalLogin .modal-header h3 {
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#modalLogin .btn-adicionar-carrinho {
+    margin-top: 20px;
+    font-size: 1rem;
+    padding: 16px;
+    letter-spacing: 1px;
+}
+
+.erro-login {
+    color: #f44336;
+    font-size: 0.9rem;
+    margin-top: 12px;
+    display: none;
+    text-align: center;
+    background: #ffebee;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+/* ============================================ */
+/* ===== PEDIDOS ADMIN MELHORADO ============== */
+/* ============================================ */
+
+#listaPedidosAdmin > div {
+    background: white;
+    border: 2px solid #f0f0f0;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s;
+}
+
+#listaPedidosAdmin > div:hover {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#listaPedidosAdmin .status-badge {
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+}
+
+/* ============================================ */
+/* ===== RESPONSIVO ADMIN ===================== */
+/* ============================================ */
+
+@media (max-width: 768px) {
+    .admin-form-row {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .input-field,
+    .input-field-small,
+    .select-field {
+        width: 100%;
+        min-width: 100%;
+    }
+    
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    #modalLogin .modal-content {
+        padding: 25px;
+        margin: 10px;
+    }
+}
