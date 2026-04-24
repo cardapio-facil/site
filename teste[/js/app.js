@@ -3,52 +3,43 @@
 // ============================================
 
 let produtos = [];
-let categorias = ['Hambúrguer', 'Pizza', 'Refeição', 'Porção', 'Bebidas'];
+let categorias = [...CATEGORIAS_PADRAO];
+let adicionaisPorCategoria = {};
 let carrinho = [];
+let configRestaurante = { ...CONFIG_PADRAO };
+
 let adminLogado = false;
+let nivelAcesso = null;
 let produtoSelecionado = null;
+let produtoEditando = null;
+
 let quantidadeSelecionada = 1;
+let saboresSelecionados = [];
+let adicionaisSelecionados = [];
+
 let categoriaAtual = 'todos';
-
-// ============================================
-// ===== UTILITÁRIOS =========================
-// ============================================
-
-function formatarPreco(valor) {
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    }).format(valor);
-}
-
-function mostrarToast(mensagem, tipo = 'sucesso') {
-    const container = document.getElementById('toastContainer');
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.innerHTML = `
-        <i class="fas ${tipo === 'sucesso' ? 'fa-check-circle' : 'fa-info-circle'}" style="color: var(--cor-sucesso)"></i>
-        <span>${mensagem}</span>
-    `;
-    container.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-}
-
-function debounce(fn, delay) {
-    let t;
-    return (...args) => {
-        clearTimeout(t);
-        t = setTimeout(() => fn(...args), delay);
-    };
-}
 
 // ============================================
 // ===== INICIALIZAÇÃO =======================
 // ============================================
 
-document.addEventListener('DOMContentLoaded', () => {
-    carregarDados();
+document.addEventListener('DOMContentLoaded', async () => {
+    document.getElementById('restauranteNome').innerText = NOME_RESTAURANTE;
     carregarTemaSalvo();
+    
+    const data = await carregarDadosFirebase();
+    
+    if (data.produtos) produtos = data.produtos;
+    if (data.categorias) categorias = data.categorias;
+    if (data.adicionais) adicionaisPorCategoria = data.adicionais;
+    if (data.config) configRestaurante = { ...CONFIG_PADRAO, ...data.config };
+    
+    if (produtos.length === 0) {
+        criarProdutosExemplo();
+    }
+    
     atualizarAlturaHeader();
+    window.addEventListener('resize', debounce(atualizarAlturaHeader, 200));
     
     renderizarTodasCategorias();
     renderizarProdutos();
@@ -56,48 +47,19 @@ document.addEventListener('DOMContentLoaded', () => {
     verificarHorario();
     setupAtalhoSecreto();
     
-    window.addEventListener('resize', debounce(atualizarAlturaHeader, 200));
     setInterval(verificarHorario, 60000);
 });
 
-function carregarDados() {
-    // Carregar produtos do localStorage
-    const savedProdutos = localStorage.getItem('produtos');
-    if (savedProdutos) {
-        produtos = JSON.parse(savedProdutos);
-    } else {
-        criarProdutosExemplo();
-    }
-    
-    // Carregar categorias
-    const savedCategorias = localStorage.getItem('categorias');
-    if (savedCategorias) {
-        categorias = JSON.parse(savedCategorias);
-    }
-    
-    // Carregar carrinho
-    const savedCarrinho = localStorage.getItem('carrinho');
-    if (savedCarrinho) {
-        carrinho = JSON.parse(savedCarrinho);
-    }
-}
+// ============================================
+// ===== HELPERS ==============================
+// ============================================
 
-function salvarDados() {
-    localStorage.setItem('produtos', JSON.stringify(produtos));
-    localStorage.setItem('categorias', JSON.stringify(categorias));
-    localStorage.setItem('carrinho', JSON.stringify(carrinho));
-}
-
-function criarProdutosExemplo() {
-    produtos = [
-        { id: '1', nome: 'X-Bacon Supremo', descricao: 'Pão, carne 180g, bacon, queijo, alface, tomate', preco: 32.90, categoria: 'Hambúrguer', imagem: '', disponivel: true, destaque: true },
-        { id: '2', nome: 'X-Salada', descricao: 'Pão, carne, queijo, alface, tomate', preco: 25.90, categoria: 'Hambúrguer', imagem: '', disponivel: true, destaque: false },
-        { id: '3', nome: 'Pizza Calabresa', descricao: 'Molho, mussarela, calabresa, cebola', preco: 45.00, categoria: 'Pizza', imagem: '', disponivel: true, destaque: true },
-        { id: '4', nome: 'Refeição Executiva', descricao: 'Arroz, feijão, bife, salada', preco: 28.90, categoria: 'Refeição', imagem: '', disponivel: true, destaque: false },
-        { id: '5', nome: 'Batata Frita', descricao: 'Porção de batata frita crocante', preco: 15.00, categoria: 'Porção', imagem: '', disponivel: true, destaque: false },
-        { id: '6', nome: 'Coca-Cola 2L', descricao: 'Refrigerante Coca-Cola 2 litros', preco: 12.00, categoria: 'Bebidas', imagem: '', disponivel: true, destaque: false }
-    ];
-    salvarDados();
+function debounce(fn, delay) {
+    let t;
+    return (...args) => {
+        clearTimeout(t);
+        t = setTimeout(() => fn(...args), delay);
+    };
 }
 
 function atualizarAlturaHeader() {
@@ -108,23 +70,30 @@ function atualizarAlturaHeader() {
 }
 
 // ============================================
-// ===== CATEGORIAS ==========================
+// ===== PRODUTOS DE EXEMPLO =================
 // ============================================
 
-function getIconeCategoria(cat) {
-    const icones = {
-        'Hambúrguer': '🍔',
-        'Pizza': '🍕',
-        'Refeição': '🍽️',
-        'Porção': '🍟',
-        'Bebidas': '🥤'
-    };
-    return icones[cat] || '📦';
+function criarProdutosExemplo() {
+    produtos = [
+        { id: 'prod1', nome: 'X-Bacon Supremo', descricao: 'Pão, carne 180g, bacon, queijo, alface, tomate', preco: 32.90, categoria: 'hamburguer', imagem: '', disponivel: true, destaque: true },
+        { id: 'prod2', nome: 'X-Salada', descricao: 'Pão, carne, queijo, alface, tomate', preco: 25.90, categoria: 'hamburguer', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod3', nome: 'Pizza Calabresa', descricao: 'Molho, mussarela, calabresa, cebola', preco: 45.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: true, sabores: ['Calabresa', 'Portuguesa', 'Mussarela', 'Marguerita', 'Frango com Catupiry'] },
+        { id: 'prod4', nome: 'Refeição Executiva', descricao: 'Arroz, feijão, bife, salada', preco: 28.90, categoria: 'refeicao', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod5', nome: 'Batata Frita', descricao: 'Porção de batata frita crocante', preco: 15.00, categoria: 'porcao', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod6', nome: 'Coca-Cola 2L', descricao: 'Refrigerante Coca-Cola 2 litros', preco: 12.00, categoria: 'bebidas', imagem: '', disponivel: true, destaque: false }
+    ];
+    salvarProdutosFirebase(produtos);
 }
+
+// ============================================
+// ===== RENDERIZAÇÃO DE CATEGORIAS ==========
+// ============================================
 
 function renderizarTodasCategorias() {
     const container = document.getElementById('categoriasTabs');
     container.innerHTML = '';
+    
+    criarWrapperCategorias(container);
     
     // Tab "Todos"
     const tabTodos = document.createElement('div');
@@ -133,11 +102,10 @@ function renderizarTodasCategorias() {
     tabTodos.onclick = () => filtrarPorCategoria('todos', tabTodos);
     container.appendChild(tabTodos);
     
-    // Tabs das categorias
     categorias.forEach(cat => {
         const tab = document.createElement('div');
         tab.className = 'categoria-tab';
-        tab.innerHTML = getIconeCategoria(cat) + ' ' + cat;
+        tab.innerHTML = getIconeCategoria(cat) + ' ' + getNomeCategoria(cat);
         tab.onclick = () => filtrarPorCategoria(cat, tab);
         container.appendChild(tab);
     });
@@ -145,6 +113,39 @@ function renderizarTodasCategorias() {
     verificarSetinhas();
     container.addEventListener('scroll', debounce(verificarSetinhas, 100));
     window.addEventListener('resize', debounce(verificarSetinhas, 200));
+}
+
+function criarWrapperCategorias(container) {
+    let wrapper = document.querySelector('.categorias-wrapper');
+    
+    if (!wrapper) {
+        wrapper = document.createElement('div');
+        wrapper.className = 'categorias-wrapper';
+        
+        const btnLeft = document.createElement('button');
+        btnLeft.className = 'categoria-nav-btn categoria-nav-left';
+        btnLeft.innerHTML = '◀';
+        btnLeft.onclick = () => scrollCategorias(-200);
+        
+        const btnRight = document.createElement('button');
+        btnRight.className = 'categoria-nav-btn categoria-nav-right';
+        btnRight.innerHTML = '▶';
+        btnRight.onclick = () => scrollCategorias(200);
+        
+        container.parentNode.insertBefore(wrapper, container);
+        wrapper.appendChild(btnLeft);
+        wrapper.appendChild(container);
+        wrapper.appendChild(btnRight);
+    }
+}
+
+function scrollCategorias(distancia) {
+    const container = document.getElementById('categoriasTabs');
+    container.scrollBy({
+        left: distancia,
+        behavior: 'smooth'
+    });
+    setTimeout(verificarSetinhas, 400);
 }
 
 function verificarSetinhas() {
@@ -156,51 +157,75 @@ function verificarSetinhas() {
     const btnRight = wrapper.querySelector('.categoria-nav-right');
     if (!btnLeft || !btnRight) return;
     
-    // Esconder setinhas no mobile
-    if (window.innerWidth <= 768) {
-        btnLeft.style.display = 'none';
-        btnRight.style.display = 'none';
-        return;
+    const podeScrollar = container.scrollWidth > container.clientWidth + 2;
+    const noInicio = container.scrollLeft <= 2;
+    const noFim = container.scrollLeft + container.clientWidth >= container.scrollWidth - 2;
+    
+    if (podeScrollar && !noInicio) {
+        btnLeft.classList.add('visivel');
+    } else {
+        btnLeft.classList.remove('visivel');
     }
     
-    const podeScrollar = container.scrollWidth > container.clientWidth;
-    const noInicio = container.scrollLeft <= 5;
-    const noFim = container.scrollLeft + container.clientWidth >= container.scrollWidth - 5;
-    
-    btnLeft.style.display = (podeScrollar && !noInicio) ? 'flex' : 'none';
-    btnRight.style.display = (podeScrollar && !noFim) ? 'flex' : 'none';
-}
-
-function scrollCategorias(distancia) {
-    const container = document.getElementById('categoriasTabs');
-    if (container) {
-        container.scrollBy({ left: distancia, behavior: 'smooth' });
-        setTimeout(verificarSetinhas, 400);
+    if (podeScrollar && !noFim) {
+        btnRight.classList.add('visivel');
+    } else {
+        btnRight.classList.remove('visivel');
     }
 }
 
-function filtrarPorCategoria(categoria, tabElement) {
+function filtrarPorCategoria(categoria, tabElement = null) {
     categoriaAtual = categoria;
     
     document.querySelectorAll('.categoria-tab').forEach(tab => {
         tab.classList.remove('ativo');
     });
-    if (tabElement) tabElement.classList.add('ativo');
     
-    // Centralizar tab clicada
-    if (tabElement && window.innerWidth > 768) {
+    if (tabElement) {
+        tabElement.classList.add('ativo');
+    }
+    
+    // Centralizar tab
+    if (tabElement) {
         const container = document.getElementById('categoriasTabs');
         const containerRect = container.getBoundingClientRect();
         const tabRect = tabElement.getBoundingClientRect();
-        const scrollPara = container.scrollLeft + (tabRect.left - containerRect.left) - (containerRect.width / 2) + (tabRect.width / 2);
-        container.scrollTo({ left: Math.max(0, scrollPara), behavior: 'smooth' });
+        
+        const tabCentro = tabRect.left - containerRect.left + (tabRect.width / 2);
+        const containerCentro = containerRect.width / 2;
+        const scrollPara = container.scrollLeft + tabCentro - containerCentro;
+        
+        container.scrollTo({
+            left: Math.max(0, scrollPara),
+            behavior: 'smooth'
+        });
+        
+        setTimeout(verificarSetinhas, 400);
     }
     
     renderizarProdutos();
+    
+    // Scroll até produtos
+    setTimeout(() => {
+        const headerHeight = document.querySelector('.header')?.offsetHeight || 80;
+        const categoriasHeight = document.getElementById('categoriasTabs')?.offsetHeight || 50;
+        const offset = headerHeight + categoriasHeight + 20;
+        
+        const produtosGrid = document.getElementById('produtosGrid');
+        if (produtosGrid) {
+            const elementPosition = produtosGrid.getBoundingClientRect().top + window.pageYOffset;
+            const offsetPosition = elementPosition - offset;
+            
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
+            });
+        }
+    }, 150);
 }
 
 // ============================================
-// ===== PRODUTOS ============================
+// ===== RENDERIZAÇÃO DE PRODUTOS ============
 // ============================================
 
 function renderizarProdutos() {
@@ -213,14 +238,14 @@ function renderizarProdutos() {
     }
     
     if (!adminLogado) {
-        produtosFiltrados = produtosFiltrados.filter(p => p.disponivel);
+        produtosFiltrados = produtosFiltrados.filter(p => p.disponivel !== false);
     }
     
     if (produtosFiltrados.length === 0) {
         container.innerHTML = `
-            <div style="text-align: center; padding: 50px; color: var(--cor-texto-claro);">
+            <div style="text-align: center; padding: 50px; color: var(--cor-texto-claro); grid-column: 1/-1;">
                 <i class="fas fa-utensils" style="font-size: 3rem; opacity: 0.5;"></i>
-                <p>Nenhum produto encontrado</p>
+                <p>Nenhum produto encontrado nesta categoria</p>
             </div>
         `;
         return;
@@ -229,11 +254,12 @@ function renderizarProdutos() {
     produtosFiltrados.forEach(produto => {
         const card = document.createElement('div');
         card.className = `produto-card ${!produto.disponivel ? 'indisponivel' : ''}`;
-        const imagemUrl = produto.imagem || 'https://via.placeholder.com/300x180?text=Produto';
+        
+        const imagemUrl = produto.imagem || LOGO_PADRAO;
         
         card.innerHTML = `
             ${produto.destaque ? '<div class="badge-destaque">🔥 Destaque</div>' : ''}
-            <img class="produto-img" src="${imagemUrl}" alt="${produto.nome}" onerror="this.src='https://via.placeholder.com/300x180?text=Imagem'">
+            <img class="produto-img" src="${imagemUrl}" alt="${produto.nome}" onerror="this.src='${LOGO_PADRAO}'; this.classList.add('placeholder-img')">
             <div class="produto-info">
                 <div class="produto-nome">${produto.nome}</div>
                 <div class="produto-desc">${produto.descricao || ''}</div>
@@ -243,18 +269,22 @@ function renderizarProdutos() {
                 </div>
             </div>
         `;
+        
         card.onclick = () => abrirModalProduto(produto.id);
         container.appendChild(card);
     });
     
     renderizarDestaques();
+    
+    // Atualizar sticky mobile
+    initMobileFixes();
 }
 
 function renderizarDestaques() {
     const section = document.getElementById('destaquesSection');
     const produtosDestaque = produtos.filter(p => p.destaque && p.disponivel);
     
-    if (produtosDestaque.length > 0 && !adminLogado) {
+    if (produtosDestaque.length > 0) {
         section.style.display = 'block';
         const grid = document.getElementById('destaquesGrid');
         grid.innerHTML = '';
@@ -263,11 +293,16 @@ function renderizarDestaques() {
             const card = document.createElement('div');
             card.className = 'produto-card';
             card.style.background = 'rgba(255,255,255,0.15)';
+            card.style.backdropFilter = 'blur(10px)';
+            
+            const imagemUrl = produto.imagem || LOGO_PADRAO;
+            
             card.innerHTML = `
+                <img class="produto-img" src="${imagemUrl}" alt="${produto.nome}" style="height: 120px;" onerror="this.src='${LOGO_PADRAO}'">
                 <div class="produto-info">
                     <div class="produto-nome" style="color: white;">${produto.nome}</div>
                     <div class="produto-preco" style="color: white;">${formatarPreco(produto.preco)}</div>
-                    <button class="btn-add" style="background: white; color: var(--cor-primaria);" onclick="abrirModalProduto('${produto.id}')">+</button>
+                    <button class="btn-add" style="background: white; color: var(--cor-primaria);" onclick="event.stopPropagation(); abrirModalProduto('${produto.id}')">+</button>
                 </div>
             `;
             grid.appendChild(card);
@@ -278,7 +313,7 @@ function renderizarDestaques() {
 }
 
 // ============================================
-// ===== MODAL PRODUTO =======================
+// ===== MODAL DE PRODUTO ====================
 // ============================================
 
 function abrirModalProduto(produtoId) {
@@ -286,6 +321,8 @@ function abrirModalProduto(produtoId) {
     if (!produtoSelecionado) return;
     
     quantidadeSelecionada = 1;
+    saboresSelecionados = [];
+    adicionaisSelecionados = [];
     
     document.getElementById('modalProdutoNome').innerText = produtoSelecionado.nome;
     document.getElementById('modalProdutoDesc').innerText = produtoSelecionado.descricao || '';
@@ -294,13 +331,72 @@ function abrirModalProduto(produtoId) {
     document.getElementById('obsItem').value = '';
     
     const img = document.getElementById('modalProdutoImg');
-    img.src = produtoSelecionado.imagem || 'https://via.placeholder.com/300x180?text=Produto';
+    img.src = produtoSelecionado.imagem || LOGO_PADRAO;
+    img.onerror = () => { img.src = LOGO_PADRAO; };
+    
+    const saboresDiv = document.getElementById('saboresPizzaDiv');
+    if (produtoSelecionado.categoria === 'pizza' && produtoSelecionado.sabores) {
+        saboresDiv.style.display = 'block';
+        const lista = document.getElementById('saboresLista');
+        lista.innerHTML = '';
+        produtoSelecionado.sabores.forEach(sabor => {
+            const div = document.createElement('div');
+            div.className = 'sabor-item';
+            div.innerHTML = `
+                <span>${sabor}</span>
+                <input type="checkbox" value="${sabor}" onchange="toggleSaborPizza(this, '${sabor}')">
+            `;
+            lista.appendChild(div);
+        });
+    } else {
+        saboresDiv.style.display = 'none';
+    }
+    
+    const adicionaisDiv = document.getElementById('adicionaisDiv');
+    const adicionaisCat = adicionaisPorCategoria[produtoSelecionado.categoria] || [];
+    if (adicionaisCat.length > 0) {
+        adicionaisDiv.style.display = 'block';
+        const lista = document.getElementById('adicionaisLista');
+        lista.innerHTML = '';
+        adicionaisCat.forEach(adicional => {
+            const div = document.createElement('div');
+            div.className = 'adicional-item';
+            div.innerHTML = `
+                <span>${adicional.nome} ${adicional.preco > 0 ? `(+${formatarPreco(adicional.preco)})` : ''}</span>
+                <input type="checkbox" value='${JSON.stringify(adicional)}' onchange="toggleAdicional(this, '${adicional.nome}', ${adicional.preco})">
+            `;
+            lista.appendChild(div);
+        });
+    } else {
+        adicionaisDiv.style.display = 'none';
+    }
     
     document.getElementById('modalProduto').style.display = 'flex';
 }
 
 function fecharModalProduto() {
     document.getElementById('modalProduto').style.display = 'none';
+}
+
+function toggleSaborPizza(checkbox, sabor) {
+    if (checkbox.checked) {
+        if (saboresSelecionados.length >= 2) {
+            checkbox.checked = false;
+            mostrarToast('Máximo 2 sabores por pizza', 'alerta');
+            return;
+        }
+        saboresSelecionados.push(sabor);
+    } else {
+        saboresSelecionados = saboresSelecionados.filter(s => s !== sabor);
+    }
+}
+
+function toggleAdicional(checkbox, nome, preco) {
+    if (checkbox.checked) {
+        adicionaisSelecionados.push({ nome, preco });
+    } else {
+        adicionaisSelecionados = adicionaisSelecionados.filter(a => a.nome !== nome);
+    }
 }
 
 function aumentarQuantidade() {
@@ -318,24 +414,30 @@ function diminuirQuantidade() {
 function adicionarAoCarrinho() {
     if (!produtoSelecionado) return;
     
+    let precoFinal = produtoSelecionado.preco;
+    adicionaisSelecionados.forEach(adicional => {
+        precoFinal += adicional.preco;
+    });
+    
     const itemCarrinho = {
-        id: Date.now(),
+        id: produtoSelecionado.id + '-' + Date.now(),
         produtoId: produtoSelecionado.id,
         nome: produtoSelecionado.nome,
-        precoUnitario: produtoSelecionado.preco,
+        precoUnitario: precoFinal,
         quantidade: quantidadeSelecionada,
-        observacao: document.getElementById('obsItem').value
+        observacao: document.getElementById('obsItem').value,
+        adicionais: [...adicionaisSelecionados],
+        sabores: produtoSelecionado.categoria === 'pizza' ? [...saboresSelecionados] : []
     };
     
     carrinho.push(itemCarrinho);
-    salvarDados();
     renderizarCarrinho();
     fecharModalProduto();
-    mostrarToast(`${produtoSelecionado.nome} adicionado!`, 'sucesso');
+    mostrarToast(`${produtoSelecionado.nome} adicionado ao carrinho!`, 'sucesso');
 }
 
 // ============================================
-// ===== CARRINHO ============================
+// ===== RENDERIZAÇÃO DO CARRINHO ============
 // ============================================
 
 function renderizarCarrinho() {
@@ -361,11 +463,32 @@ function renderizarCarrinho() {
         
         const div = document.createElement('div');
         div.className = 'carrinho-item';
+        
+        let adicionaisHtml = '';
+        if (item.adicionais && item.adicionais.length) {
+            adicionaisHtml = `
+                <div class="item-adicionais">
+                    ➕ ${item.adicionais.map(a => `${a.nome}${a.preco > 0 ? ` (+${formatarPreco(a.preco)})` : ''}`).join(', ')}
+                </div>
+            `;
+        }
+        
+        let saboresHtml = '';
+        if (item.sabores && item.sabores.length) {
+            saboresHtml = `
+                <div class="item-adicionais">
+                    🍕 Sabores: ${item.sabores.join(' e ')}
+                </div>
+            `;
+        }
+        
         div.innerHTML = `
             <div class="item-header">
                 <span class="item-nome">${item.quantidade}x ${item.nome}</span>
                 <span class="item-preco">${formatarPreco(subtotal)}</span>
             </div>
+            ${saboresHtml}
+            ${adicionaisHtml}
             ${item.observacao ? `<div class="item-obs">📝 ${item.observacao}</div>` : ''}
             <div class="item-footer">
                 <div class="quantidade-control">
@@ -373,7 +496,11 @@ function renderizarCarrinho() {
                     <span>${item.quantidade}</span>
                     <button class="quantidade-btn" onclick="alterarQuantidade(${idx}, 1)">+</button>
                 </div>
-                <button class="btn-remover-item" onclick="removerItemCarrinho(${idx})">🗑️</button>
+                <div class="item-actions">
+                    <button class="btn-editar-item" onclick="editarItemCarrinho(${idx})"><i class="fas fa-edit"></i></button>
+                    <button class="btn-duplicar-item" onclick="duplicarItemCarrinho(${idx})"><i class="fas fa-copy"></i></button>
+                    <button class="btn-remover-item" onclick="removerItemCarrinho(${idx})"><i class="fas fa-trash"></i></button>
+                </div>
             </div>
         `;
         container.appendChild(div);
@@ -386,7 +513,6 @@ function alterarQuantidade(index, delta) {
     const novoQtd = carrinho[index].quantidade + delta;
     if (novoQtd >= 1) {
         carrinho[index].quantidade = novoQtd;
-        salvarDados();
         renderizarCarrinho();
     }
 }
@@ -394,380 +520,26 @@ function alterarQuantidade(index, delta) {
 function removerItemCarrinho(index) {
     const item = carrinho[index];
     carrinho.splice(index, 1);
-    salvarDados();
     renderizarCarrinho();
-    mostrarToast(`${item.nome} removido`, 'info');
+    mostrarToast(`${item.nome} removido do carrinho`, 'info');
 }
 
-// ============================================
-// ===== CHECKOUT ============================
-// ============================================
-
-function abrirCheckout() {
-    if (carrinho.length === 0) {
-        mostrarToast('Carrinho vazio!', 'alerta');
-        return;
-    }
-    
-    const total = carrinho.reduce((sum, item) => sum + (item.precoUnitario * item.quantidade), 0);
-    document.getElementById('checkoutSubtotal').innerHTML = formatarPreco(total);
-    document.getElementById('checkoutFreteValor').innerHTML = formatarPreco(0);
-    document.getElementById('checkoutTotal').innerHTML = formatarPreco(total);
-    document.getElementById('checkoutFrete').value = 'R$ 0,00';
-    
-    document.getElementById('modalCheckout').style.display = 'flex';
-}
-
-function fecharModalCheckout() {
-    document.getElementById('modalCheckout').style.display = 'none';
-}
-
-function toggleCamposEntrega() {
-    const tipo = document.getElementById('checkoutTipoEntrega').value;
-    const camposEntrega = document.getElementById('camposEntrega');
-    camposEntrega.style.display = tipo === 'entrega' ? 'block' : 'none';
-}
-
-function toggleCampoTroco() {
-    const pagamento = document.getElementById('checkoutPagamento').value;
-    document.getElementById('campoTroco').style.display = pagamento === 'dinheiro' ? 'block' : 'none';
-}
-
-function buscarCep() {
-    const cep = document.getElementById('checkoutCep').value.replace(/\D/g, '');
-    if (cep.length !== 8) {
-        mostrarToast('CEP inválido', 'alerta');
-        return;
-    }
-    
-    mostrarToast('Buscando CEP...', 'info');
-    fetch(`https://viacep.com.br/ws/${cep}/json/`)
-        .then(res => res.json())
-        .then(data => {
-            if (!data.erro) {
-                document.getElementById('checkoutRua').value = data.logradouro;
-                document.getElementById('checkoutBairro').value = data.bairro;
-                document.getElementById('checkoutCidade').value = `${data.localidade} - ${data.uf}`;
-                mostrarToast('CEP encontrado!', 'sucesso');
-            } else {
-                mostrarToast('CEP não encontrado', 'alerta');
-            }
-        })
-        .catch(() => mostrarToast('Erro ao buscar CEP', 'erro'));
-}
-
-function confirmarPedido() {
-    const nome = document.getElementById('checkoutNome').value;
-    const telefone = document.getElementById('checkoutTelefone').value;
-    
-    if (!nome || !telefone) {
-        mostrarToast('Preencha nome e telefone', 'alerta');
-        return;
-    }
-    
-    const total = carrinho.reduce((sum, item) => sum + (item.precoUnitario * item.quantidade), 0);
-    const itensTexto = carrinho.map(item => `${item.quantidade}x ${item.nome} - ${formatarPreco(item.precoUnitario * item.quantidade)}`).join('\n');
-    const obsGeral = document.getElementById('observacaoGeral').value;
-    
-    let mensagem = `🍕 *NOVO PEDIDO* 🍕\n\n`;
-    mensagem += `*Cliente:* ${nome}\n`;
-    mensagem += `*Telefone:* ${telefone}\n\n`;
-    mensagem += `*ITENS:*\n${itensTexto}\n\n`;
-    mensagem += `*Total:* ${formatarPreco(total)}\n\n`;
-    
-    if (obsGeral) mensagem += `*Observação:* ${obsGeral}\n`;
-    
-    const whatsappUrl = `https://wa.me/5511999999999?text=${encodeURIComponent(mensagem)}`;
-    window.open(whatsappUrl, '_blank');
-    
-    // Limpar carrinho
-    carrinho = [];
-    salvarDados();
+function duplicarItemCarrinho(index) {
+    const item = JSON.parse(JSON.stringify(carrinho[index]));
+    item.id = item.produtoId + '-' + Date.now();
+    carrinho.push(item);
     renderizarCarrinho();
-    fecharModalCheckout();
-    mostrarToast('Pedido enviado!', 'sucesso');
+    mostrarToast('Item duplicado!', 'sucesso');
+}
+
+function editarItemCarrinho(index) {
+    const item = carrinho[index];
+    abrirModalProduto(item.produtoId);
+    mostrarToast('Edição em desenvolvimento', 'info');
 }
 
 // ============================================
-// ===== ADMIN ===============================
-// ============================================
-
-function abrirModalLogin() {
-    document.getElementById('modalLogin').style.display = 'flex';
-}
-
-function fecharModalLogin() {
-    document.getElementById('modalLogin').style.display = 'none';
-    document.getElementById('erroLogin').style.display = 'none';
-}
-
-function toggleSenha() {
-    const senhaInput = document.getElementById('senhaAdmin');
-    senhaInput.type = senhaInput.type === 'password' ? 'text' : 'password';
-}
-
-function verificarLogin() {
-    const senha = document.getElementById('senhaAdmin').value;
-    if (senha === 'admin123') {
-        adminLogado = true;
-        fecharModalLogin();
-        abrirModalAdmin();
-        renderizarProdutos();
-        mostrarToast('Admin logado!', 'sucesso');
-    } else {
-        document.getElementById('erroLogin').style.display = 'block';
-    }
-}
-
-function abrirModalAdmin() {
-    document.getElementById('modalAdmin').style.display = 'flex';
-    carregarAdminProdutos();
-    carregarAdminCategorias();
-}
-
-function fecharModalAdmin() {
-    document.getElementById('modalAdmin').style.display = 'none';
-}
-
-function logout() {
-    adminLogado = false;
-    fecharModalAdmin();
-    renderizarProdutos();
-    mostrarToast('Logout realizado', 'info');
-}
-
-function mostrarAbaAdmin(aba) {
-    document.getElementById('adminProdutos').style.display = 'none';
-    document.getElementById('adminCategorias').style.display = 'none';
-    document.getElementById('adminAdicionais').style.display = 'none';
-    document.getElementById('adminPedidos').style.display = 'none';
-    document.getElementById('adminConfig').style.display = 'none';
-    
-    if (aba === 'produtos') document.getElementById('adminProdutos').style.display = 'block';
-    if (aba === 'categorias') document.getElementById('adminCategorias').style.display = 'block';
-    if (aba === 'adicionais') document.getElementById('adminAdicionais').style.display = 'block';
-    if (aba === 'pedidos') document.getElementById('adminPedidos').style.display = 'block';
-    if (aba === 'config') document.getElementById('adminConfig').style.display = 'block';
-    
-    if (aba === 'categorias') carregarAdminCategorias();
-}
-
-function carregarAdminProdutos() {
-    const container = document.getElementById('adminProdutosLista');
-    container.innerHTML = '';
-    
-    produtos.forEach(produto => {
-        const div = document.createElement('div');
-        div.className = 'carrinho-item';
-        div.innerHTML = `
-            <div class="item-header">
-                <span><strong>${produto.nome}</strong> - ${formatarPreco(produto.preco)}</span>
-                <div>
-                    <button onclick="editarProduto('${produto.id}')" style="background: none; border: none; color: var(--cor-primaria); cursor: pointer;">✏️</button>
-                    <button onclick="excluirProduto('${produto.id}')" style="background: none; border: none; color: var(--cor-erro); cursor: pointer;">🗑️</button>
-                </div>
-            </div>
-            <div style="font-size: 0.8rem; color: var(--cor-texto-claro);">${produto.categoria} • ${produto.disponivel ? '✅ Disponível' : '❌ Indisponível'}</div>
-        `;
-        container.appendChild(div);
-    });
-}
-
-function carregarAdminCategorias() {
-    const container = document.getElementById('listaCategorias');
-    container.innerHTML = '';
-    
-    categorias.forEach(cat => {
-        const div = document.createElement('div');
-        div.className = 'carrinho-item';
-        div.innerHTML = `
-            <div class="item-header">
-                <span>${getIconeCategoria(cat)} ${cat}</span>
-                <button onclick="removerCategoria('${cat}')" style="background: none; border: none; color: var(--cor-erro); cursor: pointer;">🗑️</button>
-            </div>
-        `;
-        container.appendChild(div);
-    });
-}
-
-function abrirModalCadastroProduto() {
-    document.getElementById('cadastroProdutoTitulo').innerText = '➕ Novo Produto';
-    document.getElementById('editProdutoId').value = '';
-    document.getElementById('produtoNome').value = '';
-    document.getElementById('produtoDesc').value = '';
-    document.getElementById('produtoPreco').value = '';
-    document.getElementById('produtoImagem').value = '';
-    document.getElementById('produtoDisponivel').checked = true;
-    document.getElementById('produtoDestaque').checked = false;
-    
-    // Carregar categorias no select
-    const select = document.getElementById('produtoCategoria');
-    select.innerHTML = '';
-    categorias.forEach(cat => {
-        const option = document.createElement('option');
-        option.value = cat;
-        option.textContent = cat;
-        select.appendChild(option);
-    });
-    
-    document.getElementById('modalCadastroProduto').style.display = 'flex';
-}
-
-function fecharModalCadastroProduto() {
-    document.getElementById('modalCadastroProduto').style.display = 'none';
-}
-
-function salvarProduto() {
-    const id = document.getElementById('editProdutoId').value;
-    const produto = {
-        id: id || Date.now().toString(),
-        nome: document.getElementById('produtoNome').value,
-        descricao: document.getElementById('produtoDesc').value,
-        preco: parseFloat(document.getElementById('produtoPreco').value),
-        categoria: document.getElementById('produtoCategoria').value,
-        imagem: document.getElementById('produtoImagem').value,
-        disponivel: document.getElementById('produtoDisponivel').checked,
-        destaque: document.getElementById('produtoDestaque').checked
-    };
-    
-    if (!produto.nome || !produto.preco) {
-        mostrarToast('Preencha nome e preço', 'alerta');
-        return;
-    }
-    
-    if (id) {
-        const index = produtos.findIndex(p => p.id === id);
-        if (index !== -1) produtos[index] = produto;
-    } else {
-        produtos.push(produto);
-    }
-    
-    salvarDados();
-    fecharModalCadastroProduto();
-    carregarAdminProdutos();
-    renderizarProdutos();
-    mostrarToast('Produto salvo!', 'sucesso');
-}
-
-function editarProduto(id) {
-    const produto = produtos.find(p => p.id === id);
-    if (produto) {
-        document.getElementById('cadastroProdutoTitulo').innerText = '✏️ Editar Produto';
-        document.getElementById('editProdutoId').value = produto.id;
-        document.getElementById('produtoNome').value = produto.nome;
-        document.getElementById('produtoDesc').value = produto.descricao || '';
-        document.getElementById('produtoPreco').value = produto.preco;
-        document.getElementById('produtoImagem').value = produto.imagem || '';
-        document.getElementById('produtoDisponivel').checked = produto.disponivel;
-        document.getElementById('produtoDestaque').checked = produto.destaque || false;
-        
-        const select = document.getElementById('produtoCategoria');
-        select.innerHTML = '';
-        categorias.forEach(cat => {
-            const option = document.createElement('option');
-            option.value = cat;
-            option.textContent = cat;
-            if (cat === produto.categoria) option.selected = true;
-            select.appendChild(option);
-        });
-        
-        document.getElementById('modalCadastroProduto').style.display = 'flex';
-    }
-}
-
-function excluirProduto(id) {
-    if (confirm('Tem certeza?')) {
-        produtos = produtos.filter(p => p.id !== id);
-        salvarDados();
-        carregarAdminProdutos();
-        renderizarProdutos();
-        mostrarToast('Produto excluído', 'info');
-    }
-}
-
-function adicionarCategoria() {
-    const nova = document.getElementById('novaCategoria').value.trim();
-    if (nova && !categorias.includes(nova)) {
-        categorias.push(nova);
-        salvarDados();
-        carregarAdminCategorias();
-        renderizarTodasCategorias();
-        renderizarProdutos();
-        document.getElementById('novaCategoria').value = '';
-        mostrarToast('Categoria adicionada!', 'sucesso');
-    }
-}
-
-function removerCategoria(cat) {
-    if (confirm(`Remover "${cat}"?`)) {
-        categorias = categorias.filter(c => c !== cat);
-        salvarDados();
-        carregarAdminCategorias();
-        renderizarTodasCategorias();
-        renderizarProdutos();
-        mostrarToast('Categoria removida', 'info');
-    }
-}
-
-function salvarConfiguracoes() {
-    mostrarToast('Configurações salvas!', 'sucesso');
-}
-
-function abrirGerenciarDestaques() {
-    mostrarToast('Gerenciar destaques', 'info');
-}
-
-// ============================================
-// ===== TEMA ================================
-// ============================================
-
-function toggleTema() {
-    const html = document.documentElement;
-    const themeIcon = document.getElementById('themeIcon');
-    const themeText = document.getElementById('themeText');
-    
-    if (html.getAttribute('data-theme') === 'dark') {
-        html.removeAttribute('data-theme');
-        themeIcon.className = 'fas fa-moon';
-        themeText.textContent = 'Escuro';
-        localStorage.setItem('tema', 'light');
-    } else {
-        html.setAttribute('data-theme', 'dark');
-        themeIcon.className = 'fas fa-sun';
-        themeText.textContent = 'Claro';
-        localStorage.setItem('tema', 'dark');
-    }
-}
-
-function carregarTemaSalvo() {
-    const tema = localStorage.getItem('tema');
-    if (tema === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-        document.getElementById('themeIcon').className = 'fas fa-sun';
-        document.getElementById('themeText').textContent = 'Claro';
-    }
-}
-
-// ============================================
-// ===== HORÁRIO =============================
-// ============================================
-
-function verificarHorario() {
-    const agora = new Date();
-    const hora = agora.getHours();
-    const statusDiv = document.getElementById('statusHorarioHeader');
-    
-    if (hora >= 11 && hora < 23) {
-        statusDiv.innerHTML = '🟢 ABERTO';
-        statusDiv.className = 'status-horario aberto';
-    } else {
-        statusDiv.innerHTML = '🔴 FECHADO';
-        statusDiv.className = 'status-horario fechado';
-    }
-}
-
-// ============================================
-// ===== ATALHO SECRETO ADMIN ================
+// ===== ATALHO SECRETO ======================
 // ============================================
 
 function setupAtalhoSecreto() {
@@ -776,59 +548,174 @@ function setupAtalhoSecreto() {
     
     logoArea.style.cursor = 'pointer';
     
-    logoArea.addEventListener('dblclick', () => {
-        abrirModalLogin();
+    logoArea.addEventListener('dblclick', function(e) {
+        e.stopPropagation();
+        if (typeof abrirModalLogin === 'function') {
+            abrirModalLogin();
+        }
     });
     
     let toques = 0;
     let timeout;
     
-    logoArea.addEventListener('touchstart', (e) => {
+    logoArea.addEventListener('touchstart', function(e) {
         toques++;
         if (toques === 1) {
             timeout = setTimeout(() => { toques = 0; }, 300);
         } else if (toques === 2) {
             clearTimeout(timeout);
             e.preventDefault();
-            abrirModalLogin();
+            e.stopPropagation();
+            if (typeof abrirModalLogin === 'function') {
+                abrirModalLogin();
+            }
             toques = 0;
         }
     });
 }
 
 // ============================================
-// ===== EXPOR FUNÇÕES GLOBAIS ===============
+// ===== TOGGLE TEMA =========================
+// ============================================
+
+function toggleTema() {
+    const html = document.documentElement;
+    const themeIcon = document.getElementById('themeIcon');
+    const themeText = document.getElementById('themeText');
+    const currentTheme = html.getAttribute('data-theme');
+    
+    if (currentTheme === 'dark') {
+        html.removeAttribute('data-theme');
+        if (themeIcon) themeIcon.className = 'fas fa-moon';
+        if (themeText) themeText.textContent = 'Escuro';
+        localStorage.setItem('tema', 'claro');
+    } else {
+        html.setAttribute('data-theme', 'dark');
+        if (themeIcon) themeIcon.className = 'fas fa-sun';
+        if (themeText) themeText.textContent = 'Claro';
+        localStorage.setItem('tema', 'escuro');
+    }
+    
+    initMobileFixes();
+}
+
+function carregarTemaSalvo() {
+    const temaSalvo = localStorage.getItem('tema');
+    if (temaSalvo === 'escuro') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+}
+
+// ============================================
+// ===== VERIFICAÇÃO DE HORÁRIO ==============
+// ============================================
+
+function verificarHorario() {
+    const agora = new Date();
+    const horaAtual = agora.getHours() * 60 + agora.getMinutes();
+    const [hAbre, mAbre] = configRestaurante.horaAbre.split(':').map(Number);
+    const [hFecha, mFecha] = configRestaurante.horaFecha.split(':').map(Number);
+    
+    const abertura = hAbre * 60 + mAbre;
+    const fechamento = hFecha * 60 + mFecha;
+    
+    let aberto = false;
+    if (fechamento > abertura) {
+        aberto = (horaAtual >= abertura && horaAtual <= fechamento);
+    } else {
+        aberto = (horaAtual >= abertura || horaAtual <= fechamento);
+    }
+    
+    const statusDiv = document.getElementById('statusHorarioHeader');
+    if (aberto) {
+        statusDiv.innerHTML = '🟢 ABERTO';
+        statusDiv.className = 'status-horario aberto';
+    } else {
+        statusDiv.innerHTML = '🔴 FECHADO';
+        statusDiv.className = 'status-horario fechado';
+    }
+    
+    return aberto;
+}
+
+// ============================================
+// ===== FIX STICKY MOBILE ====================
+// ============================================
+
+function initMobileFixes() {
+    const isMobile = window.innerWidth <= 900;
+    
+    const header = document.querySelector('.header');
+    const categoriasWrapper = document.querySelector('.categorias-wrapper');
+    
+    if (!header || !categoriasWrapper) return;
+    
+    if (!isMobile) {
+        // Reset para desktop (usa CSS sticky)
+        header.style.position = '';
+        header.style.top = '';
+        header.style.left = '';
+        header.style.right = '';
+        header.style.zIndex = '';
+        header.style.width = '';
+        
+        categoriasWrapper.style.position = '';
+        categoriasWrapper.style.top = '';
+        categoriasWrapper.style.left = '';
+        categoriasWrapper.style.right = '';
+        categoriasWrapper.style.zIndex = '';
+        categoriasWrapper.style.width = '';
+        
+        document.body.style.paddingTop = '';
+        return;
+    }
+    
+    // Mobile: usa position fixed (JavaScript)
+    header.style.position = 'fixed';
+    header.style.top = '0';
+    header.style.left = '0';
+    header.style.right = '0';
+    header.style.width = '100%';
+    header.style.zIndex = '999';
+    
+    const headerHeight = header.offsetHeight;
+    
+    categoriasWrapper.style.position = 'fixed';
+    categoriasWrapper.style.top = headerHeight + 'px';
+    categoriasWrapper.style.left = '0';
+    categoriasWrapper.style.right = '0';
+    categoriasWrapper.style.width = '100%';
+    categoriasWrapper.style.zIndex = '998';
+    
+    // Empurra o conteúdo pra não ficar escondido atrás
+    document.body.style.paddingTop = (headerHeight + categoriasWrapper.offsetHeight + 10) + 'px';
+}
+
+// Roda ao carregar
+window.addEventListener('load', initMobileFixes);
+
+// Roda ao redimensionar
+window.addEventListener('resize', debounce(initMobileFixes, 200));
+
+// Também roda após renderizar produtos
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initMobileFixes, 500);
+});
+
+// ============================================
+// ===== EXPOR FUNÇÕES GLOBALMENTE ===========
 // ============================================
 
 window.toggleTema = toggleTema;
-window.abrirModalLogin = abrirModalLogin;
-window.fecharModalLogin = fecharModalLogin;
-window.toggleSenha = toggleSenha;
-window.verificarLogin = verificarLogin;
-window.abrirModalAdmin = abrirModalAdmin;
-window.fecharModalAdmin = fecharModalAdmin;
-window.logout = logout;
-window.mostrarAbaAdmin = mostrarAbaAdmin;
-window.abrirModalCadastroProduto = abrirModalCadastroProduto;
-window.fecharModalCadastroProduto = fecharModalCadastroProduto;
-window.salvarProduto = salvarProduto;
-window.editarProduto = editarProduto;
-window.excluirProduto = excluirProduto;
-window.adicionarCategoria = adicionarCategoria;
-window.removerCategoria = removerCategoria;
-window.salvarConfiguracoes = salvarConfiguracoes;
-window.abrirGerenciarDestaques = abrirGerenciarDestaques;
 window.abrirModalProduto = abrirModalProduto;
 window.fecharModalProduto = fecharModalProduto;
+window.toggleSaborPizza = toggleSaborPizza;
+window.toggleAdicional = toggleAdicional;
 window.aumentarQuantidade = aumentarQuantidade;
 window.diminuirQuantidade = diminuirQuantidade;
 window.adicionarAoCarrinho = adicionarAoCarrinho;
 window.alterarQuantidade = alterarQuantidade;
 window.removerItemCarrinho = removerItemCarrinho;
-window.abrirCheckout = abrirCheckout;
-window.fecharModalCheckout = fecharModalCheckout;
-window.toggleCamposEntrega = toggleCamposEntrega;
-window.toggleCampoTroco = toggleCampoTroco;
-window.buscarCep = buscarCep;
-window.confirmarPedido = confirmarPedido;
-window.scrollCategorias = scrollCategorias;
+window.duplicarItemCarrinho = duplicarItemCarrinho;
+window.editarItemCarrinho = editarItemCarrinho;
+window.initMobileFixes = initMobileFixes;
