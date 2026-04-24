@@ -733,3 +733,592 @@ input:focus, textarea:focus, select:focus {
         font-size: 0.8rem;
     }
 }
+
+/* ============================================ */
+/* ===== MELHORIAS MODAL PRODUTO ============== */
+/* ============================================ */
+
+.modal-content {
+    background: var(--cor-card);
+    border-radius: 25px;
+    padding: 30px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+    animation: modalSlideUp 0.3s ease;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* ============================================ */
+/* ===== MODAL PRODUTO DETALHE =============== */
+/* ============================================ */
+
+.modal-produto-img {
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    border-radius: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--cor-texto);
+    margin: 0;
+}
+
+.close-modal {
+    background: #f0f0f0;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    color: #666;
+}
+
+.close-modal:hover {
+    background: var(--cor-erro);
+    color: white;
+    transform: rotate(90deg);
+}
+
+.modal-produto-desc {
+    color: var(--cor-texto-claro);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.modal-preco {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--cor-primaria);
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+}
+
+/* ============================================ */
+/* ===== SABORES PIZZA ======================== */
+/* ============================================ */
+
+.sabores-pizza {
+    background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+    padding: 20px;
+    border-radius: 16px;
+    margin: 15px 0;
+    border: 2px solid #ffcc80;
+}
+
+.sabores-pizza h4 {
+    margin-bottom: 12px;
+    color: #e65100;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.sabor-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    border: 1px solid #ffe0b2;
+}
+
+.sabor-item:hover {
+    background: #fff8e1;
+    border-color: #ff9800;
+}
+
+.sabor-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #ff9800;
+    cursor: pointer;
+}
+
+/* ============================================ */
+/* ===== ADICIONAIS =========================== */
+/* ============================================ */
+
+.adicionais-group {
+    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+    padding: 20px;
+    border-radius: 16px;
+    margin: 15px 0;
+    border: 2px solid #90caf9;
+}
+
+.adicionais-group h4 {
+    margin-bottom: 12px;
+    color: #1565c0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.adicional-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+    border: 1px solid #bbdefb;
+}
+
+.adicional-item:hover {
+    background: #e8f5e9;
+    border-color: #42a5f5;
+}
+
+.adicional-item input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: #2196f3;
+    cursor: pointer;
+}
+
+/* ============================================ */
+/* ===== QUANTIDADE SELECTOR ================== */
+/* ============================================ */
+
+.quantidade-selector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+    margin: 25px 0;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 50px;
+}
+
+.quantidade-selector button {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria));
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantidade-selector button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
+}
+
+.quantidade-selector button:active {
+    transform: scale(0.95);
+}
+
+.quantidade-selector span {
+    font-size: 1.8rem;
+    font-weight: 800;
+    min-width: 40px;
+    text-align: center;
+    color: var(--cor-texto);
+}
+
+/* ============================================ */
+/* ===== OBSERVAÇÃO INPUT ===================== */
+/* ============================================ */
+
+.obs-input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    margin: 10px 0;
+    font-family: 'Poppins', sans-serif;
+    resize: vertical;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    background: #fafafa;
+}
+
+.obs-input:focus {
+    border-color: var(--cor-primaria);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+}
+
+/* ============================================ */
+/* ===== BOTÃO ADICIONAR CARRINHO ============= */
+/* ============================================ */
+
+.btn-adicionar-carrinho {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #ff3d00, #ff6d00);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 15px;
+    box-shadow: 0 8px 25px rgba(255, 61, 0, 0.3);
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-adicionar-carrinho::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+}
+
+.btn-adicionar-carrinho:hover::before {
+    left: 100%;
+}
+
+.btn-adicionar-carrinho:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(255, 61, 0, 0.4);
+}
+
+.btn-adicionar-carrinho:active {
+    transform: translateY(-1px);
+}
+
+/* ============================================ */
+/* ===== MODAL ADMIN MELHORIAS =============== */
+/* ============================================ */
+
+.modal-content-large {
+    max-width: 800px;
+}
+
+/* Tabs do admin */
+.admin-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 25px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.admin-tabs .categoria-tab {
+    padding: 10px 20px;
+    border-radius: 25px;
+    background: #f5f5f5;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    border: 2px solid transparent;
+}
+
+.admin-tabs .categoria-tab:hover {
+    background: #e0e0e0;
+    transform: translateY(-2px);
+}
+
+.admin-tabs .categoria-tab.ativo {
+    background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria));
+    color: white;
+    border-color: var(--cor-primaria);
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+}
+
+/* Botão novo produto */
+.btn-add-full {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-add-full:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+/* Lista de produtos admin */
+.admin-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: 12px;
+    border: 1px solid #e0e0e0;
+}
+
+.admin-list > div {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.2s;
+    background: white;
+}
+
+.admin-list > div:hover {
+    background: #fafafa;
+    transform: translateX(5px);
+}
+
+.admin-list > div:last-child {
+    border-bottom: none;
+}
+
+.admin-list strong {
+    color: var(--cor-texto);
+    font-size: 1rem;
+}
+
+.admin-list small {
+    color: var(--cor-texto-claro);
+    display: block;
+    margin-top: 3px;
+}
+
+/* Botões de ação admin */
+.btn-editar-admin {
+    background: #e3f2fd;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+}
+
+.btn-editar-admin:hover {
+    background: #2196f3;
+    color: white;
+    transform: scale(1.1);
+}
+
+.btn-excluir-admin {
+    background: #ffebee;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+}
+
+.btn-excluir-admin:hover {
+    background: #f44336;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* ============================================ */
+/* ===== MODAL CADASTRO PRODUTO =============== */
+/* ============================================ */
+
+#modalCadastroProduto .modal-content {
+    background: var(--cor-card);
+    border-radius: 25px;
+    padding: 30px;
+}
+
+#modalCadastroProduto label {
+    font-weight: 600;
+    color: var(--cor-texto);
+    margin-bottom: 5px;
+    display: block;
+    font-size: 0.9rem;
+    margin-top: 10px;
+}
+
+#modalCadastroProduto .checkout-input,
+#modalCadastroProduto .checkout-select {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    background: #fafafa;
+}
+
+#modalCadastroProduto .checkout-input:focus,
+#modalCadastroProduto .checkout-select:focus {
+    border-color: var(--cor-primaria);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+}
+
+/* ============================================ */
+/* ===== BOTÃO LOGOUT ========================= */
+/* ============================================ */
+
+.btn-logout {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #757575, #616161);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-weight: 700;
+    transition: all 0.3s;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-logout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    background: linear-gradient(135deg, #616161, #424242);
+}
+
+/* ============================================ */
+/* ===== CHECKBOX MODERNOS ==================== */
+/* ============================================ */
+
+.checkbox-group {
+    display: flex;
+    gap: 25px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    padding: 10px 18px;
+    background: #f5f5f5;
+    border-radius: 25px;
+    transition: all 0.3s;
+    border: 2px solid transparent;
+}
+
+.checkbox-label:hover {
+    background: #e0e0e0;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--cor-primaria);
+    cursor: pointer;
+}
+
+.checkbox-label:has(input:checked) {
+    background: #e8f5e9;
+    border-color: #4CAF50;
+    color: #2e7d32;
+}
+
+/* ============================================ */
+/* ===== RESPONSIVO MODAIS ==================== */
+/* ============================================ */
+
+@media (max-width: 600px) {
+    .modal-content {
+        padding: 20px;
+        border-radius: 20px 20px 0 0;
+        max-height: 85vh;
+    }
+    
+    .modal-produto-img {
+        height: 180px;
+    }
+    
+    .modal-preco {
+        font-size: 1.5rem;
+    }
+    
+    .quantidade-selector {
+        gap: 15px;
+        padding: 12px;
+    }
+    
+    .quantidade-selector button {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .btn-adicionar-carrinho {
+        font-size: 1rem;
+        padding: 14px;
+    }
+}
