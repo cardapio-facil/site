@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupAtalhoSecreto();
     
     setInterval(verificarHorario, 60000);
+    setTimeout(initMobileFixes, 500);
 });
 
 // ============================================
@@ -692,7 +693,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initMobileFixes, 500);
 });
 
-});
 // ============================================
 // ===== EXPOR FUNÇÕES GLOBALMENTE ===========
 // ============================================
