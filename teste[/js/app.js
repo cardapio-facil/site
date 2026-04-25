@@ -210,8 +210,13 @@ const produtosGrid = document.getElementById('produtosGrid');
 if (produtosGrid) {
     produtosGrid.scrollIntoView({
         behavior: 'smooth',
-        block: 'nearest'
+        block: 'start'
     });
+
+    // força subir se estiver embaixo
+    setTimeout(() => {
+        window.scrollBy(0, -150);
+    }, 200);
 }
 }
 // ============================================
