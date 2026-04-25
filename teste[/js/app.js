@@ -210,7 +210,7 @@ const produtosGrid = document.getElementById('produtosGrid');
 if (produtosGrid) {
     produtosGrid.scrollIntoView({
         behavior: 'smooth',
-        block: 'start'
+        block: 'nearest'
     });
 
     // força subir se estiver embaixo
