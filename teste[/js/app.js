@@ -230,6 +230,7 @@ if (destaque && destaque.style.display !== 'none') {
         behavior: 'smooth'
     });
 }
+}
 // ============================================
 // ===== RENDERIZAÇÃO DE PRODUTOS ============
 // ============================================
