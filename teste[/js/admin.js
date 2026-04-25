@@ -179,8 +179,12 @@ function abrirModalCadastroProduto() {
     document.getElementById('produtoImagem').value = '';
     document.getElementById('produtoDisponivel').checked = true;
     document.getElementById('produtoDestaque').checked = false;
-    document.getElementById('produtoSabores').value = '';
-    document.getElementById('saboresCadastro').style.display = 'none';
+    
+    // 🍕 Esconde o campo de sabores (não é mais usado)
+    const saboresCadastro = document.getElementById('saboresCadastro');
+    if (saboresCadastro) {
+        saboresCadastro.style.display = 'none';
+    }
     
     document.getElementById('modalCadastroProduto').style.display = 'flex';
 }
@@ -205,11 +209,10 @@ function editarProduto(id) {
     document.getElementById('produtoDestaque').checked = produto.destaque || false;
     document.getElementById('produtoCategoria').value = produto.categoria;
     
-    if (produto.categoria === 'pizza') {
-        document.getElementById('saboresCadastro').style.display = 'block';
-        document.getElementById('produtoSabores').value = (produto.sabores || []).join(', ');
-    } else {
-        document.getElementById('saboresCadastro').style.display = 'none';
+    // 🍕 Esconde o campo de sabores (não é mais usado)
+    const saboresCadastro = document.getElementById('saboresCadastro');
+    if (saboresCadastro) {
+        saboresCadastro.style.display = 'none';
     }
     
     document.getElementById('modalCadastroProduto').style.display = 'flex';
@@ -245,10 +248,8 @@ async function salvarProduto() {
         destaque: document.getElementById('produtoDestaque').checked
     };
     
-    if (categoria === 'pizza') {
-        const saboresStr = document.getElementById('produtoSabores').value;
-        produto.sabores = saboresStr.split(',').map(s => s.trim()).filter(s => s);
-    }
+    // 🍕 Remove o campo sabores (não é mais usado, cada produto de pizza já é um sabor)
+    // O campo sabores não é mais salvo
     
     if (produtoEditando) {
         const index = produtos.findIndex(p => p.id === produtoEditando.id);
@@ -297,10 +298,20 @@ function carregarAdminCategorias() {
             padding: 10px;
             border-bottom: 1px solid var(--cor-borda);
         `;
-        div.innerHTML = `
-            <span>${getIconeCategoria(cat)} ${getNomeCategoria(cat)}</span>
-            <button onclick="excluirCategoria('${cat}')" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
-        `;
+        
+        // 🍕 Para a categoria pizza, mostra um ícone de cadeado e NÃO mostra botão de excluir
+        if (cat === 'pizza') {
+            div.innerHTML = `
+                <span>🔒 ${getIconeCategoria(cat)} ${getNomeCategoria(cat)} <small style="color: #e65100;">(fixa)</small></span>
+                <span style="color: #999; font-size: 0.8rem;">🔒 Protegida</span>
+            `;
+        } else {
+            div.innerHTML = `
+                <span>${getIconeCategoria(cat)} ${getNomeCategoria(cat)}</span>
+                <button onclick="excluirCategoria('${cat}')" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+            `;
+        }
+        
         container.appendChild(div);
     });
 }
@@ -312,6 +323,13 @@ async function adicionarCategoria() {
     }
     
     const novaCat = document.getElementById('novaCategoria').value.trim().toLowerCase().replace(/\s/g, '-');
+    
+    // 🍕 Bloqueia tentativa de criar categoria "pizza" duplicada
+    if (novaCat === 'pizza') {
+        mostrarToast('Ação bloqueada', 'A categoria Pizza já existe e é fixa no sistema', 'alerta');
+        return;
+    }
+    
     if (novaCat && !categorias.includes(novaCat)) {
         categorias.push(novaCat);
         const sucesso = await salvarCategoriasFirebase(categorias);
@@ -327,6 +345,12 @@ async function adicionarCategoria() {
 async function excluirCategoria(cat) {
     if (nivelAcesso !== 'master') {
         mostrarToast('Apenas Master pode excluir categorias', 'alerta');
+        return;
+    }
+    
+    // 🍕 Bloqueia exclusão da categoria pizza
+    if (cat === 'pizza') {
+        mostrarToast('Ação bloqueada', 'A categoria Pizza é fixa e não pode ser excluída', 'alerta');
         return;
     }
     
@@ -461,6 +485,9 @@ async function carregarAdminPedidos() {
             ${pedido.itens?.map(item => `
                 <div style="margin-left: 10px; font-size: 0.9rem;">
                     ${item.quantidade}x ${item.nome} - ${formatarPreco(item.precoUnitario * item.quantidade)}
+                    ${item.sabores && item.sabores.length ? `<br><small>🍕 Sabores: ${item.sabores.map(s => s.nome).join(' e ')}</small>` : ''}
+                    ${item.adicionais && item.adicionais.length ? `<br><small>➕ ${item.adicionais.map(a => a.nome).join(', ')}</small>` : ''}
+                    ${item.observacao ? `<br><small>📝 ${item.observacao}</small>` : ''}
                 </div>
             `).join('') || ''}
             <div style="margin-top: 10px; font-weight: bold; text-align: right;">
