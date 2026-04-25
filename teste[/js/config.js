@@ -24,7 +24,7 @@ const CONFIG_PADRAO = {
     },
     cidade: 'Conselheiro Lafaiete',
     uf: 'MG',
-    numeroWhatsapp: '5531999999999',  // ⭐ ADICIONEI
+    numeroWhatsapp: '5531999999999',
     templateMensagem: `🍕 *NOVO PEDIDO* 🍕
 
 *Cliente:* {NOME}
@@ -42,16 +42,21 @@ const CONFIG_PADRAO = {
 {OBS}`
 };
 
-// CATEGORIAS PADRÃO
+// 🍕 CATEGORIAS PADRÃO
+// A categoria 'pizza' é FIXA e NÃO pode ser removida ou recriada
+// Cada produto cadastrado na categoria 'pizza' vira automaticamente um sabor disponível
 const CATEGORIAS_PADRAO = [
     'hamburguer', 
-    'pizza', 
+    'pizza',           // ← FIXA: não pode ser excluída
     'refeicao', 
     'cachorro-quente', 
     'porcao', 
     'bebidas', 
     'doces'
 ];
+
+// 🍕 CATEGORIA FIXA QUE NÃO PODE SER EXCLUÍDA
+const CATEGORIA_FIXA = 'pizza';
 
 // ÍCONES DAS CATEGORIAS
 const ICONES_CATEGORIA = {
@@ -107,6 +112,29 @@ function getNomeCategoria(cat) {
 
 function gerarId() {
     return Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
+}
+
+// 🍕 Verifica se uma categoria é fixa (não pode ser excluída)
+function isCategoriaFixa(cat) {
+    return cat === CATEGORIA_FIXA;
+}
+
+// 🍕 Retorna todos os sabores de pizza disponíveis (produtos ativos da categoria pizza)
+function getSaboresPizzaDisponiveis() {
+    return produtos.filter(p => 
+        p.categoria === CATEGORIA_FIXA && 
+        p.disponivel !== false
+    );
+}
+
+// 🍕 Calcula o preço para pizza (maior valor entre os sabores escolhidos)
+function calcularPrecoPizza(precoBase, saboresEscolhidos) {
+    if (!saboresEscolhidos || saboresEscolhidos.length === 0) {
+        return precoBase;
+    }
+    
+    const maiorPrecoSabor = Math.max(...saboresEscolhidos.map(s => s.preco));
+    return Math.max(precoBase, maiorPrecoSabor);
 }
 
 // ===== FUNÇÃO DE TOAST MELHORADA =====
@@ -214,6 +242,9 @@ window.parsePreco = parsePreco;
 window.getIconeCategoria = getIconeCategoria;
 window.getNomeCategoria = getNomeCategoria;
 window.gerarId = gerarId;
+window.isCategoriaFixa = isCategoriaFixa;
+window.getSaboresPizzaDisponiveis = getSaboresPizzaDisponiveis;
+window.calcularPrecoPizza = calcularPrecoPizza;
 window.mostrarToast = mostrarToast;
 window.mostrarLoader = mostrarLoader;
 window.isRestauranteAberto = isRestauranteAberto;
