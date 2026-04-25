@@ -246,15 +246,16 @@ function filtrarPorCategoria(categoria, tabElement = null) {
     }
     
     renderizarProdutos();
-    
-    // Scroll até produtos (FUNCIONA NO CELULAR)
+    // Scroll até produtos
     setTimeout(() => {
         const produtosGrid = document.getElementById('produtosGrid');
         if (produtosGrid) {
-            const y = produtosGrid.getBoundingClientRect().top + window.scrollY - 100;
-            window.scrollTo({ top: y, behavior: 'smooth' });
+            produtosGrid.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
         }
-    }, 300);
+    }, 200);
 }
 
 // ============================================
