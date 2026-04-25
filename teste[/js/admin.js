@@ -67,9 +67,11 @@ function atualizarInterfaceAdmin() {
     if (adminLogado) {
         adminBtn.innerHTML = '👑 Admin (Logado)';
         adminBtn.classList.add('logado');
+        adminBtn.style.display = 'inline-block';  // ← Mostra o botão
     } else {
         adminBtn.innerHTML = '👤 Área Admin';
         adminBtn.classList.remove('logado');
+        adminBtn.style.display = 'none';  // ← ESCONDE completamente
     }
     
     const gerenciarBtn = document.getElementById('gerenciarDestaquesBtn');
