@@ -215,7 +215,7 @@ if (produtosGrid) {
 
     // força subir se estiver embaixo
     setTimeout(() => {
-        window.scrollBy(0, -150);
+        window.scrollBy(0, -200);
     }, 200);
 }
 }
