@@ -208,16 +208,17 @@ function filtrarPorCategoria(categoria, tabElement = null) {
 renderizarProdutos();
 
 // espera layout finalizar
-setTimeout(() => {
-    const produtosGrid = document.getElementById('produtosGrid');
+  setTimeout(() => {
+        const produtosGrid = document.getElementById('produtosGrid');
 
-    if (produtosGrid) {
-        produtosGrid.scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-    }
-}, 100);
+        if (produtosGrid) {
+            produtosGrid.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }, 100);
+}
 // ============================================
 // ===== RENDERIZAÇÃO DE PRODUTOS ============
 // ============================================
