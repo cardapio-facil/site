@@ -213,9 +213,16 @@ if (produtosGrid) {
         block: 'nearest'
     });
 
-    // força subir se estiver embaixo
     setTimeout(() => {
-        window.scrollBy(0, -400);
+        const header = document.querySelector('.header');
+        const categorias = document.querySelector('.categorias-wrapper');
+
+        let offset = 0;
+
+        if (header) offset += header.offsetHeight;
+        if (categorias) offset += categorias.offsetHeight;
+
+        window.scrollBy(0, -offset);
     }, 200);
 }
 }
