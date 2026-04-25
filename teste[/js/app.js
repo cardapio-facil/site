@@ -216,25 +216,45 @@ function filtrarPorCategoria(categoria, tabElement = null) {
      renderizarProdutos();
     
     // Scroll até produtos
+function filtrarPorCategoria(categoria, tabElement = null) {
+    categoriaAtual = categoria;
+    
+    document.querySelectorAll('.categoria-tab').forEach(tab => {
+        tab.classList.remove('ativo');
+    });
+    
+    if (tabElement) {
+        tabElement.classList.add('ativo');
+    }
+    
+    // Centralizar tab
+    if (tabElement) {
+        const container = document.getElementById('categoriasTabs');
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = tabElement.getBoundingClientRect();
+        
+        const tabCentro = tabRect.left - containerRect.left + (tabRect.width / 2);
+        const containerCentro = containerRect.width / 2;
+        const scrollPara = container.scrollLeft + tabCentro - containerCentro;
+        
+        container.scrollTo({
+            left: Math.max(0, scrollPara),
+            behavior: 'smooth'
+        });
+        
+        setTimeout(verificarSetinhas, 400);
+    }
+    
+    renderizarProdutos();
+    
+    // Scroll até produtos (FUNCIONA NO CELULAR)
     setTimeout(() => {
         const produtosGrid = document.getElementById('produtosGrid');
         if (produtosGrid) {
-            const isMobile = window.innerWidth <= 900;
-            
-            if (isMobile) {
-                // Mobile: header e categorias são fixed, precisa calcular offset
-                const headerHeight = document.querySelector('.header')?.offsetHeight || 60;
-                const categoriasHeight = document.querySelector('.categorias-wrapper')?.offsetHeight || 50;
-                const offset = headerHeight + categoriasHeight + 10;
-                
-                const top = produtosGrid.getBoundingClientRect().top + window.pageYOffset - offset;
-                window.scrollTo({ top, behavior: 'smooth' });
-            } else {
-                // Desktop: scrollIntoView funciona normal
-                produtosGrid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
+            const y = produtosGrid.getBoundingClientRect().top + window.scrollY - 100;
+            window.scrollTo({ top: y, behavior: 'smooth' });
         }
-    }, 200);
+    }, 300);
 }
 
 // ============================================
