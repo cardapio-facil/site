@@ -208,9 +208,13 @@ function filtrarPorCategoria(categoria, tabElement = null) {
 const produtosGrid = document.getElementById('produtosGrid');
 
 if (produtosGrid) {
-    produtosGrid.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start'
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            produtosGrid.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        });
     });
 }
 }
