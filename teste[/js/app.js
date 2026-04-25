@@ -692,12 +692,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initMobileFixes, 500);
 });
 
-   document.querySelectorAll('.categoria-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            filtrarPorCategoria(tab.dataset.categoria, tab);
-        });
-    });
-
 });
 // ============================================
 // ===== EXPOR FUNÇÕES GLOBALMENTE ===========
