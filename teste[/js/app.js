@@ -205,17 +205,19 @@ function filtrarPorCategoria(categoria, tabElement = null) {
     
     renderizarProdutos();
     
-const produtosGrid = document.getElementById('produtosGrid');
+renderizarProdutos();
 
-if (produtosGrid) {
-    requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-            produtosGrid.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+// espera layout finalizar
+setTimeout(() => {
+    const produtosGrid = document.getElementById('produtosGrid');
+
+    if (produtosGrid) {
+        produtosGrid.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
         });
-    });
+    }
+}, 100);
 }
 }
 // ============================================
