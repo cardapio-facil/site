@@ -204,17 +204,26 @@ function filtrarPorCategoria(categoria, tabElement = null) {
     renderizarProdutos();
 
     // scroll (correto)
-    setTimeout(() => {
-        const produtosGrid = document.getElementById('produtosGrid');
+ setTimeout(() => {
+    const produtosGrid = document.getElementById('produtosGrid');
+    const header = document.querySelector('.header');
+    const categorias = document.querySelector('.categorias-wrapper');
 
-        if (produtosGrid) {
-            produtosGrid.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    }, 100);
-}
+    if (produtosGrid) {
+
+        const offset =
+            (header?.offsetHeight || 0) +
+            (categorias?.offsetHeight || 0) +
+            10;
+
+        const y = produtosGrid.getBoundingClientRect().top + window.scrollY - offset;
+
+        window.scrollTo({
+            top: y,
+            behavior: 'smooth'
+        });
+    }
+}, 120);
 // ============================================
 // ===== RENDERIZAÇÃO DE PRODUTOS ============
 // ============================================
