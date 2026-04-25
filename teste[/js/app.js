@@ -148,13 +148,6 @@ function scrollCategorias(distancia) {
     setTimeout(verificarSetinhas, 400);
 }
 
-setTimeout(() => {
-    window.scrollTo({ 
-        top: document.getElementById('produtosGrid').offsetTop - 100, 
-        behavior: 'smooth' 
-    });
-}, 300);
-
 function verificarSetinhas() {
     const container = document.getElementById('categoriasTabs');
     const wrapper = document.querySelector('.categorias-wrapper');
