@@ -176,39 +176,34 @@ function verificarSetinhas() {
 
 function filtrarPorCategoria(categoria, tabElement = null) {
     categoriaAtual = categoria;
-    
-    document.querySelectorAll('.categoria-tab').forEach(tab => {
-        tab.classList.remove('ativo');
-    });
-    
+
     if (tabElement) {
         tabElement.classList.add('ativo');
     }
-    
+
     // Centralizar tab
     if (tabElement) {
         const container = document.getElementById('categoriasTabs');
         const containerRect = container.getBoundingClientRect();
         const tabRect = tabElement.getBoundingClientRect();
-        
+
         const tabCentro = tabRect.left - containerRect.left + (tabRect.width / 2);
         const containerCentro = containerRect.width / 2;
         const scrollPara = container.scrollLeft + tabCentro - containerCentro;
-        
+
         container.scrollTo({
             left: Math.max(0, scrollPara),
             behavior: 'smooth'
         });
-        
+
         setTimeout(verificarSetinhas, 400);
     }
-    
-    renderizarProdutos();
-    
-renderizarProdutos();
 
-// espera layout finalizar
-  setTimeout(() => {
+    // render
+    renderizarProdutos();
+
+    // scroll (correto)
+    setTimeout(() => {
         const produtosGrid = document.getElementById('produtosGrid');
 
         if (produtosGrid) {
@@ -697,6 +692,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initMobileFixes, 500);
 });
 
+   document.querySelectorAll('.categoria-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            filtrarPorCategoria(tab.dataset.categoria, tab);
+        });
+    });
+
+});
 // ============================================
 // ===== EXPOR FUNÇÕES GLOBALMENTE ===========
 // ============================================
