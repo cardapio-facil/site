@@ -224,6 +224,7 @@ function filtrarPorCategoria(categoria, tabElement = null) {
         });
     }
 }, 120);
+}
 // ============================================
 // ===== RENDERIZAÇÃO DE PRODUTOS ============
 // ============================================
