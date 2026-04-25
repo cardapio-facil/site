@@ -207,26 +207,18 @@ function filtrarPorCategoria(categoria, tabElement = null) {
     
 const destaque = document.getElementById('destaquesSection');
 const produtosGrid = document.getElementById('produtosGrid');
-const header = document.querySelector('.header');
-const categorias = document.querySelector('.categorias-wrapper');
 
-let offset = 0;
-
-if (header) offset += header.offsetHeight;
-if (categorias) offset += categorias.offsetHeight;
+let alvo = produtosGrid;
 
 if (destaque && destaque.style.display !== 'none') {
-    const posicao = destaque.offsetTop + destaque.offsetHeight - offset;
+    alvo = destaque;
+}
+
+if (alvo) {
+    const y = alvo.getBoundingClientRect().top + window.pageYOffset;
 
     window.scrollTo({
-        top: posicao,
-        behavior: 'smooth'
-    });
-} else if (produtosGrid) {
-    const posicao = produtosGrid.offsetTop - offset;
-
-    window.scrollTo({
-        top: posicao,
+        top: y - 20, // pequeno ajuste
         behavior: 'smooth'
     });
 }
