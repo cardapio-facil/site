@@ -212,50 +212,23 @@ function filtrarPorCategoria(categoria, tabElement = null) {
     
     renderizarProdutos();
     
-       // Scroll até produtos
-     renderizarProdutos();
-    
-    // Scroll até produtos
-function filtrarPorCategoria(categoria, tabElement = null) {
-    categoriaAtual = categoria;
-    
-    document.querySelectorAll('.categoria-tab').forEach(tab => {
-        tab.classList.remove('ativo');
-    });
-    
-    if (tabElement) {
-        tabElement.classList.add('ativo');
-    }
-    
-    // Centralizar tab
-    if (tabElement) {
-        const container = document.getElementById('categoriasTabs');
-        const containerRect = container.getBoundingClientRect();
-        const tabRect = tabElement.getBoundingClientRect();
-        
-        const tabCentro = tabRect.left - containerRect.left + (tabRect.width / 2);
-        const containerCentro = containerRect.width / 2;
-        const scrollPara = container.scrollLeft + tabCentro - containerCentro;
-        
-        container.scrollTo({
-            left: Math.max(0, scrollPara),
-            behavior: 'smooth'
-        });
-        
-        setTimeout(verificarSetinhas, 400);
-    }
-    
-    renderizarProdutos();
     // Scroll até produtos
     setTimeout(() => {
+        const headerHeight = document.querySelector('.header')?.offsetHeight || 80;
+        const categoriasHeight = document.getElementById('categoriasTabs')?.offsetHeight || 50;
+        const offset = headerHeight + categoriasHeight + 20;
+        
         const produtosGrid = document.getElementById('produtosGrid');
         if (produtosGrid) {
-            produtosGrid.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
+            const elementPosition = produtosGrid.getBoundingClientRect().top + window.pageYOffset;
+            const offsetPosition = elementPosition - offset;
+            
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: 'smooth'
             });
         }
-    }, 200);
+    }, 150);
 }
 
 // ============================================
