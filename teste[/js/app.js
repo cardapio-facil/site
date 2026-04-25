@@ -78,10 +78,14 @@ function criarProdutosExemplo() {
     produtos = [
         { id: 'prod1', nome: 'X-Bacon Supremo', descricao: 'Pão, carne 180g, bacon, queijo, alface, tomate', preco: 32.90, categoria: 'hamburguer', imagem: '', disponivel: true, destaque: true },
         { id: 'prod2', nome: 'X-Salada', descricao: 'Pão, carne, queijo, alface, tomate', preco: 25.90, categoria: 'hamburguer', imagem: '', disponivel: true, destaque: false },
-        { id: 'prod3', nome: 'Pizza Calabresa', descricao: 'Molho, mussarela, calabresa, cebola', preco: 45.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: true, sabores: ['Calabresa', 'Portuguesa', 'Mussarela', 'Marguerita', 'Frango com Catupiry'] },
-        { id: 'prod4', nome: 'Refeição Executiva', descricao: 'Arroz, feijão, bife, salada', preco: 28.90, categoria: 'refeicao', imagem: '', disponivel: true, destaque: false },
-        { id: 'prod5', nome: 'Batata Frita', descricao: 'Porção de batata frita crocante', preco: 15.00, categoria: 'porcao', imagem: '', disponivel: true, destaque: false },
-        { id: 'prod6', nome: 'Coca-Cola 2L', descricao: 'Refrigerante Coca-Cola 2 litros', preco: 12.00, categoria: 'bebidas', imagem: '', disponivel: true, destaque: false }
+        { id: 'prod3', nome: 'Pizza Grande', descricao: 'Pizza grande 8 fatias - Escolha até 2 sabores', preco: 45.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: true },
+        { id: 'prod4', nome: 'Pizza Calabresa', descricao: 'Molho, mussarela, calabresa, cebola', preco: 48.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod5', nome: 'Pizza Portuguesa', descricao: 'Molho, mussarela, presunto, ovos, cebola, azeitona', preco: 52.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod6', nome: 'Pizza Frango com Catupiry', descricao: 'Molho, mussarela, frango, catupiry', preco: 55.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: true },
+        { id: 'prod7', nome: 'Pizza Marguerita', descricao: 'Molho, mussarela, tomate, manjericão', preco: 50.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod8', nome: 'Refeição Executiva', descricao: 'Arroz, feijão, bife, salada', preco: 28.90, categoria: 'refeicao', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod9', nome: 'Batata Frita', descricao: 'Porção de batata frita crocante', preco: 15.00, categoria: 'porcao', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod10', nome: 'Coca-Cola 2L', descricao: 'Refrigerante Coca-Cola 2 litros', preco: 12.00, categoria: 'bebidas', imagem: '', disponivel: true, destaque: false }
     ];
     salvarProdutosFirebase(produtos);
 }
@@ -206,15 +210,15 @@ function filtrarPorCategoria(categoria, tabElement = null) {
     
     renderizarProdutos();
     
-const produtosGrid = document.getElementById('produtosGrid');
+    const produtosGrid = document.getElementById('produtosGrid');
+    if (produtosGrid) {
+        produtosGrid.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+        });
+    }
+}
 
-if (produtosGrid) {
-    produtosGrid.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest'
-    });
-}
-}
 // ============================================
 // ===== RENDERIZAÇÃO DE PRODUTOS ============
 // ============================================
@@ -325,24 +329,42 @@ function abrirModalProduto(produtoId) {
     img.src = produtoSelecionado.imagem || LOGO_PADRAO;
     img.onerror = () => { img.src = LOGO_PADRAO; };
     
+    // 🍕 SE FOR PIZZA: mostra lista de sabores (outros produtos da categoria pizza)
     const saboresDiv = document.getElementById('saboresPizzaDiv');
-    if (produtoSelecionado.categoria === 'pizza' && produtoSelecionado.sabores) {
+    if (produtoSelecionado.categoria === 'pizza') {
         saboresDiv.style.display = 'block';
         const lista = document.getElementById('saboresLista');
         lista.innerHTML = '';
-        produtoSelecionado.sabores.forEach(sabor => {
-            const div = document.createElement('div');
-            div.className = 'sabor-item';
-            div.innerHTML = `
-                <span>${sabor}</span>
-                <input type="checkbox" value="${sabor}" onchange="toggleSaborPizza(this, '${sabor}')">
-            `;
-            lista.appendChild(div);
-        });
+        
+        // Busca todos os produtos ATIVOS da categoria pizza (exceto o próprio produto)
+        const pizzasDisponiveis = produtos.filter(p => 
+            p.categoria === 'pizza' && 
+            p.disponivel !== false && 
+            p.id !== produtoSelecionado.id
+        );
+        
+        if (pizzasDisponiveis.length === 0) {
+            lista.innerHTML = '<p style="color: #c62828;">⚠️ Nenhum sabor disponível no momento</p>';
+        } else {
+            pizzasDisponiveis.forEach(pizza => {
+                const div = document.createElement('div');
+                div.className = 'sabor-item';
+                div.innerHTML = `
+                    <span>🍕 ${pizza.nome} - <strong>${formatarPreco(pizza.preco)}</strong></span>
+                    <input type="checkbox" 
+                           value="${pizza.id}" 
+                           data-nome="${pizza.nome}" 
+                           data-preco="${pizza.preco}" 
+                           onchange="toggleSaborPizza(this, '${pizza.id}', '${pizza.nome.replace(/'/g, "\\'")}', ${pizza.preco})">
+                `;
+                lista.appendChild(div);
+            });
+        }
     } else {
         saboresDiv.style.display = 'none';
     }
     
+    // Adicionais
     const adicionaisDiv = document.getElementById('adicionaisDiv');
     const adicionaisCat = adicionaisPorCategoria[produtoSelecionado.categoria] || [];
     if (adicionaisCat.length > 0) {
@@ -378,17 +400,41 @@ function fecharModalProduto() {
     }
 }
 
-function toggleSaborPizza(checkbox, sabor) {
+function toggleSaborPizza(checkbox, pizzaId, pizzaNome, pizzaPreco) {
     if (checkbox.checked) {
+        // Já tem 2 sabores selecionados?
         if (saboresSelecionados.length >= 2) {
             checkbox.checked = false;
-            mostrarToast('Máximo 2 sabores por pizza', 'alerta');
+            mostrarToast('Máximo 2 sabores', 'Você já escolheu 2 sabores para meio a meio', 'alerta');
             return;
         }
-        saboresSelecionados.push(sabor);
+        saboresSelecionados.push({ id: pizzaId, nome: pizzaNome, preco: pizzaPreco });
     } else {
-        saboresSelecionados = saboresSelecionados.filter(s => s !== sabor);
+        saboresSelecionados = saboresSelecionados.filter(s => s.id !== pizzaId);
     }
+    
+    // 🔥 Atualiza o preço mostrado no modal
+    atualizarPrecoPizza();
+}
+
+function atualizarPrecoPizza() {
+    if (!produtoSelecionado || produtoSelecionado.categoria !== 'pizza') return;
+    
+    let precoBase = produtoSelecionado.preco;
+    
+    // Se tem sabores selecionados, pega o MAIOR preço entre eles
+    if (saboresSelecionados.length > 0) {
+        const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => s.preco));
+        precoBase = Math.max(precoBase, maiorPrecoSabor);
+    }
+    
+    // Adiciona preço dos adicionais
+    let precoFinal = precoBase;
+    adicionaisSelecionados.forEach(adicional => {
+        precoFinal += adicional.preco;
+    });
+    
+    document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(precoFinal);
 }
 
 function toggleAdicional(checkbox, nome, preco) {
@@ -396,6 +442,11 @@ function toggleAdicional(checkbox, nome, preco) {
         adicionaisSelecionados.push({ nome, preco });
     } else {
         adicionaisSelecionados = adicionaisSelecionados.filter(a => a.nome !== nome);
+    }
+    
+    // Se for pizza, atualiza o preço considerando os adicionais
+    if (produtoSelecionado && produtoSelecionado.categoria === 'pizza') {
+        atualizarPrecoPizza();
     }
 }
 
@@ -415,19 +466,38 @@ function adicionarAoCarrinho() {
     if (!produtoSelecionado) return;
     
     let precoFinal = produtoSelecionado.preco;
+    
+    // 🍕 Se for pizza com sabores selecionados
+    if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
+        const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => s.preco));
+        precoFinal = Math.max(precoFinal, maiorPrecoSabor);
+    }
+    
+    // Adiciona preço dos adicionais
     adicionaisSelecionados.forEach(adicional => {
         precoFinal += adicional.preco;
     });
     
+    let nomeFinal = produtoSelecionado.nome;
+    
+    // Monta o nome com os sabores
+    if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
+        if (saboresSelecionados.length === 1) {
+            nomeFinal = `${produtoSelecionado.nome} - ${saboresSelecionados[0].nome}`;
+        } else if (saboresSelecionados.length === 2) {
+            nomeFinal = `${produtoSelecionado.nome} - Meio ${saboresSelecionados[0].nome} / Meio ${saboresSelecionados[1].nome}`;
+        }
+    }
+    
     const itemCarrinho = {
         id: produtoSelecionado.id + '-' + Date.now(),
         produtoId: produtoSelecionado.id,
-        nome: produtoSelecionado.nome,
+        nome: nomeFinal,
         precoUnitario: precoFinal,
         quantidade: quantidadeSelecionada,
         observacao: document.getElementById('obsItem').value,
         adicionais: [...adicionaisSelecionados],
-        sabores: produtoSelecionado.categoria === 'pizza' ? [...saboresSelecionados] : []
+        sabores: [...saboresSelecionados]
     };
     
     // Verifica se está editando um item existente
@@ -437,7 +507,7 @@ function adicionarAoCarrinho() {
         mostrarToast('Item atualizado!', 'sucesso');
     } else {
         carrinho.push(itemCarrinho);
-        mostrarToast(`${produtoSelecionado.nome} adicionado ao carrinho!`, 'sucesso');
+        mostrarToast(`${nomeFinal} adicionado ao carrinho!`, 'sucesso');
     }
     
     // Restaura o botão original
@@ -491,7 +561,7 @@ function renderizarCarrinho() {
         if (item.sabores && item.sabores.length) {
             saboresHtml = `
                 <div class="item-adicionais">
-                    🍕 Sabores: ${item.sabores.join(' e ')}
+                    🍕 Sabores: ${item.sabores.map(s => s.nome).join(' e ')}
                 </div>
             `;
         }
@@ -551,82 +621,48 @@ function editarItemCarrinho(index) {
     const produto = produtos.find(p => p.id === item.produtoId);
     if (!produto) return;
     
-    // Armazena o índice que está sendo editado
     window.editandoCarrinhoIndex = index;
-    
     produtoSelecionado = produto;
     
-    // Restaura a quantidade
     quantidadeSelecionada = item.quantidade;
     document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
     
-    // Restaura os sabores
     saboresSelecionados = [...(item.sabores || [])];
-    
-    // Restaura os adicionais
     adicionaisSelecionados = item.adicionais ? item.adicionais.map(a => ({ nome: a.nome, preco: a.preco })) : [];
-    
-    // Restaura a observação
     document.getElementById('obsItem').value = item.observacao || '';
     
-    // Preenche o modal
-    document.getElementById('modalProdutoNome').innerText = produto.nome;
-    document.getElementById('modalProdutoDesc').innerText = produto.descricao || '';
-    document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(produto.preco);
+    // Preenche o modal (reaproveita a abertura normal)
+    abrirModalProduto(item.produtoId);
     
-    const img = document.getElementById('modalProdutoImg');
-    img.src = produto.imagem || LOGO_PADRAO;
-    img.onerror = () => { img.src = LOGO_PADRAO; };
-    
-    // Sabores da pizza
-    const saboresDiv = document.getElementById('saboresPizzaDiv');
-    if (produto.categoria === 'pizza' && produto.sabores) {
-        saboresDiv.style.display = 'block';
-        const lista = document.getElementById('saboresLista');
-        lista.innerHTML = '';
-        produto.sabores.forEach(sabor => {
-            const div = document.createElement('div');
-            div.className = 'sabor-item';
-            const checked = saboresSelecionados.includes(sabor) ? 'checked' : '';
-            div.innerHTML = `
-                <span>${sabor}</span>
-                <input type="checkbox" value="${sabor}" ${checked} onchange="toggleSaborPizza(this, '${sabor}')">
-            `;
-            lista.appendChild(div);
+    // Restaura os checkboxes dos sabores
+    setTimeout(() => {
+        const checkboxes = document.querySelectorAll('#saboresLista input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            const saborId = cb.value;
+            cb.checked = saboresSelecionados.some(s => s.id === saborId);
         });
-    } else {
-        saboresDiv.style.display = 'none';
-    }
+        atualizarPrecoPizza();
+    }, 100);
     
-    // Adicionais
-    const adicionaisDiv = document.getElementById('adicionaisDiv');
-    const adicionaisCat = adicionaisPorCategoria[produto.categoria] || [];
-    if (adicionaisCat.length > 0) {
-        adicionaisDiv.style.display = 'block';
-        const lista = document.getElementById('adicionaisLista');
-        lista.innerHTML = '';
-        adicionaisCat.forEach(adicional => {
-            const div = document.createElement('div');
-            div.className = 'adicional-item';
-            const estaSelecionado = adicionaisSelecionados.some(a => a.nome === adicional.nome);
-            const checked = estaSelecionado ? 'checked' : '';
-            div.innerHTML = `
-                <span>${adicional.nome} ${adicional.preco > 0 ? `(+${formatarPreco(adicional.preco)})` : ''}</span>
-                <input type="checkbox" value='${JSON.stringify(adicional)}' ${checked} onchange="toggleAdicional(this, '${adicional.nome}', ${adicional.preco})">
-            `;
-            lista.appendChild(div);
+    // Restaura os checkboxes dos adicionais
+    setTimeout(() => {
+        const checkboxes = document.querySelectorAll('#adicionaisLista input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            try {
+                const adicional = JSON.parse(cb.value);
+                cb.checked = adicionaisSelecionados.some(a => a.nome === adicional.nome);
+            } catch(e) {}
         });
-    } else {
-        adicionaisDiv.style.display = 'none';
-    }
+    }, 100);
     
-    // Altera o texto do botão para indicar edição
+    // Restaura a quantidade
+    document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
+    
+    // Altera o botão
     const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
     if (btnAdicionar) {
         btnAdicionar.innerHTML = '<i class="fas fa-save"></i> Atualizar Item';
     }
-    
-    document.getElementById('modalProduto').style.display = 'flex';
 }
 
 // ============================================
@@ -742,7 +778,6 @@ function initMobileFixes() {
     if (!header || !categoriasWrapper) return;
     
     if (!isMobile) {
-        // Reset para desktop (usa CSS sticky)
         header.style.position = '';
         header.style.top = '';
         header.style.left = '';
@@ -761,7 +796,6 @@ function initMobileFixes() {
         return;
     }
     
-    // Mobile: usa position fixed (JavaScript)
     header.style.position = 'fixed';
     header.style.top = '0';
     header.style.left = '0';
@@ -778,17 +812,12 @@ function initMobileFixes() {
     categoriasWrapper.style.width = '100%';
     categoriasWrapper.style.zIndex = '998';
     
-    // Empurra o conteúdo pra não ficar escondido atrás
     document.body.style.paddingTop = (headerHeight + categoriasWrapper.offsetHeight + 10) + 'px';
 }
 
-// Roda ao carregar
 window.addEventListener('load', initMobileFixes);
-
-// Roda ao redimensionar
 window.addEventListener('resize', debounce(initMobileFixes, 200));
 
-// Também roda após renderizar produtos
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(initMobileFixes, 500);
 });
@@ -801,6 +830,7 @@ window.toggleTema = toggleTema;
 window.abrirModalProduto = abrirModalProduto;
 window.fecharModalProduto = fecharModalProduto;
 window.toggleSaborPizza = toggleSaborPizza;
+window.atualizarPrecoPizza = atualizarPrecoPizza;
 window.toggleAdicional = toggleAdicional;
 window.aumentarQuantidade = aumentarQuantidade;
 window.diminuirQuantidade = diminuirQuantidade;
