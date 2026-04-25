@@ -48,7 +48,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupAtalhoSecreto();
     
     setInterval(verificarHorario, 60000);
-    setTimeout(initMobileFixes, 500);
 });
 
 // ============================================
@@ -177,53 +176,43 @@ function verificarSetinhas() {
 
 function filtrarPorCategoria(categoria, tabElement = null) {
     categoriaAtual = categoria;
-
+    
+    document.querySelectorAll('.categoria-tab').forEach(tab => {
+        tab.classList.remove('ativo');
+    });
+    
     if (tabElement) {
         tabElement.classList.add('ativo');
     }
-
+    
     // Centralizar tab
     if (tabElement) {
         const container = document.getElementById('categoriasTabs');
         const containerRect = container.getBoundingClientRect();
         const tabRect = tabElement.getBoundingClientRect();
-
+        
         const tabCentro = tabRect.left - containerRect.left + (tabRect.width / 2);
         const containerCentro = containerRect.width / 2;
         const scrollPara = container.scrollLeft + tabCentro - containerCentro;
-
+        
         container.scrollTo({
             left: Math.max(0, scrollPara),
             behavior: 'smooth'
         });
-
+        
         setTimeout(verificarSetinhas, 400);
     }
-
-    // render
+    
     renderizarProdutos();
+    
+const produtosGrid = document.getElementById('produtosGrid');
 
-    // scroll (correto)
- setTimeout(() => {
-    const produtosGrid = document.getElementById('produtosGrid');
-    const header = document.querySelector('.header');
-    const categorias = document.querySelector('.categorias-wrapper');
-
-    if (produtosGrid) {
-
-        const offset =
-            (header?.offsetHeight || 0) +
-            (categorias?.offsetHeight || 0) +
-            10;
-
-        const y = produtosGrid.getBoundingClientRect().top + window.scrollY - offset;
-
-        window.scrollTo({
-            top: y,
-            behavior: 'smooth'
-        });
-    }
-}, 120);
+if (produtosGrid) {
+    produtosGrid.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+    });
+}
 }
 // ============================================
 // ===== RENDERIZAÇÃO DE PRODUTOS ============
