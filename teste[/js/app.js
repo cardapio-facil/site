@@ -26,6 +26,7 @@ let categoriaAtual = 'todos';
 document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('restauranteNome').innerText = NOME_RESTAURANTE;
     carregarTemaSalvo();
+    window.editandoCarrinhoIndex = null;
     
     const data = await carregarDadosFirebase();
     
@@ -366,6 +367,15 @@ function abrirModalProduto(produtoId) {
 
 function fecharModalProduto() {
     document.getElementById('modalProduto').style.display = 'none';
+    
+    // Limpa o estado de edição
+    window.editandoCarrinhoIndex = null;
+    
+    // Restaura o botão original
+    const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
+    if (btnAdicionar) {
+        btnAdicionar.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
+    }
 }
 
 function toggleSaborPizza(checkbox, sabor) {
@@ -420,10 +430,24 @@ function adicionarAoCarrinho() {
         sabores: produtoSelecionado.categoria === 'pizza' ? [...saboresSelecionados] : []
     };
     
-    carrinho.push(itemCarrinho);
+    // Verifica se está editando um item existente
+    if (window.editandoCarrinhoIndex !== undefined && window.editandoCarrinhoIndex !== null) {
+        carrinho[window.editandoCarrinhoIndex] = itemCarrinho;
+        window.editandoCarrinhoIndex = null;
+        mostrarToast('Item atualizado!', 'sucesso');
+    } else {
+        carrinho.push(itemCarrinho);
+        mostrarToast(`${produtoSelecionado.nome} adicionado ao carrinho!`, 'sucesso');
+    }
+    
+    // Restaura o botão original
+    const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
+    if (btnAdicionar) {
+        btnAdicionar.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
+    }
+    
     renderizarCarrinho();
     fecharModalProduto();
-    mostrarToast(`${produtoSelecionado.nome} adicionado ao carrinho!`, 'sucesso');
 }
 
 // ============================================
@@ -524,8 +548,85 @@ function duplicarItemCarrinho(index) {
 
 function editarItemCarrinho(index) {
     const item = carrinho[index];
-    abrirModalProduto(item.produtoId);
-    mostrarToast('Edição em desenvolvimento', 'info');
+    const produto = produtos.find(p => p.id === item.produtoId);
+    if (!produto) return;
+    
+    // Armazena o índice que está sendo editado
+    window.editandoCarrinhoIndex = index;
+    
+    produtoSelecionado = produto;
+    
+    // Restaura a quantidade
+    quantidadeSelecionada = item.quantidade;
+    document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
+    
+    // Restaura os sabores
+    saboresSelecionados = [...(item.sabores || [])];
+    
+    // Restaura os adicionais
+    adicionaisSelecionados = item.adicionais ? item.adicionais.map(a => ({ nome: a.nome, preco: a.preco })) : [];
+    
+    // Restaura a observação
+    document.getElementById('obsItem').value = item.observacao || '';
+    
+    // Preenche o modal
+    document.getElementById('modalProdutoNome').innerText = produto.nome;
+    document.getElementById('modalProdutoDesc').innerText = produto.descricao || '';
+    document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(produto.preco);
+    
+    const img = document.getElementById('modalProdutoImg');
+    img.src = produto.imagem || LOGO_PADRAO;
+    img.onerror = () => { img.src = LOGO_PADRAO; };
+    
+    // Sabores da pizza
+    const saboresDiv = document.getElementById('saboresPizzaDiv');
+    if (produto.categoria === 'pizza' && produto.sabores) {
+        saboresDiv.style.display = 'block';
+        const lista = document.getElementById('saboresLista');
+        lista.innerHTML = '';
+        produto.sabores.forEach(sabor => {
+            const div = document.createElement('div');
+            div.className = 'sabor-item';
+            const checked = saboresSelecionados.includes(sabor) ? 'checked' : '';
+            div.innerHTML = `
+                <span>${sabor}</span>
+                <input type="checkbox" value="${sabor}" ${checked} onchange="toggleSaborPizza(this, '${sabor}')">
+            `;
+            lista.appendChild(div);
+        });
+    } else {
+        saboresDiv.style.display = 'none';
+    }
+    
+    // Adicionais
+    const adicionaisDiv = document.getElementById('adicionaisDiv');
+    const adicionaisCat = adicionaisPorCategoria[produto.categoria] || [];
+    if (adicionaisCat.length > 0) {
+        adicionaisDiv.style.display = 'block';
+        const lista = document.getElementById('adicionaisLista');
+        lista.innerHTML = '';
+        adicionaisCat.forEach(adicional => {
+            const div = document.createElement('div');
+            div.className = 'adicional-item';
+            const estaSelecionado = adicionaisSelecionados.some(a => a.nome === adicional.nome);
+            const checked = estaSelecionado ? 'checked' : '';
+            div.innerHTML = `
+                <span>${adicional.nome} ${adicional.preco > 0 ? `(+${formatarPreco(adicional.preco)})` : ''}</span>
+                <input type="checkbox" value='${JSON.stringify(adicional)}' ${checked} onchange="toggleAdicional(this, '${adicional.nome}', ${adicional.preco})">
+            `;
+            lista.appendChild(div);
+        });
+    } else {
+        adicionaisDiv.style.display = 'none';
+    }
+    
+    // Altera o texto do botão para indicar edição
+    const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
+    if (btnAdicionar) {
+        btnAdicionar.innerHTML = '<i class="fas fa-save"></i> Atualizar Item';
+    }
+    
+    document.getElementById('modalProduto').style.display = 'flex';
 }
 
 // ============================================
