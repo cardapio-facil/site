@@ -205,19 +205,12 @@ function filtrarPorCategoria(categoria, tabElement = null) {
     
     renderizarProdutos();
     
- const produtosGrid = document.getElementById('produtosGrid');
+const produtosGrid = document.getElementById('produtosGrid');
 
 if (produtosGrid) {
-    const headerHeight = document.querySelector('.header')?.offsetHeight || 80;
-    const categoriasHeight = document.querySelector('.categorias-wrapper')?.offsetHeight || 50;
-
-    const offset = headerHeight + categoriasHeight + 10;
-
-    const y = produtosGrid.getBoundingClientRect().top + window.scrollY - offset;
-
-    window.scrollTo({
-        top: y,
-        behavior: 'smooth'
+    produtosGrid.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
     });
 }
 }
