@@ -1714,3 +1714,322 @@ select:focus {
         font-size: 0.8rem;
     }
 }
+/* ============================================ */
+/* ===== BOTÕES DE BUSCA DE ENDEREÇO ========== */
+/* ============================================ */
+
+/* Container dos botões de busca */
+.busca-endereco-botoes {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* Botão "Não sei meu CEP" */
+.btn-buscar-endereco {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border: 2px dashed var(--cor-primaria);
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fff5f0, #ffe8e0);
+    color: var(--cor-primaria);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.3px;
+}
+
+.btn-buscar-endereco:hover {
+    border-style: solid;
+    background: linear-gradient(135deg, var(--cor-primaria), #ff6d00);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.3);
+}
+
+.btn-buscar-endereco:active {
+    transform: translateY(0);
+}
+
+.btn-buscar-endereco i {
+    font-size: 1.1rem;
+}
+
+/* ============================================ */
+/* ===== MODAL DE BUSCA DE ENDEREÇO =========== */
+/* ============================================ */
+
+.modal-busca-content {
+    max-width: 600px;
+}
+
+/* Grupo de input + botão buscar */
+.busca-endereco-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.busca-endereco-input-group input {
+    flex: 1;
+    padding: 14px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fafafa;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.busca-endereco-input-group input:focus {
+    border-color: var(--cor-primaria);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+    outline: none;
+}
+
+.busca-endereco-input-group input::placeholder {
+    color: #bdbdbd;
+}
+
+/* Botão BUSCAR dentro do modal */
+.btn-buscar-avancado {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--cor-primaria), #ff6d00);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.btn-buscar-avancado:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
+    background: linear-gradient(135deg, #e53935, #ff3d00);
+}
+
+.btn-buscar-avancado:active {
+    transform: translateY(0);
+}
+
+.btn-buscar-avancado i {
+    font-size: 1rem;
+}
+
+/* ============================================ */
+/* ===== RESULTADOS DA BUSCA ================== */
+/* ============================================ */
+
+#resultadosBuscaEndereco {
+    max-height: 350px;
+    overflow-y: auto;
+    border: 2px solid #f0f0f0;
+    border-radius: 16px;
+    background: #ffffff;
+}
+
+.resultado-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 18px;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.resultado-item:last-child {
+    border-bottom: none;
+}
+
+.resultado-item:hover {
+    background: linear-gradient(135deg, #fff5f0, #ffe8e0);
+    padding-left: 24px;
+    border-left: 4px solid var(--cor-primaria);
+}
+
+.resultado-cep {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--cor-primaria);
+    letter-spacing: 0.5px;
+}
+
+.resultado-endereco {
+    font-size: 0.85rem;
+    color: var(--cor-texto-claro);
+    line-height: 1.4;
+}
+
+/* Estado vazio da busca */
+#resultadosBuscaEndereco .busca-vazia {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--cor-texto-claro);
+}
+
+#resultadosBuscaEndereco .busca-vazia i {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    opacity: 0.2;
+}
+
+#resultadosBuscaEndereco .busca-vazia p {
+    font-size: 0.9rem;
+    color: #bdbdbd;
+}
+
+/* ============================================ */
+/* ===== LOADER DA BUSCA ====================== */
+/* ============================================ */
+
+.loader-busca {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    gap: 15px;
+}
+
+.loader-busca .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f0f0f0;
+    border-top-color: var(--cor-primaria);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loader-busca p {
+    color: var(--cor-texto-claro);
+    font-size: 0.9rem;
+}
+
+/* ============================================ */
+/* ===== BOTÃO CEP (LADO DO INPUT) ============ */
+/* ============================================ */
+
+.cep-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.cep-container .checkout-input {
+    flex: 1;
+}
+
+.btn-buscar-cep {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: auto;
+    min-width: 100px;
+    height: 48px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--cor-primaria), #ff6d00);
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+    white-space: nowrap;
+}
+
+.btn-buscar-cep:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
+}
+
+.btn-buscar-cep:active {
+    transform: translateY(0);
+}
+
+.btn-buscar-cep.buscando {
+    background: #cccccc;
+    pointer-events: none;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* ============================================ */
+/* ===== MELHORIA DO MODAL DE BUSCA =========== */
+/* ============================================ */
+
+#modalBuscaEndereco .modal-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+}
+
+#modalBuscaEndereco .modal-header h3 i {
+    color: var(--cor-primaria);
+}
+
+#cidadeUfBusca {
+    color: var(--cor-primaria);
+    font-weight: 600;
+}
+
+/* ============================================ */
+/* ===== RESPONSIVO =========================== */
+/* ============================================ */
+
+@media (max-width: 600px) {
+    .btn-buscar-cep {
+        min-width: 50px;
+        padding: 0 12px;
+        font-size: 0.8rem;
+    }
+    
+    .btn-buscar-avancado {
+        padding: 14px 18px;
+        font-size: 0.85rem;
+    }
+    
+    .busca-endereco-input-group {
+        flex-direction: column;
+    }
+    
+    .btn-buscar-endereco {
+        font-size: 0.85rem;
+        padding: 12px 16px;
+    }
+}
