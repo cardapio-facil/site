@@ -205,21 +205,12 @@ function filtrarPorCategoria(categoria, tabElement = null) {
     
     renderizarProdutos();
     
-const destaque = document.getElementById('destaquesSection');
 const produtosGrid = document.getElementById('produtosGrid');
 
-let alvo = produtosGrid;
-
-if (destaque && destaque.style.display !== 'none') {
-    alvo = destaque;
-}
-
-if (alvo) {
-    const y = alvo.getBoundingClientRect().top + window.pageYOffset;
-
-    window.scrollTo({
-        top: y - 20, // pequeno ajuste
-        behavior: 'smooth'
+if (produtosGrid) {
+    produtosGrid.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
     });
 }
 }
