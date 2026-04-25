@@ -7,6 +7,27 @@ function abrirModalLogin() {
     document.getElementById('modalLogin').style.display = 'flex';
     document.getElementById('senhaAdmin').value = '';
     document.getElementById('erroLogin').style.display = 'none';
+    
+    // Foca no campo de senha e adiciona evento de Enter
+    setTimeout(() => {
+        const senhaInput = document.getElementById('senhaAdmin');
+        if (senhaInput) {
+            senhaInput.focus();
+            
+            // Remove evento antigo para não duplicar
+            senhaInput.removeEventListener('keypress', loginEnterHandler);
+            // Adiciona o evento de Enter
+            senhaInput.addEventListener('keypress', loginEnterHandler);
+        }
+    }, 100);
+}
+
+// Função auxiliar para capturar o Enter
+function loginEnterHandler(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        verificarLogin();
+    }
 }
 
 function fecharModalLogin() {
