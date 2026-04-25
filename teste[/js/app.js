@@ -208,11 +208,9 @@ function filtrarPorCategoria(categoria, tabElement = null) {
 const produtosGrid = document.getElementById('produtosGrid');
 
 if (produtosGrid) {
-    const y = produtosGrid.getBoundingClientRect().top + window.scrollY;
-
-    window.scrollTo({
-        top: y - 150,
-        behavior: 'smooth'
+    produtosGrid.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest'
     });
 }
 }
