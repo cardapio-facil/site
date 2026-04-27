@@ -432,6 +432,15 @@ function abrirModalProduto(produtoId) {
                            data-preco="${pizza.preco}" 
                            onchange="toggleSaborPizza(this, '${pizza.id}', '${pizza.nome.replace(/'/g, "\\'")}', ${pizza.preco})">
                 `;
+                div.style.cursor = 'pointer';
+div.onclick = function(e) {
+    // Não dispara se clicou no próprio checkbox
+    if (e.target.tagName !== 'INPUT') {
+        const cb = this.querySelector('input[type="checkbox"]');
+        cb.checked = !cb.checked;
+        cb.dispatchEvent(new Event('change'));
+    }
+};
                 lista.appendChild(div);
             });
         }
@@ -452,6 +461,14 @@ function abrirModalProduto(produtoId) {
                 <span>${adicional.nome} ${adicional.preco > 0 ? `(+${formatarPreco(adicional.preco)})` : ''}</span>
                 <input type="checkbox" value='${JSON.stringify(adicional)}' onchange="toggleAdicional(this, '${adicional.nome}', ${adicional.preco})">
             `;
+            div.style.cursor = 'pointer';
+div.onclick = function(e) {
+    if (e.target.tagName !== 'INPUT') {
+        const cb = this.querySelector('input[type="checkbox"]');
+        cb.checked = !cb.checked;
+        cb.dispatchEvent(new Event('change'));
+    }
+};
             lista.appendChild(div);
         });
     } else {
@@ -578,6 +595,14 @@ function abrirModalMontagem(montagemId) {
                        onchange="selecionarTamanho('${tamanho.id}')">
                 <span>${tamanho.nome} ${tamanho.preco > 0 ? `(+${formatarPreco(tamanho.preco)})` : ''}</span>
             `;
+            div.style.cursor = 'pointer';
+div.onclick = function(e) {
+    if (e.target.tagName !== 'INPUT') {
+        const radio = this.querySelector('input[type="radio"]');
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change'));
+    }
+};
             tamanhoLista.appendChild(div);
         });
         
@@ -612,6 +637,14 @@ function abrirModalMontagem(montagemId) {
                        onchange="toggleItemMontagem(this, '${grupo.id}', '${item.id}', '${item.nome.replace(/'/g, "\\'")}', ${item.preco}, ${grupo.limite})">
                 <span>${item.nome} ${item.preco > 0 ? `(+${formatarPreco(item.preco)})` : ''}</span>
             `;
+            div.style.cursor = 'pointer';
+div.onclick = function(e) {
+    if (e.target.tagName !== 'INPUT') {
+        const cb = this.querySelector('input[type="checkbox"]');
+        cb.checked = !cb.checked;
+        cb.dispatchEvent(new Event('change'));
+    }
+};
             itensLista.appendChild(div);
         });
         
