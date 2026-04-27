@@ -333,6 +333,11 @@ body {
     font-weight: 600;
 }
 
+.badge-destaque.direita {
+    left: auto;
+    right: 10px;
+}
+
 /* 🛠️ Badge de Montagem */
 .badge-montagem {
     position: absolute;
