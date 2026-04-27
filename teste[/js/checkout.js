@@ -759,14 +759,16 @@ async function confirmarPedido() {
         numero: Math.floor(Math.random() * 10000),
         data: new Date().toISOString(),
         cliente: { nome, telefone },
-        itens: carrinho.map(item => ({
-            nome: item.nome,
-            quantidade: item.quantidade,
-            precoUnitario: item.precoUnitario,
-            observacao: item.observacao,
-            adicionais: item.adicionais,
-            sabores: item.sabores
-        })),
+      itens: carrinho.map(item => ({
+    nome: item.nome || '',
+    quantidade: item.quantidade || 1,
+    precoUnitario: item.precoUnitario || 0,
+    observacao: item.observacao || '',
+    adicionais: item.adicionais && item.adicionais.length > 0 ? item.adicionais : [],
+    sabores: item.sabores && item.sabores.length > 0 ? item.sabores : [],
+    tipo: item.tipo || 'produto',
+    montagemDetalhes: item.montagemDetalhes || null
+})),
         subtotal: subtotal,
         frete: frete,
         total: total,
