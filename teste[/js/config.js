@@ -42,12 +42,10 @@ const CONFIG_PADRAO = {
 {OBS}`
 };
 
-// 🍕 CATEGORIAS PADRÃO
-// A categoria 'pizza' é FIXA e NÃO pode ser removida ou recriada
-// Cada produto cadastrado na categoria 'pizza' vira automaticamente um sabor disponível
+// CATEGORIAS PADRÃO
 const CATEGORIAS_PADRAO = [
     'hamburguer', 
-    'pizza',           // ← FIXA: não pode ser excluída
+    'pizza',
     'refeicao', 
     'cachorro-quente', 
     'porcao', 
@@ -55,7 +53,7 @@ const CATEGORIAS_PADRAO = [
     'doces'
 ];
 
-// 🍕 CATEGORIA FIXA QUE NÃO PODE SER EXCLUÍDA
+// CATEGORIA FIXA QUE NÃO PODE SER EXCLUÍDA
 const CATEGORIA_FIXA = 'pizza';
 
 // ÍCONES DAS CATEGORIAS
@@ -80,6 +78,78 @@ const NOMES_CATEGORIA = {
     'doces': 'Doces'
 };
 
+// Controle de visibilidade das categorias
+const CATEGORIAS_VISIVEIS_PADRAO = {
+    'hamburguer': true,
+    'pizza': true,
+    'refeicao': true,
+    'cachorro-quente': true,
+    'porcao': true,
+    'bebidas': true,
+    'doces': true
+};
+
+// 🛠️ ESTRUTURA PADRÃO DE MONTAGEM (exemplo Marmitex)
+const MONTAGENS_PADRAO = [
+    {
+        id: 'mont1',
+        nome: 'Marmitex',
+        descricao: 'Monte sua refeição do seu jeito',
+        categoria: 'refeicao',
+        precoBase: 25.00,
+        imagem: '',
+        disponivel: true,
+        destaque: true,
+        tamanhos: [
+            { id: 'tam1', nome: 'Pequeno (500g)', preco: 0 },
+            { id: 'tam2', nome: 'Médio (700g)', preco: 5.00 },
+            { id: 'tam3', nome: 'Grande (1kg)', preco: 10.00 }
+        ],
+        grupos: [
+            {
+                id: 'grp1',
+                nome: 'Carnes',
+                limite: 1,
+                obrigatorio: true,
+                itens: [
+                    { id: 'itm1', nome: 'Frango Grelhado', preco: 0, disponivel: true },
+                    { id: 'itm2', nome: 'Bife Acebolado', preco: 5.00, disponivel: true },
+                    { id: 'itm3', nome: 'Linguiça Toscana', preco: 3.00, disponivel: true },
+                    { id: 'itm4', nome: 'Filé de Tilápia', preco: 7.00, disponivel: true }
+                ]
+            },
+            {
+                id: 'grp2',
+                nome: 'Acompanhamentos',
+                limite: 3,
+                obrigatorio: true,
+                itens: [
+                    { id: 'itm5', nome: 'Arroz Branco', preco: 0, disponivel: true },
+                    { id: 'itm6', nome: 'Arroz Integral', preco: 2.00, disponivel: true },
+                    { id: 'itm7', nome: 'Feijão Carioca', preco: 0, disponivel: true },
+                    { id: 'itm8', nome: 'Feijão Tropeiro', preco: 3.00, disponivel: true },
+                    { id: 'itm9', nome: 'Batata Frita', preco: 4.00, disponivel: true },
+                    { id: 'itm10', nome: 'Salada Verde', preco: 0, disponivel: true },
+                    { id: 'itm11', nome: 'Legumes Salteados', preco: 2.00, disponivel: true },
+                    { id: 'itm12', nome: 'Purê de Batata', preco: 2.00, disponivel: true }
+                ]
+            },
+            {
+                id: 'grp3',
+                nome: 'Extras',
+                limite: 2,
+                obrigatorio: false,
+                itens: [
+                    { id: 'itm13', nome: 'Ovo Frito', preco: 3.00, disponivel: true },
+                    { id: 'itm14', nome: 'Bacon Crocante', preco: 5.00, disponivel: true },
+                    { id: 'itm15', nome: 'Queijo Coalho', preco: 4.00, disponivel: true },
+                    { id: 'itm16', nome: 'Banana Frita', preco: 3.00, disponivel: true }
+                ]
+            }
+        ]
+    }
+];
+
 // ===== FUNÇÕES AUXILIARES =====
 function formatarPreco(valor) {
     return new Intl.NumberFormat('pt-BR', {
@@ -92,7 +162,6 @@ function parsePreco(precoStr) {
     if (typeof precoStr === 'number') return precoStr;
     if (!precoStr) return 0;
     
-    // Remove 'R$' e espaços, troca vírgula por ponto
     const valor = precoStr.toString()
         .replace('R$', '')
         .replace(/\./g, '')
@@ -114,12 +183,10 @@ function gerarId() {
     return Date.now().toString(36) + '-' + Math.random().toString(36).substr(2, 9);
 }
 
-// 🍕 Verifica se uma categoria é fixa (não pode ser excluída)
 function isCategoriaFixa(cat) {
     return cat === CATEGORIA_FIXA;
 }
 
-// 🍕 Retorna todos os sabores de pizza disponíveis (produtos ativos da categoria pizza)
 function getSaboresPizzaDisponiveis() {
     return produtos.filter(p => 
         p.categoria === CATEGORIA_FIXA && 
@@ -127,14 +194,29 @@ function getSaboresPizzaDisponiveis() {
     );
 }
 
-// 🍕 Calcula o preço para pizza (maior valor entre os sabores escolhidos)
 function calcularPrecoPizza(precoBase, saboresEscolhidos) {
     if (!saboresEscolhidos || saboresEscolhidos.length === 0) {
         return precoBase;
     }
-    
     const maiorPrecoSabor = Math.max(...saboresEscolhidos.map(s => s.preco));
     return Math.max(precoBase, maiorPrecoSabor);
+}
+
+// 🛠️ Calcula preço da montagem
+function calcularPrecoMontagem(montagem, tamanhoEscolhido, itensSelecionados) {
+    let preco = montagem.precoBase;
+    
+    // Adiciona preço do tamanho
+    if (tamanhoEscolhido) {
+        preco += tamanhoEscolhido.preco;
+    }
+    
+    // Adiciona preço dos itens selecionados
+    itensSelecionados.forEach(item => {
+        preco += item.preco || 0;
+    });
+    
+    return preco;
 }
 
 // ===== FUNÇÃO DE TOAST MELHORADA =====
@@ -245,6 +327,9 @@ window.gerarId = gerarId;
 window.isCategoriaFixa = isCategoriaFixa;
 window.getSaboresPizzaDisponiveis = getSaboresPizzaDisponiveis;
 window.calcularPrecoPizza = calcularPrecoPizza;
+window.calcularPrecoMontagem = calcularPrecoMontagem;
 window.mostrarToast = mostrarToast;
 window.mostrarLoader = mostrarLoader;
 window.isRestauranteAberto = isRestauranteAberto;
+window.CATEGORIAS_VISIVEIS_PADRAO = CATEGORIAS_VISIVEIS_PADRAO;
+window.MONTAGENS_PADRAO = MONTAGENS_PADRAO;
