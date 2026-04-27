@@ -8,21 +8,16 @@ function abrirModalLogin() {
     document.getElementById('senhaAdmin').value = '';
     document.getElementById('erroLogin').style.display = 'none';
     
-    // Foca no campo de senha e adiciona evento de Enter
     setTimeout(() => {
         const senhaInput = document.getElementById('senhaAdmin');
         if (senhaInput) {
             senhaInput.focus();
-            
-            // Remove evento antigo para não duplicar
             senhaInput.removeEventListener('keypress', loginEnterHandler);
-            // Adiciona o evento de Enter
             senhaInput.addEventListener('keypress', loginEnterHandler);
         }
     }, 100);
 }
 
-// Função auxiliar para capturar o Enter
 function loginEnterHandler(event) {
     if (event.key === 'Enter') {
         event.preventDefault();
@@ -67,11 +62,11 @@ function atualizarInterfaceAdmin() {
     if (adminLogado) {
         adminBtn.innerHTML = '👑 Admin (Logado)';
         adminBtn.classList.add('logado');
-        adminBtn.style.display = 'inline-block';  // ← Mostra o botão
+        adminBtn.style.display = 'inline-block';
     } else {
         adminBtn.innerHTML = '👤 Área Admin';
         adminBtn.classList.remove('logado');
-        adminBtn.style.display = 'none';  // ← ESCONDE completamente
+        adminBtn.style.display = 'none';
     }
     
     const gerenciarBtn = document.getElementById('gerenciarDestaquesBtn');
@@ -100,7 +95,7 @@ function abrirModalAdmin() {
     carregarAdminProdutos();
     carregarAdminCategorias();
     carregarAdminAdicionais();
-    carregarAdminPedidos();
+    carregarAdminMontagens();
     carregarAdminConfig();
     
     document.getElementById('modalAdmin').style.display = 'flex';
@@ -114,7 +109,7 @@ function mostrarAbaAdmin(aba) {
     document.getElementById('adminProdutos').style.display = aba === 'produtos' ? 'block' : 'none';
     document.getElementById('adminCategorias').style.display = aba === 'categorias' ? 'block' : 'none';
     document.getElementById('adminAdicionais').style.display = aba === 'adicionais' ? 'block' : 'none';
-    document.getElementById('adminPedidos').style.display = aba === 'pedidos' ? 'block' : 'none';
+    document.getElementById('adminMontagens').style.display = aba === 'montagens' ? 'block' : 'none';
     document.getElementById('adminConfig').style.display = aba === 'config' ? 'block' : 'none';
     
     document.querySelectorAll('.admin-tabs .categoria-tab').forEach(tab => {
@@ -122,7 +117,7 @@ function mostrarAbaAdmin(aba) {
     });
     
     const tabs = document.querySelectorAll('.admin-tabs .categoria-tab');
-    const index = ['produtos', 'categorias', 'adicionais', 'pedidos', 'config'].indexOf(aba);
+    const index = ['produtos', 'categorias', 'adicionais', 'montagens', 'config'].indexOf(aba);
     if (index >= 0) tabs[index].classList.add('ativo');
 }
 
@@ -180,7 +175,6 @@ function abrirModalCadastroProduto() {
     document.getElementById('produtoDisponivel').checked = true;
     document.getElementById('produtoDestaque').checked = false;
     
-    // 🍕 Esconde o campo de sabores (não é mais usado)
     const saboresCadastro = document.getElementById('saboresCadastro');
     if (saboresCadastro) {
         saboresCadastro.style.display = 'none';
@@ -209,7 +203,6 @@ function editarProduto(id) {
     document.getElementById('produtoDestaque').checked = produto.destaque || false;
     document.getElementById('produtoCategoria').value = produto.categoria;
     
-    // 🍕 Esconde o campo de sabores (não é mais usado)
     const saboresCadastro = document.getElementById('saboresCadastro');
     if (saboresCadastro) {
         saboresCadastro.style.display = 'none';
@@ -247,9 +240,6 @@ async function salvarProduto() {
         disponivel: document.getElementById('produtoDisponivel').checked,
         destaque: document.getElementById('produtoDestaque').checked
     };
-    
-    // 🍕 Remove o campo sabores (não é mais usado, cada produto de pizza já é um sabor)
-    // O campo sabores não é mais salvo
     
     if (produtoEditando) {
         const index = produtos.findIndex(p => p.id === produtoEditando.id);
@@ -299,21 +289,50 @@ function carregarAdminCategorias() {
             border-bottom: 1px solid var(--cor-borda);
         `;
         
-        // 🍕 Para a categoria pizza, mostra um ícone de cadeado e NÃO mostra botão de excluir
+        const visivel = categoriasVisiveis[cat] !== false;
+        
         if (cat === 'pizza') {
             div.innerHTML = `
                 <span>🔒 ${getIconeCategoria(cat)} ${getNomeCategoria(cat)} <small style="color: #e65100;">(fixa)</small></span>
-                <span style="color: #999; font-size: 0.8rem;">🔒 Protegida</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-size: 0.8rem; cursor: pointer;">
+                        <input type="checkbox" ${visivel ? 'checked' : ''} onchange="toggleVisibilidadeCategoria('${cat}', this.checked)" ${nivelAcesso !== 'master' ? 'disabled' : ''}>
+                        Visível
+                    </label>
+                    <span style="color: #999; font-size: 0.8rem;">🔒</span>
+                </div>
             `;
         } else {
             div.innerHTML = `
                 <span>${getIconeCategoria(cat)} ${getNomeCategoria(cat)}</span>
-                <button onclick="excluirCategoria('${cat}')" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <label style="font-size: 0.8rem; cursor: pointer;">
+                        <input type="checkbox" ${visivel ? 'checked' : ''} onchange="toggleVisibilidadeCategoria('${cat}', this.checked)" ${nivelAcesso !== 'master' ? 'disabled' : ''}>
+                        Visível
+                    </label>
+                    <button onclick="excluirCategoria('${cat}')" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+                </div>
             `;
         }
         
         container.appendChild(div);
     });
+}
+
+async function toggleVisibilidadeCategoria(cat, visivel) {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode alterar visibilidade', 'alerta');
+        return;
+    }
+    
+    categoriasVisiveis[cat] = visivel;
+    
+    const sucesso = await salvarCategoriasVisiveisFirebase(categoriasVisiveis);
+    if (sucesso) {
+        const status = visivel ? 'visível' : 'oculta';
+        mostrarToast(`Categoria ${getNomeCategoria(cat)} agora está ${status}`, 'sucesso');
+        renderizarTodasCategorias();
+    }
 }
 
 async function adicionarCategoria() {
@@ -324,7 +343,6 @@ async function adicionarCategoria() {
     
     const novaCat = document.getElementById('novaCategoria').value.trim().toLowerCase().replace(/\s/g, '-');
     
-    // 🍕 Bloqueia tentativa de criar categoria "pizza" duplicada
     if (novaCat === 'pizza') {
         mostrarToast('Ação bloqueada', 'A categoria Pizza já existe e é fixa no sistema', 'alerta');
         return;
@@ -332,6 +350,8 @@ async function adicionarCategoria() {
     
     if (novaCat && !categorias.includes(novaCat)) {
         categorias.push(novaCat);
+        categoriasVisiveis[novaCat] = true;
+        await salvarCategoriasVisiveisFirebase(categoriasVisiveis);
         const sucesso = await salvarCategoriasFirebase(categorias);
         if (sucesso) {
             mostrarToast('Categoria adicionada!', 'sucesso');
@@ -348,7 +368,6 @@ async function excluirCategoria(cat) {
         return;
     }
     
-    // 🍕 Bloqueia exclusão da categoria pizza
     if (cat === 'pizza') {
         mostrarToast('Ação bloqueada', 'A categoria Pizza é fixa e não pode ser excluída', 'alerta');
         return;
@@ -445,81 +464,376 @@ async function excluirAdicional(categoria, index) {
     }
 }
 
-// ===== ADMIN PEDIDOS =====
-async function carregarAdminPedidos() {
-    const data = await carregarDadosFirebase();
-    const pedidos = data.pedidos || {};
-    
-    const container = document.getElementById('listaPedidosAdmin');
+// ============================================
+// ===== 🛠️ ADMIN MONTAGENS ==================
+// ============================================
+
+let montagemEditando = null;
+
+function carregarAdminMontagens() {
+    const container = document.getElementById('listaMontagens');
     container.innerHTML = '';
     
-    const pedidosArray = Object.values(pedidos).sort((a, b) => b.id - a.id);
+    if (montagens.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: var(--cor-texto-claro);">
+                <i class="fas fa-puzzle-piece" style="font-size: 3rem; opacity: 0.3;"></i>
+                <p>Nenhuma montagem cadastrada</p>
+                <p style="font-size: 0.8rem;">Crie sua primeira montagem para "Monte o Produto"</p>
+            </div>
+        `;
+        return;
+    }
     
-    pedidosArray.forEach(pedido => {
+    montagens.forEach(montagem => {
+        const totalItens = montagem.grupos.reduce((sum, g) => sum + g.itens.length, 0);
+        
         const div = document.createElement('div');
         div.style.cssText = `
             padding: 15px;
-            border-bottom: 1px solid var(--cor-borda);
+            border: 1px solid var(--cor-borda);
+            border-radius: 12px;
             margin-bottom: 10px;
-            background: #f9f9f9;
-            border-radius: 8px;
+            background: #fafafa;
         `;
-        
-        const dataPedido = new Date(pedido.data).toLocaleString('pt-BR');
-        
-        let statusCor = '#f39c12';
-        if (pedido.status === 'entregue') statusCor = '#2ecc71';
-        if (pedido.status === 'cancelado') statusCor = '#e74c3c';
-        
         div.innerHTML = `
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                <strong>Pedido #${pedido.numero || pedido.id.slice(-4)}</strong>
-                <span style="background: ${statusCor}; color: white; padding: 2px 10px; border-radius: 20px; font-size: 0.8rem;">
-                    ${pedido.status || 'novo'}
-                </span>
-            </div>
-            <div><i class="fas fa-user"></i> ${pedido.cliente?.nome || 'N/A'}</div>
-            <div><i class="fas fa-phone"></i> ${pedido.cliente?.telefone || 'N/A'}</div>
-            <div><i class="fas fa-clock"></i> ${dataPedido}</div>
-            <div style="margin-top: 10px;"><strong>Itens:</strong></div>
-            ${pedido.itens?.map(item => `
-                <div style="margin-left: 10px; font-size: 0.9rem;">
-                    ${item.quantidade}x ${item.nome} - ${formatarPreco(item.precoUnitario * item.quantidade)}
-                    ${item.sabores && item.sabores.length ? `<br><small>🍕 Sabores: ${item.sabores.map(s => s.nome).join(' e ')}</small>` : ''}
-                    ${item.adicionais && item.adicionais.length ? `<br><small>➕ ${item.adicionais.map(a => a.nome).join(', ')}</small>` : ''}
-                    ${item.observacao ? `<br><small>📝 ${item.observacao}</small>` : ''}
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                    <strong style="font-size: 1.1rem;">🧩 ${montagem.nome}</strong>
+                    <div style="margin-top: 5px; font-size: 0.85rem; color: var(--cor-texto-claro);">
+                        📂 ${getNomeCategoria(montagem.categoria)} | 
+                        💰 Base: ${formatarPreco(montagem.precoBase)} | 
+                        📏 ${montagem.tamanhos?.length || 0} tamanhos | 
+                        📦 ${montagem.grupos.length} grupos | 
+                        📋 ${totalItens} itens
+                    </div>
+                    <div style="margin-top: 3px;">
+                        ${montagem.disponivel ? '✅ Ativo' : '❌ Inativo'} 
+                        ${montagem.destaque ? '⭐ Destaque' : ''}
+                    </div>
                 </div>
-            `).join('') || ''}
-            <div style="margin-top: 10px; font-weight: bold; text-align: right;">
-                Total: ${formatarPreco(pedido.total)}
-            </div>
-            ${pedido.status !== 'entregue' && pedido.status !== 'cancelado' ? `
-                <div style="margin-top: 10px; display: flex; gap: 10px;">
-                    <button onclick="atualizarStatusPedido('${pedido.id}', 'entregue')" 
-                        style="padding: 8px 15px; background: var(--cor-sucesso); color: white; border: none; border-radius: 8px; cursor: pointer;">
-                        ✅ Marcar Entregue
-                    </button>
-                    <button onclick="atualizarStatusPedido('${pedido.id}', 'cancelado')" 
-                        style="padding: 8px 15px; background: var(--cor-erro); color: white; border: none; border-radius: 8px; cursor: pointer;">
-                        ❌ Cancelar
-                    </button>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="editarMontagem('${montagem.id}')" class="btn-editar-admin" title="Editar">✏️</button>
+                    <button onclick="excluirMontagem('${montagem.id}')" class="btn-excluir-admin" title="Excluir">🗑️</button>
                 </div>
-            ` : ''}
+            </div>
         `;
         container.appendChild(div);
     });
 }
 
-async function atualizarStatusPedido(id, status) {
+function abrirModalNovaMontagem() {
     if (nivelAcesso !== 'master') {
-        mostrarToast('Apenas Master pode alterar status', 'alerta');
+        mostrarToast('Apenas Master pode criar montagens', 'alerta');
         return;
     }
     
-    const sucesso = await atualizarStatusPedidoFirebase(id, status);
+    montagemEditando = null;
+    document.getElementById('modalMontagemTitulo').innerHTML = '➕ Nova Montagem';
+    document.getElementById('editMontagemId').value = '';
+    document.getElementById('montagemNome').value = '';
+    document.getElementById('montagemDesc').value = '';
+    document.getElementById('montagemPrecoBase').value = '';
+    document.getElementById('montagemImagem').value = '';
+    document.getElementById('montagemDisponivel').checked = true;
+    document.getElementById('montagemDestaque').checked = false;
+    
+    // Preenche select de categoria
+    const selectCat = document.getElementById('montagemCategoria');
+    selectCat.innerHTML = '';
+    categorias.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = getNomeCategoria(cat);
+        selectCat.appendChild(option);
+    });
+    
+    // Limpa grupos
+    document.getElementById('gruposContainer').innerHTML = '';
+    document.getElementById('tamanhosContainer').innerHTML = '';
+    
+    document.getElementById('modalCadastroMontagem').style.display = 'flex';
+}
+
+function editarMontagem(id) {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode editar montagens', 'alerta');
+        return;
+    }
+    
+    const montagem = montagens.find(m => m.id === id);
+    if (!montagem) return;
+    
+    montagemEditando = montagem;
+    document.getElementById('modalMontagemTitulo').innerHTML = '✏️ Editar Montagem';
+    document.getElementById('editMontagemId').value = montagem.id;
+    document.getElementById('montagemNome').value = montagem.nome;
+    document.getElementById('montagemDesc').value = montagem.descricao || '';
+    document.getElementById('montagemPrecoBase').value = montagem.precoBase;
+    document.getElementById('montagemImagem').value = montagem.imagem || '';
+    document.getElementById('montagemDisponivel').checked = montagem.disponivel;
+    document.getElementById('montagemDestaque').checked = montagem.destaque || false;
+    
+    // Preenche select de categoria
+    const selectCat = document.getElementById('montagemCategoria');
+    selectCat.innerHTML = '';
+    categorias.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = getNomeCategoria(cat);
+        if (cat === montagem.categoria) option.selected = true;
+        selectCat.appendChild(option);
+    });
+    
+    // Renderiza tamanhos
+    renderizarTamanhosMontagem(montagem);
+    
+    // Renderiza grupos
+    renderizarGruposMontagem(montagem);
+    
+    document.getElementById('modalCadastroMontagem').style.display = 'flex';
+}
+
+function fecharModalCadastroMontagem() {
+    document.getElementById('modalCadastroMontagem').style.display = 'none';
+}
+
+// ===== TAMANHOS =====
+function adicionarTamanho() {
+    const container = document.getElementById('tamanhosContainer');
+    
+    const div = document.createElement('div');
+    div.className = 'montagem-admin-item';
+    div.innerHTML = `
+        <input type="text" placeholder="Nome do tamanho" class="input-field" style="flex: 2;">
+        <input type="number" placeholder="Preço adicional" step="0.01" value="0" class="input-field-small" style="flex: 1;">
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: red; cursor: pointer; font-size: 1.2rem;">🗑️</button>
+    `;
+    container.appendChild(div);
+}
+
+function renderizarTamanhosMontagem(montagem) {
+    const container = document.getElementById('tamanhosContainer');
+    container.innerHTML = '';
+    
+    if (montagem.tamanhos) {
+        montagem.tamanhos.forEach(tamanho => {
+            const div = document.createElement('div');
+            div.className = 'montagem-admin-item';
+            div.innerHTML = `
+                <input type="text" value="${tamanho.nome}" class="input-field" style="flex: 2;">
+                <input type="number" value="${tamanho.preco}" step="0.01" class="input-field-small" style="flex: 1;">
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: red; cursor: pointer; font-size: 1.2rem;">🗑️</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+}
+
+// ===== GRUPOS =====
+function adicionarGrupo() {
+    const container = document.getElementById('gruposContainer');
+    const grupoId = 'grp_' + Date.now();
+    
+    const div = document.createElement('div');
+    div.className = 'grupo-montagem-box';
+    div.dataset.grupoId = grupoId;
+    div.innerHTML = `
+        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+            <input type="text" placeholder="Nome do grupo (ex: Carnes)" class="input-field" style="flex: 2;" onchange="atualizarTituloGrupo(this)">
+            <input type="number" placeholder="Limite" value="1" min="1" class="input-field-small" style="width: 80px;">
+            <label style="font-size: 0.8rem; white-space: nowrap;">
+                <input type="checkbox" checked> Obrigatório
+            </label>
+            <button onclick="this.closest('.grupo-montagem-box').remove()" style="background: none; border: none; color: red; cursor: pointer; font-size: 1.2rem;">🗑️</button>
+        </div>
+        <strong class="grupo-titulo" style="font-size: 0.85rem; color: #e65100;">Novo Grupo</strong>
+        <div class="itens-grupo-container" style="margin-top: 8px; padding-left: 15px;"></div>
+        <button onclick="adicionarItemGrupo(this)" style="margin-top: 8px; padding: 6px 12px; background: #e3f2fd; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+            + Adicionar Item
+        </button>
+        <hr style="margin-top: 10px; border-color: #eee;">
+    `;
+    container.appendChild(div);
+}
+
+function atualizarTituloGrupo(input) {
+    const titulo = input.closest('.grupo-montagem-box').querySelector('.grupo-titulo');
+    if (titulo) {
+        titulo.textContent = input.value || 'Novo Grupo';
+    }
+}
+
+function adicionarItemGrupo(btn) {
+    const container = btn.previousElementSibling;
+    
+    const div = document.createElement('div');
+    div.className = 'montagem-admin-item';
+    div.style.marginBottom = '5px';
+    div.innerHTML = `
+        <input type="text" placeholder="Nome do item" class="input-field" style="flex: 2;">
+        <input type="number" placeholder="Preço" step="0.01" value="0" class="input-field-small" style="width: 100px;">
+        <label style="font-size: 0.7rem;"><input type="checkbox" checked> Ativo</label>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; color: red; cursor: pointer;">✕</button>
+    `;
+    container.appendChild(div);
+}
+
+function renderizarGruposMontagem(montagem) {
+    const container = document.getElementById('gruposContainer');
+    container.innerHTML = '';
+    
+    montagem.grupos.forEach(grupo => {
+        const div = document.createElement('div');
+        div.className = 'grupo-montagem-box';
+        div.dataset.grupoId = grupo.id;
+        div.innerHTML = `
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                <input type="text" value="${grupo.nome}" class="input-field" style="flex: 2;" onchange="atualizarTituloGrupo(this)">
+                <input type="number" value="${grupo.limite}" min="1" class="input-field-small" style="width: 80px;">
+                <label style="font-size: 0.8rem; white-space: nowrap;">
+                    <input type="checkbox" ${grupo.obrigatorio ? 'checked' : ''}> Obrigatório
+                </label>
+                <button onclick="this.closest('.grupo-montagem-box').remove()" style="background: none; border: none; color: red; cursor: pointer; font-size: 1.2rem;">🗑️</button>
+            </div>
+            <strong class="grupo-titulo" style="font-size: 0.85rem; color: #e65100;">${grupo.nome}</strong>
+            <div class="itens-grupo-container" style="margin-top: 8px; padding-left: 15px;"></div>
+            <button onclick="adicionarItemGrupo(this)" style="margin-top: 8px; padding: 6px 12px; background: #e3f2fd; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
+                + Adicionar Item
+            </button>
+            <hr style="margin-top: 10px; border-color: #eee;">
+        `;
+        
+        // Renderiza itens do grupo
+        const itensContainer = div.querySelector('.itens-grupo-container');
+        grupo.itens.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'montagem-admin-item';
+            itemDiv.style.marginBottom = '5px';
+            itemDiv.innerHTML = `
+                <input type="text" value="${item.nome}" class="input-field" style="flex: 2;">
+                <input type="number" value="${item.preco}" step="0.01" class="input-field-small" style="width: 100px;">
+                <label style="font-size: 0.7rem;"><input type="checkbox" ${item.disponivel !== false ? 'checked' : ''}> Ativo</label>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; color: red; cursor: pointer;">✕</button>
+            `;
+            itensContainer.appendChild(itemDiv);
+        });
+        
+        container.appendChild(div);
+    });
+}
+
+async function salvarMontagem() {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode salvar montagens', 'alerta');
+        return;
+    }
+    
+    const nome = document.getElementById('montagemNome').value.trim();
+    const precoBase = parseFloat(document.getElementById('montagemPrecoBase').value);
+    const categoria = document.getElementById('montagemCategoria').value;
+    
+    if (!nome || isNaN(precoBase)) {
+        mostrarToast('Preencha nome e preço base', 'alerta');
+        return;
+    }
+    
+    // Coleta tamanhos
+    const tamanhos = [];
+    document.querySelectorAll('#tamanhosContainer .montagem-admin-item').forEach(item => {
+        const inputs = item.querySelectorAll('input');
+        const nomeTamanho = inputs[0]?.value?.trim();
+        if (nomeTamanho) {
+            tamanhos.push({
+                id: 'tam_' + gerarId(),
+                nome: nomeTamanho,
+                preco: parseFloat(inputs[1]?.value) || 0
+            });
+        }
+    });
+    
+    // Coleta grupos e itens
+    const grupos = [];
+    document.querySelectorAll('#gruposContainer .grupo-montagem-box').forEach(box => {
+        const inputs = box.querySelectorAll(':scope > div:first-child input');
+        const nomeGrupo = inputs[0]?.value?.trim();
+        if (!nomeGrupo) return;
+        
+        const grupoId = box.dataset.grupoId || 'grp_' + gerarId();
+        const limite = parseInt(inputs[1]?.value) || 1;
+        const obrigatorio = box.querySelector(':scope > div:first-child input[type="checkbox"]')?.checked || false;
+        
+        const itens = [];
+        box.querySelectorAll('.itens-grupo-container .montagem-admin-item').forEach(itemDiv => {
+            const itemInputs = itemDiv.querySelectorAll('input');
+            const nomeItem = itemInputs[0]?.value?.trim();
+            if (nomeItem) {
+                itens.push({
+                    id: 'itm_' + gerarId(),
+                    nome: nomeItem,
+                    preco: parseFloat(itemInputs[1]?.value) || 0,
+                    disponivel: itemInputs[2]?.checked !== false
+                });
+            }
+        });
+        
+        grupos.push({
+            id: grupoId,
+            nome: nomeGrupo,
+            limite: limite,
+            obrigatorio: obrigatorio,
+            itens: itens
+        });
+    });
+    
+    if (grupos.length === 0) {
+        mostrarToast('Adicione pelo menos 1 grupo', 'alerta');
+        return;
+    }
+    
+    const montagem = {
+        id: montagemEditando ? montagemEditando.id : 'mont_' + gerarId(),
+        nome: nome,
+        descricao: document.getElementById('montagemDesc').value,
+        categoria: categoria,
+        precoBase: precoBase,
+        imagem: document.getElementById('montagemImagem').value,
+        disponivel: document.getElementById('montagemDisponivel').checked,
+        destaque: document.getElementById('montagemDestaque').checked,
+        tamanhos: tamanhos,
+        grupos: grupos
+    };
+    
+    if (montagemEditando) {
+        const index = montagens.findIndex(m => m.id === montagemEditando.id);
+        montagens[index] = montagem;
+    } else {
+        montagens.push(montagem);
+    }
+    
+    const sucesso = await salvarMontagensFirebase(montagens);
     if (sucesso) {
-        mostrarToast(`Pedido ${status}!`, 'sucesso');
-        carregarAdminPedidos();
+        mostrarToast('Montagem salva com sucesso!', 'sucesso');
+        fecharModalCadastroMontagem();
+        renderizarProdutos();
+        abrirModalAdmin();
+    }
+}
+
+async function excluirMontagem(id) {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode excluir montagens', 'alerta');
+        return;
+    }
+    
+    if (confirm('Tem certeza que deseja excluir esta montagem?')) {
+        montagens = montagens.filter(m => m.id !== id);
+        const sucesso = await salvarMontagensFirebase(montagens);
+        if (sucesso) {
+            mostrarToast('Montagem excluída!', 'sucesso');
+            renderizarProdutos();
+            abrirModalAdmin();
+        }
     }
 }
 
@@ -565,6 +879,7 @@ function abrirGerenciarDestaques() {
     const container = document.getElementById('listaProdutosDestaques');
     container.innerHTML = '';
     
+    // Produtos normais
     produtos.forEach(produto => {
         const div = document.createElement('div');
         div.style.cssText = `
@@ -576,7 +891,25 @@ function abrirGerenciarDestaques() {
         `;
         div.innerHTML = `
             <input type="checkbox" id="destaque_${produto.id}" ${produto.destaque ? 'checked' : ''}>
-            <label for="destaque_${produto.id}">${produto.nome} - ${formatarPreco(produto.preco)}</label>
+            <label for="destaque_${produto.id}">📦 ${produto.nome} - ${formatarPreco(produto.preco)}</label>
+        `;
+        container.appendChild(div);
+    });
+    
+    // Montagens
+    montagens.forEach(montagem => {
+        const div = document.createElement('div');
+        div.style.cssText = `
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid var(--cor-borda);
+            background: #fff8e1;
+        `;
+        div.innerHTML = `
+            <input type="checkbox" id="destaque_mont_${montagem.id}" ${montagem.destaque ? 'checked' : ''}>
+            <label for="destaque_mont_${montagem.id}">🧩 ${montagem.nome} - A partir de ${formatarPreco(montagem.precoBase)}</label>
         `;
         container.appendChild(div);
     });
@@ -601,7 +934,15 @@ async function salvarDestaques() {
         }
     });
     
-    const sucesso = await salvarProdutosFirebase(produtos);
+    montagens.forEach(montagem => {
+        const checkbox = document.getElementById(`destaque_mont_${montagem.id}`);
+        if (checkbox) {
+            montagem.destaque = checkbox.checked;
+        }
+    });
+    
+    await salvarProdutosFirebase(produtos);
+    const sucesso = await salvarMontagensFirebase(montagens);
     if (sucesso) {
         mostrarToast('Destaques atualizados!', 'sucesso');
         fecharModalGerenciarDestaques();
@@ -625,11 +966,20 @@ window.editarProduto = editarProduto;
 window.excluirProduto = excluirProduto;
 window.adicionarCategoria = adicionarCategoria;
 window.excluirCategoria = excluirCategoria;
+window.toggleVisibilidadeCategoria = toggleVisibilidadeCategoria;
 window.adicionarAdicional = adicionarAdicional;
 window.excluirAdicional = excluirAdicional;
-window.atualizarStatusPedido = atualizarStatusPedido;
 window.toggleFreteFixo = toggleFreteFixo;
 window.salvarConfiguracoes = salvarConfiguracoes;
 window.abrirGerenciarDestaques = abrirGerenciarDestaques;
 window.fecharModalGerenciarDestaques = fecharModalGerenciarDestaques;
 window.salvarDestaques = salvarDestaques;
+window.abrirModalNovaMontagem = abrirModalNovaMontagem;
+window.editarMontagem = editarMontagem;
+window.fecharModalCadastroMontagem = fecharModalCadastroMontagem;
+window.salvarMontagem = salvarMontagem;
+window.excluirMontagem = excluirMontagem;
+window.adicionarTamanho = adicionarTamanho;
+window.adicionarGrupo = adicionarGrupo;
+window.adicionarItemGrupo = adicionarItemGrupo;
+window.atualizarTituloGrupo = atualizarTituloGrupo;
