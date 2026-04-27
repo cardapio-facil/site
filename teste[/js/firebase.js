@@ -71,11 +71,34 @@ async function salvarConfigFirebase(config) {
 // Salvar Pedido
 async function salvarPedidoFirebase(pedido) {
     try {
-        await dbRef.child('pedidos/' + pedido.id).set(pedido);
+        // Função para limpar undefined de um objeto recursivamente
+        function limparUndefined(obj) {
+            if (obj === null || obj === undefined) return null;
+            if (Array.isArray(obj)) {
+                return obj.map(item => limparUndefined(item));
+            }
+            if (typeof obj === 'object') {
+                const cleaned = {};
+                for (const key in obj) {
+                    const value = obj[key];
+                    if (value !== undefined) {
+                        cleaned[key] = limparUndefined(value);
+                    }
+                }
+                return cleaned;
+            }
+            return obj;
+        }
+        
+        const pedidoLimpo = limparUndefined(pedido);
+        
+        console.log('📤 Salvando pedido:', pedidoLimpo);
+        await dbRef.child('pedidos/' + pedidoLimpo.id).set(pedidoLimpo);
+        console.log('✅ Pedido salvo com sucesso!');
         return true;
     } catch (error) {
-        console.error('Erro ao salvar pedido:', error);
-        mostrarToast('Erro ao salvar pedido', 'erro');
+        console.error('❌ Erro ao salvar pedido:', error);
+        mostrarToast('Erro ao salvar pedido. Tente novamente.', 'erro');
         return false;
     }
 }
