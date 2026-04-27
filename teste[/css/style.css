@@ -3,7 +3,6 @@
 /* ============================================ */
 
 :root {
-    /* Paleta principal */
     --cor-primaria: #ff3d00;
     --cor-secundaria: #ff9e00;
     --cor-fundo: #f6f7fb;
@@ -14,18 +13,12 @@
     --cor-sucesso: #00c853;
     --cor-alerta: #ff9800;
     --cor-erro: #ff3d00;
-
-    /* Sombras e bordas */
     --border-radius: 18px;
     --shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
     --shadow-hover: 0 14px 30px rgba(0, 0, 0, 0.12);
-
-    /* Layout */
     --header-height: 80px;
     --transition-fast: 0.2s;
     --transition-base: 0.3s;
-
-    /* Cores auxiliares */
     --cinza-claro: #f0f0f0;
     --cinza-medio: #e0e0e0;
     --cinza-fundo: #f8f9fa;
@@ -340,6 +333,28 @@ body {
     font-weight: 600;
 }
 
+/* 🛠️ Badge de Montagem */
+.badge-montagem {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+    padding: 4px 10px;
+    border-radius: 20px;
+    background: #9c27b0;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.produto-card.montagem-card {
+    border: 2px solid #e1bee7;
+}
+
+.produto-card.montagem-card .btn-montagem {
+    background: linear-gradient(135deg, #9c27b0, #e040fb);
+}
+
 .produto-img {
     width: 100%;
     height: 180px;
@@ -631,10 +646,6 @@ body {
     transform: rotate(90deg);
 }
 
-/* ============================================ */
-/* ===== MODAL PRODUTO DETALHE =============== */
-/* ============================================ */
-
 .modal-produto-img {
     width: 100%;
     height: 220px;
@@ -751,6 +762,114 @@ body {
     height: 20px;
     accent-color: #2196f3;
     cursor: pointer;
+}
+
+/* ============================================ */
+/* ===== 🛠️ SEÇÃO DE MONTAGEM ================ */
+/* ============================================ */
+
+#montagemDiv {
+    margin: 15px 0;
+}
+
+.montagem-section {
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 2px solid #ce93d8;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+}
+
+.montagem-section h4 {
+    margin-bottom: 10px;
+    color: #6a1b9a;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.montagem-section h4 small {
+    display: block;
+    color: #8e24aa;
+    font-size: 0.75rem;
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+.montagem-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.montagem-item,
+.montagem-item-radio {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid #e1bee7;
+    border-radius: 12px;
+    background: #ffffff;
+    transition: all var(--transition-fast) ease;
+}
+
+.montagem-item:hover,
+.montagem-item-radio:hover {
+    border-color: #9c27b0;
+    background: #fce4ec;
+}
+
+.montagem-item input[type="checkbox"],
+.montagem-item-radio input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #9c27b0;
+    cursor: pointer;
+}
+
+.montagem-item span,
+.montagem-item-radio span {
+    font-size: 0.85rem;
+    color: #4a148c;
+}
+
+/* ============================================ */
+/* ===== ADMIN MONTAGENS ====================== */
+/* ============================================ */
+
+.montagem-section-admin {
+    margin: 15px 0;
+    padding: 20px;
+    border: 2px solid #e0e0e0;
+    border-radius: 16px;
+    background: #fafafa;
+}
+
+.montagem-section-admin h4 {
+    margin-bottom: 12px;
+    color: #6a1b9a;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.montagem-admin-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 5px;
+}
+
+.grupo-montagem-box {
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 2px solid #ffcc80;
+    border-radius: 12px;
+    background: #fff8e1;
+}
+
+.grupo-montagem-box .grupo-titulo {
+    display: block;
+    margin-bottom: 5px;
 }
 
 /* ============================================ */
@@ -909,6 +1028,15 @@ select:focus {
     margin-bottom: 15px;
 }
 
+.checkout-select {
+    margin-bottom: 15px;
+    padding: 12px;
+    border: 1px solid var(--cor-borda);
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    cursor: pointer;
+}
+
 .cep-container {
     display: flex;
     gap: 10px;
@@ -931,6 +1059,34 @@ select:focus {
 }
 
 /* ============================================ */
+/* ===== CHECKOUT RESUMO ====================== */
+/* ============================================ */
+
+.checkout-resumo {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    background: var(--cinza-fundo);
+}
+
+.resumo-linha {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.9rem;
+}
+
+.resumo-total {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 2px solid var(--cor-borda);
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+/* ============================================ */
 /* ===== DESTAQUES =========================== */
 /* ============================================ */
 
@@ -940,6 +1096,16 @@ select:focus {
     border-radius: var(--border-radius);
     background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria));
     color: #ffffff;
+}
+
+.destaques-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.destaques-header h2 {
+    font-size: 1.2rem;
 }
 
 .destaques-grid {
@@ -987,7 +1153,6 @@ select:focus {
     box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
 }
 
-/* Botão novo produto */
 .btn-add-full {
     display: flex;
     align-items: center;
@@ -1012,7 +1177,6 @@ select:focus {
     box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
 }
 
-/* Lista admin */
 .admin-list {
     max-height: 400px;
     overflow-y: auto;
@@ -1250,7 +1414,8 @@ select:focus {
 
 #adminCategorias,
 #adminAdicionais,
-#adminConfig {
+#adminConfig,
+#adminMontagens {
     margin-top: 10px;
     padding: 20px;
     border-radius: 16px;
@@ -1531,62 +1696,6 @@ select:focus {
 }
 
 /* ============================================ */
-/* ===== PEDIDOS ADMIN ======================== */
-/* ============================================ */
-
-#listaPedidosAdmin > div {
-    margin-bottom: 15px;
-    padding: 20px;
-    border: 2px solid var(--cinza-claro);
-    border-radius: 16px;
-    background: #ffffff;
-    transition: all var(--transition-base) ease;
-}
-
-#listaPedidosAdmin > div:hover {
-    border-color: var(--cor-primaria);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-#listaPedidosAdmin .status-badge {
-    display: inline-block;
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-}
-
-/* ============================================ */
-/* ===== TEMA ESCURO ========================= */
-/* ============================================ */
-
-[data-theme="dark"] {
-    --cor-fundo: #121212;
-    --cor-card: #1e1e1e;
-    --cor-texto: #ffffff;
-    --cor-texto-claro: #b0b0b0;
-    --cor-borda: #333333;
-}
-
-[data-theme="dark"] .header {
-    background: rgba(30, 30, 30, 0.98);
-}
-
-[data-theme="dark"] .categoria-tab {
-    background: #333333;
-    color: #ffffff;
-}
-
-[data-theme="dark"] input,
-[data-theme="dark"] textarea,
-[data-theme="dark"] select {
-    background: #2a2a2a;
-    color: #ffffff;
-    border-color: #444444;
-}
-
-/* ============================================ */
 /* ===== TOAST =============================== */
 /* ============================================ */
 
@@ -1617,6 +1726,286 @@ select:focus {
         opacity: 1;
         transform: translateX(0);
     }
+}
+
+/* ============================================ */
+/* ===== BOTÕES DE BUSCA DE ENDEREÇO ========== */
+/* ============================================ */
+
+.busca-endereco-botoes {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.btn-buscar-endereco {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border: 2px dashed var(--cor-primaria);
+    border-radius: 12px;
+    background: linear-gradient(135deg, #fff5f0, #ffe8e0);
+    color: var(--cor-primaria);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    letter-spacing: 0.3px;
+}
+
+.btn-buscar-endereco:hover {
+    border-style: solid;
+    background: linear-gradient(135deg, var(--cor-primaria), #ff6d00);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.3);
+}
+
+.btn-buscar-endereco:active {
+    transform: translateY(0);
+}
+
+.modal-busca-content {
+    max-width: 600px;
+}
+
+.busca-endereco-input-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.busca-endereco-input-group input {
+    flex: 1;
+    padding: 14px 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    background: #fafafa;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.busca-endereco-input-group input:focus {
+    border-color: var(--cor-primaria);
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+    outline: none;
+}
+
+.busca-endereco-input-group input::placeholder {
+    color: #bdbdbd;
+}
+
+.btn-buscar-avancado {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--cor-primaria), #ff6d00);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+    letter-spacing: 0.5px;
+}
+
+.btn-buscar-avancado:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
+    background: linear-gradient(135deg, #e53935, #ff3d00);
+}
+
+.btn-buscar-avancado:active {
+    transform: translateY(0);
+}
+
+#resultadosBuscaEndereco {
+    max-height: 350px;
+    overflow-y: auto;
+    border: 2px solid #f0f0f0;
+    border-radius: 16px;
+    background: #ffffff;
+}
+
+.resultado-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 14px 18px;
+    border-bottom: 1px solid #f5f5f5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.resultado-item:last-child {
+    border-bottom: none;
+}
+
+.resultado-item:hover {
+    background: linear-gradient(135deg, #fff5f0, #ffe8e0);
+    padding-left: 24px;
+    border-left: 4px solid var(--cor-primaria);
+}
+
+.resultado-cep {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--cor-primaria);
+    letter-spacing: 0.5px;
+}
+
+.resultado-endereco {
+    font-size: 0.85rem;
+    color: var(--cor-texto-claro);
+    line-height: 1.4;
+}
+
+#resultadosBuscaEndereco .busca-vazia {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--cor-texto-claro);
+}
+
+#resultadosBuscaEndereco .busca-vazia i {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    opacity: 0.2;
+}
+
+#resultadosBuscaEndereco .busca-vazia p {
+    font-size: 0.9rem;
+    color: #bdbdbd;
+}
+
+.loader-busca {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+    gap: 15px;
+}
+
+.loader-busca .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f0f0f0;
+    border-top-color: var(--cor-primaria);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.loader-busca p {
+    color: var(--cor-texto-claro);
+    font-size: 0.9rem;
+}
+
+.btn-buscar-cep {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: auto;
+    min-width: 100px;
+    height: 48px;
+    padding: 0 16px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--cor-primaria), #ff6d00);
+    color: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+    white-space: nowrap;
+}
+
+.btn-buscar-cep:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
+}
+
+.btn-buscar-cep:active {
+    transform: translateY(0);
+}
+
+.btn-buscar-cep.buscando {
+    background: #cccccc;
+    pointer-events: none;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+#modalBuscaEndereco .modal-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+}
+
+#modalBuscaEndereco .modal-header h3 i {
+    color: var(--cor-primaria);
+}
+
+#cidadeUfBusca {
+    color: var(--cor-primaria);
+    font-weight: 600;
+}
+
+/* ============================================ */
+/* ===== TEMA ESCURO ========================= */
+/* ============================================ */
+
+[data-theme="dark"] {
+    --cor-fundo: #121212;
+    --cor-card: #1e1e1e;
+    --cor-texto: #ffffff;
+    --cor-texto-claro: #b0b0b0;
+    --cor-borda: #333333;
+}
+
+[data-theme="dark"] .header {
+    background: rgba(30, 30, 30, 0.98);
+}
+
+[data-theme="dark"] .categoria-tab {
+    background: #333333;
+    color: #ffffff;
+}
+
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background: #2a2a2a;
+    color: #ffffff;
+    border-color: #444444;
 }
 
 /* ============================================ */
@@ -1698,322 +2087,7 @@ select:focus {
         padding: 14px;
         font-size: 1rem;
     }
-}
 
-@media (max-width: 480px) {
-    .produtos-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .header {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .categoria-tab {
-        padding: 6px 14px;
-        font-size: 0.8rem;
-    }
-}
-/* ============================================ */
-/* ===== BOTÕES DE BUSCA DE ENDEREÇO ========== */
-/* ============================================ */
-
-/* Container dos botões de busca */
-.busca-endereco-botoes {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-/* Botão "Não sei meu CEP" */
-.btn-buscar-endereco {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px 20px;
-    border: 2px dashed var(--cor-primaria);
-    border-radius: 12px;
-    background: linear-gradient(135deg, #fff5f0, #ffe8e0);
-    color: var(--cor-primaria);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    letter-spacing: 0.3px;
-}
-
-.btn-buscar-endereco:hover {
-    border-style: solid;
-    background: linear-gradient(135deg, var(--cor-primaria), #ff6d00);
-    color: #ffffff;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.3);
-}
-
-.btn-buscar-endereco:active {
-    transform: translateY(0);
-}
-
-.btn-buscar-endereco i {
-    font-size: 1.1rem;
-}
-
-/* ============================================ */
-/* ===== MODAL DE BUSCA DE ENDEREÇO =========== */
-/* ============================================ */
-
-.modal-busca-content {
-    max-width: 600px;
-}
-
-/* Grupo de input + botão buscar */
-.busca-endereco-input-group {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.busca-endereco-input-group input {
-    flex: 1;
-    padding: 14px 18px;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    background: #fafafa;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-}
-
-.busca-endereco-input-group input:focus {
-    border-color: var(--cor-primaria);
-    background: #ffffff;
-    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
-    outline: none;
-}
-
-.busca-endereco-input-group input::placeholder {
-    color: #bdbdbd;
-}
-
-/* Botão BUSCAR dentro do modal */
-.btn-buscar-avancado {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 14px 24px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--cor-primaria), #ff6d00);
-    color: #ffffff;
-    font-size: 0.95rem;
-    font-weight: 700;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
-    letter-spacing: 0.5px;
-}
-
-.btn-buscar-avancado:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
-    background: linear-gradient(135deg, #e53935, #ff3d00);
-}
-
-.btn-buscar-avancado:active {
-    transform: translateY(0);
-}
-
-.btn-buscar-avancado i {
-    font-size: 1rem;
-}
-
-/* ============================================ */
-/* ===== RESULTADOS DA BUSCA ================== */
-/* ============================================ */
-
-#resultadosBuscaEndereco {
-    max-height: 350px;
-    overflow-y: auto;
-    border: 2px solid #f0f0f0;
-    border-radius: 16px;
-    background: #ffffff;
-}
-
-.resultado-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 14px 18px;
-    border-bottom: 1px solid #f5f5f5;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.resultado-item:last-child {
-    border-bottom: none;
-}
-
-.resultado-item:hover {
-    background: linear-gradient(135deg, #fff5f0, #ffe8e0);
-    padding-left: 24px;
-    border-left: 4px solid var(--cor-primaria);
-}
-
-.resultado-cep {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--cor-primaria);
-    letter-spacing: 0.5px;
-}
-
-.resultado-endereco {
-    font-size: 0.85rem;
-    color: var(--cor-texto-claro);
-    line-height: 1.4;
-}
-
-/* Estado vazio da busca */
-#resultadosBuscaEndereco .busca-vazia {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    text-align: center;
-    color: var(--cor-texto-claro);
-}
-
-#resultadosBuscaEndereco .busca-vazia i {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-    opacity: 0.2;
-}
-
-#resultadosBuscaEndereco .busca-vazia p {
-    font-size: 0.9rem;
-    color: #bdbdbd;
-}
-
-/* ============================================ */
-/* ===== LOADER DA BUSCA ====================== */
-/* ============================================ */
-
-.loader-busca {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 30px 20px;
-    gap: 15px;
-}
-
-.loader-busca .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #f0f0f0;
-    border-top-color: var(--cor-primaria);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-.loader-busca p {
-    color: var(--cor-texto-claro);
-    font-size: 0.9rem;
-}
-
-/* ============================================ */
-/* ===== BOTÃO CEP (LADO DO INPUT) ============ */
-/* ============================================ */
-
-.cep-container {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.cep-container .checkout-input {
-    flex: 1;
-}
-
-.btn-buscar-cep {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    width: auto;
-    min-width: 100px;
-    height: 48px;
-    padding: 0 16px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--cor-primaria), #ff6d00);
-    color: #ffffff;
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
-    white-space: nowrap;
-}
-
-.btn-buscar-cep:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 61, 0, 0.4);
-}
-
-.btn-buscar-cep:active {
-    transform: translateY(0);
-}
-
-.btn-buscar-cep.buscando {
-    background: #cccccc;
-    pointer-events: none;
-    animation: pulse 1s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.6;
-    }
-}
-
-/* ============================================ */
-/* ===== MELHORIA DO MODAL DE BUSCA =========== */
-/* ============================================ */
-
-#modalBuscaEndereco .modal-header h3 {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.3rem;
-}
-
-#modalBuscaEndereco .modal-header h3 i {
-    color: var(--cor-primaria);
-}
-
-#cidadeUfBusca {
-    color: var(--cor-primaria);
-    font-weight: 600;
-}
-
-/* ============================================ */
-/* ===== RESPONSIVO =========================== */
-/* ============================================ */
-
-@media (max-width: 600px) {
     .btn-buscar-cep {
         min-width: 50px;
         padding: 0 12px;
@@ -2035,7 +2109,22 @@ select:focus {
     }
 }
 
+@media (max-width: 480px) {
+    .produtos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .categoria-tab {
+        padding: 6px 14px;
+        font-size: 0.8rem;
+    }
+}
+
 #produtosGrid {
     scroll-margin-top: 140px;
 }
-
