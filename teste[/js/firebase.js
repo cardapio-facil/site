@@ -91,6 +91,29 @@ async function atualizarStatusPedidoFirebase(pedidoId, status) {
     }
 }
 
+// Salvar visibilidade das categorias
+async function salvarCategoriasVisiveisFirebase(visiveis) {
+    try {
+        await dbRef.child('categoriasVisiveis').set(visiveis);
+        return true;
+    } catch (error) {
+        console.error('Erro ao salvar visibilidade:', error);
+        return false;
+    }
+}
+
+// 🛠️ Salvar Montagens
+async function salvarMontagensFirebase(montagens) {
+    try {
+        await dbRef.child('montagens').set(montagens);
+        return true;
+    } catch (error) {
+        console.error('Erro ao salvar montagens:', error);
+        mostrarToast('Erro ao salvar montagens', 'erro');
+        return false;
+    }
+}
+
 // Carregar todos os dados
 async function carregarDadosFirebase() {
     mostrarLoader(true);
@@ -99,12 +122,24 @@ async function carregarDadosFirebase() {
         const snapshot = await dbRef.once('value');
         const data = snapshot.val();
         
+        mostrarLoader(false);
         return data || {};
     } catch (error) {
         console.error('Erro ao carregar dados:', error);
         mostrarToast('Erro ao carregar dados do servidor', 'erro');
-        return {};
-    } finally {
         mostrarLoader(false);
+        return {};
     }
 }
+
+// ===== EXPOR FUNÇÕES GLOBALMENTE =====
+window.salvarProdutosFirebase = salvarProdutosFirebase;
+window.salvarCategoriasFirebase = salvarCategoriasFirebase;
+window.salvarAdicionaisFirebase = salvarAdicionaisFirebase;
+window.salvarConfigFirebase = salvarConfigFirebase;
+window.salvarPedidoFirebase = salvarPedidoFirebase;
+window.atualizarStatusPedidoFirebase = atualizarStatusPedidoFirebase;
+window.salvarCategoriasVisiveisFirebase = salvarCategoriasVisiveisFirebase;
+window.salvarMontagensFirebase = salvarMontagensFirebase;
+window.carregarDadosFirebase = carregarDadosFirebase;
+window.dbRef = dbRef;
