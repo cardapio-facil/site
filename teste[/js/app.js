@@ -282,8 +282,11 @@ function renderizarProdutos() {
         const menorPreco = montagem.precoBase;
         
         card.innerHTML = `
-            <div class="badge-montagem">🧩 Você Escolhe</div>
-            ${montagem.destaque ? '<div class="badge-destaque">🔥 Destaque</div>' : ''}
+           card.innerHTML = `
+    <div class="badge-montagem" style="left: 10px;">🧩 Você Escolhe</div>
+    ${montagem.destaque ? '<div class="badge-destaque" style="left: auto; right: 10px;">🔥 Destaque</div>' : ''}
+    ...
+`;
             <img class="produto-img" src="${imagemUrl}" alt="${montagem.nome}" onerror="this.src='${LOGO_PADRAO}';">
             <div class="produto-info">
                 <div class="produto-nome">${montagem.nome}</div>
