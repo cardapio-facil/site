@@ -28,7 +28,7 @@
             <i class="fas fa-moon" id="themeIcon"></i>
             <span id="themeText">Escuro</span>
         </button>
-      <button class="admin-btn" id="adminBtn" onclick="abrirModalAdmin()" style="display: none;">👤 Área Admin</button>
+        <button class="admin-btn" id="adminBtn" onclick="abrirModalAdmin()" style="display: none;">👤 Área Admin</button>
     </div>
 </div>
 
@@ -86,22 +86,27 @@
         <p id="modalProdutoDesc" class="modal-produto-desc"></p>
         <div class="modal-preco" id="modalProdutoPreco">R$ 0,00</div>
         
-<div id="saboresPizzaDiv" style="display: none;">
-    <div class="sabores-pizza">
-        <h4>🍕 Monte sua pizza</h4>
-        <p style="font-size: 0.8rem; color: #e65100; margin-bottom: 10px;">
-            ⚠️ Escolha 1 sabor (pizza inteira) ou 2 sabores (meio a meio)
-        </p>
-        <div id="saboresLista"></div>
-    </div>
-</div>
+        <!-- 🍕 Sabores da Pizza -->
+        <div id="saboresPizzaDiv" style="display: none;">
+            <div class="sabores-pizza">
+                <h4>🍕 Monte sua pizza</h4>
+                <p style="font-size: 0.8rem; color: #e65100; margin-bottom: 10px;">
+                    ⚠️ Escolha 1 sabor (pizza inteira) ou 2 sabores (meio a meio) - Preço será o maior valor
+                </p>
+                <div id="saboresLista"></div>
+            </div>
+        </div>
         
+        <!-- ➕ Adicionais -->
         <div id="adicionaisDiv" style="display: none;">
             <div class="adicionais-group">
                 <h4>➕ Adicionais</h4>
                 <div id="adicionaisLista"></div>
             </div>
         </div>
+        
+        <!-- 🛠️ Seção de Montagem (Monte o Produto) -->
+        <div id="montagemDiv" style="display: none;"></div>
         
         <div class="quantidade-selector">
             <button onclick="diminuirQuantidade()">-</button>
@@ -145,15 +150,17 @@
             <button class="categoria-tab ativo" onclick="mostrarAbaAdmin('produtos')">📦 Produtos</button>
             <button class="categoria-tab" onclick="mostrarAbaAdmin('categorias')">🏷️ Categorias</button>
             <button class="categoria-tab" onclick="mostrarAbaAdmin('adicionais')">➕ Adicionais</button>
-            <button class="categoria-tab" onclick="mostrarAbaAdmin('pedidos')">📋 Pedidos</button>
+            <button class="categoria-tab" onclick="mostrarAbaAdmin('montagens')">🛠️ Monte o Produto</button>
             <button class="categoria-tab" onclick="mostrarAbaAdmin('config')">⚙️ Configurações</button>
         </div>
         
+        <!-- Aba Produtos -->
         <div id="adminProdutos">
             <button class="btn-add-full" onclick="abrirModalCadastroProduto()">+ Novo Produto</button>
             <div id="adminProdutosLista" class="admin-list"></div>
         </div>
         
+        <!-- Aba Categorias -->
         <div id="adminCategorias" style="display: none;">
             <div class="admin-form-row">
                 <input type="text" id="novaCategoria" placeholder="Nova categoria" class="input-field">
@@ -162,6 +169,7 @@
             <div id="listaCategorias"></div>
         </div>
         
+        <!-- Aba Adicionais -->
         <div id="adminAdicionais" style="display: none;">
             <div class="admin-form-row">
                 <select id="categoriaAdicional" class="select-field"></select>
@@ -172,10 +180,13 @@
             <div id="listaAdicionais"></div>
         </div>
         
-        <div id="adminPedidos" style="display: none;">
-            <div id="listaPedidosAdmin" class="admin-list"></div>
+        <!-- 🛠️ Aba Monte o Produto -->
+        <div id="adminMontagens" style="display: none;">
+            <button class="btn-add-full" onclick="abrirModalNovaMontagem()">+ Nova Montagem</button>
+            <div id="listaMontagens" class="admin-list"></div>
         </div>
         
+        <!-- Aba Configurações -->
         <div id="adminConfig" style="display: none;">
             <div class="config-field">
                 <label>Horário de funcionamento:</label>
@@ -361,6 +372,74 @@
     </div>
 </div>
 
+<!-- ========== 🛠️ MODAL CADASTRO MONTAGEM ========== -->
+<div class="modal" id="modalCadastroMontagem">
+    <div class="modal-content modal-content-large">
+        <div class="modal-header">
+            <h3 id="modalMontagemTitulo">➕ Nova Montagem</h3>
+            <button class="close-modal" onclick="fecharModalCadastroMontagem()">&times;</button>
+        </div>
+        
+        <input type="hidden" id="editMontagemId">
+        
+        <div class="checkout-row">
+            <div>
+                <label>Nome *</label>
+                <input type="text" id="montagemNome" class="checkout-input" placeholder="Ex: Marmitex">
+            </div>
+            <div>
+                <label>Preço Base *</label>
+                <input type="number" id="montagemPrecoBase" step="0.01" class="checkout-input" placeholder="25.00">
+            </div>
+        </div>
+        
+        <label>Descrição</label>
+        <textarea id="montagemDesc" rows="2" class="checkout-input" placeholder="Monte sua refeição do seu jeito"></textarea>
+        
+        <div class="checkout-row">
+            <div>
+                <label>Categoria *</label>
+                <select id="montagemCategoria" class="checkout-select"></select>
+            </div>
+            <div>
+                <label>URL da imagem</label>
+                <input type="text" id="montagemImagem" class="checkout-input" placeholder="https://...">
+            </div>
+        </div>
+        
+        <div class="checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="montagemDisponivel" checked> Disponível
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="montagemDestaque"> Em destaque
+            </label>
+        </div>
+        
+        <!-- TAMANHOS -->
+        <div class="montagem-section-admin">
+            <h4>📏 Tamanhos</h4>
+            <div id="tamanhosContainer"></div>
+            <button onclick="adicionarTamanho()" style="padding: 8px 16px; background: #e3f2fd; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                + Adicionar Tamanho
+            </button>
+        </div>
+        
+        <!-- GRUPOS -->
+        <div class="montagem-section-admin" style="margin-top: 20px;">
+            <h4>📦 Grupos de Itens</h4>
+            <div id="gruposContainer"></div>
+            <button onclick="adicionarGrupo()" style="padding: 10px 20px; background: #fff3e0; border: 2px dashed #ff9800; border-radius: 12px; cursor: pointer; font-size: 0.9rem; width: 100%;">
+                + Adicionar Grupo
+            </button>
+        </div>
+        
+        <button class="btn-adicionar-carrinho" onclick="salvarMontagem()" style="background: var(--cor-primaria); margin-top: 20px;">
+            💾 Salvar Montagem
+        </button>
+    </div>
+</div>
+
 <!-- ========== MODAL GERENCIAR DESTAQUES ========== -->
 <div class="modal" id="modalGerenciarDestaques">
     <div class="modal-content">
@@ -370,7 +449,7 @@
         </div>
         
         <p style="margin-bottom: 15px; color: var(--cor-texto-claro);">
-            Selecione até 4 produtos para aparecer na seção de destaques
+            Selecione até 4 produtos ou montagens para aparecer na seção de destaques
         </p>
         
         <div id="listaProdutosDestaques"></div>
