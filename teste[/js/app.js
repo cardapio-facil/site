@@ -7,6 +7,8 @@ let categorias = [...CATEGORIAS_PADRAO];
 let adicionaisPorCategoria = {};
 let carrinho = [];
 let configRestaurante = { ...CONFIG_PADRAO };
+let montagens = [...MONTAGENS_PADRAO];
+let categoriasVisiveis = { ...CATEGORIAS_VISIVEIS_PADRAO };
 
 let adminLogado = false;
 let nivelAcesso = null;
@@ -18,6 +20,11 @@ let saboresSelecionados = [];
 let adicionaisSelecionados = [];
 
 let categoriaAtual = 'todos';
+
+// 🛠️ Variáveis para montagem
+let montagemSelecionada = null;
+let tamanhoSelecionado = null;
+let itensMontagemSelecionados = [];
 
 // ============================================
 // ===== INICIALIZAÇÃO =======================
@@ -34,9 +41,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (data.categorias) categorias = data.categorias;
     if (data.adicionais) adicionaisPorCategoria = data.adicionais;
     if (data.config) configRestaurante = { ...CONFIG_PADRAO, ...data.config };
+    if (data.categoriasVisiveis) categoriasVisiveis = data.categoriasVisiveis;
+    if (data.montagens) montagens = data.montagens;
     
     if (produtos.length === 0) {
         criarProdutosExemplo();
+    }
+    
+    if (montagens.length === 0) {
+        montagens = [...MONTAGENS_PADRAO];
+        salvarMontagensFirebase(montagens);
     }
     
     atualizarAlturaHeader();
@@ -108,6 +122,8 @@ function renderizarTodasCategorias() {
     container.appendChild(tabTodos);
     
     categorias.forEach(cat => {
+        if (!adminLogado && categoriasVisiveis[cat] === false) return;
+        
         const tab = document.createElement('div');
         tab.className = 'categoria-tab';
         tab.innerHTML = getIconeCategoria(cat) + ' ' + getNomeCategoria(cat);
@@ -190,7 +206,6 @@ function filtrarPorCategoria(categoria, tabElement = null) {
         tabElement.classList.add('ativo');
     }
     
-    // Centralizar tab
     if (tabElement) {
         const container = document.getElementById('categoriasTabs');
         const containerRect = container.getBoundingClientRect();
@@ -236,7 +251,19 @@ function renderizarProdutos() {
         produtosFiltrados = produtosFiltrados.filter(p => p.disponivel !== false);
     }
     
-    if (produtosFiltrados.length === 0) {
+    // 🛠️ Busca montagens da categoria atual
+    let montagensFiltradas = [];
+    if (categoriaAtual === 'todos') {
+        montagensFiltradas = montagens.filter(m => m.disponivel !== false);
+    } else {
+        montagensFiltradas = montagens.filter(m => m.categoria === categoriaAtual && m.disponivel !== false);
+    }
+    
+    if (!adminLogado) {
+        montagensFiltradas = montagensFiltradas.filter(m => m.disponivel !== false);
+    }
+    
+    if (produtosFiltrados.length === 0 && montagensFiltradas.length === 0) {
         container.innerHTML = `
             <div style="text-align: center; padding: 50px; color: var(--cor-texto-claro); grid-column: 1/-1;">
                 <i class="fas fa-utensils" style="font-size: 3rem; opacity: 0.5;"></i>
@@ -246,6 +273,33 @@ function renderizarProdutos() {
         return;
     }
     
+    // Renderiza montagens primeiro (com selo "Você Escolhe")
+    montagensFiltradas.forEach(montagem => {
+        const card = document.createElement('div');
+        card.className = 'produto-card montagem-card';
+        
+        const imagemUrl = montagem.imagem || LOGO_PADRAO;
+        const menorPreco = montagem.precoBase;
+        
+        card.innerHTML = `
+            <div class="badge-montagem">🧩 Você Escolhe</div>
+            ${montagem.destaque ? '<div class="badge-destaque">🔥 Destaque</div>' : ''}
+            <img class="produto-img" src="${imagemUrl}" alt="${montagem.nome}" onerror="this.src='${LOGO_PADRAO}';">
+            <div class="produto-info">
+                <div class="produto-nome">${montagem.nome}</div>
+                <div class="produto-desc">${montagem.descricao || ''}</div>
+                <div class="produto-footer">
+                    <span class="produto-preco">A partir de ${formatarPreco(menorPreco)}</span>
+                    <button class="btn-add btn-montagem" onclick="event.stopPropagation(); abrirModalMontagem('${montagem.id}')">+</button>
+                </div>
+            </div>
+        `;
+        
+        card.onclick = () => abrirModalMontagem(montagem.id);
+        container.appendChild(card);
+    });
+    
+    // Renderiza produtos normais
     produtosFiltrados.forEach(produto => {
         const card = document.createElement('div');
         card.className = `produto-card ${!produto.disponivel ? 'indisponivel' : ''}`;
@@ -270,21 +324,44 @@ function renderizarProdutos() {
     });
     
     renderizarDestaques();
-    
-    // Atualizar sticky mobile
     initMobileFixes();
 }
 
 function renderizarDestaques() {
     const section = document.getElementById('destaquesSection');
     const produtosDestaque = produtos.filter(p => p.destaque && p.disponivel);
+    const montagensDestaque = montagens.filter(m => m.destaque && m.disponivel);
     
-    if (produtosDestaque.length > 0) {
+    const totalDestaques = produtosDestaque.length + montagensDestaque.length;
+    
+    if (totalDestaques > 0) {
         section.style.display = 'block';
         const grid = document.getElementById('destaquesGrid');
         grid.innerHTML = '';
         
-        produtosDestaque.slice(0, 4).forEach(produto => {
+        // Montagens em destaque
+        montagensDestaque.slice(0, 2).forEach(montagem => {
+            const card = document.createElement('div');
+            card.className = 'produto-card';
+            card.style.background = 'rgba(255,255,255,0.15)';
+            card.style.backdropFilter = 'blur(10px)';
+            
+            const imagemUrl = montagem.imagem || LOGO_PADRAO;
+            
+            card.innerHTML = `
+                <div class="badge-montagem" style="font-size: 0.6rem; padding: 2px 8px;">🧩 Você Escolhe</div>
+                <img class="produto-img" src="${imagemUrl}" alt="${montagem.nome}" style="height: 120px;" onerror="this.src='${LOGO_PADRAO}'">
+                <div class="produto-info">
+                    <div class="produto-nome" style="color: white;">${montagem.nome}</div>
+                    <div class="produto-preco" style="color: white;">A partir de ${formatarPreco(montagem.precoBase)}</div>
+                    <button class="btn-add" style="background: white; color: var(--cor-primaria);" onclick="event.stopPropagation(); abrirModalMontagem('${montagem.id}')">+</button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+        
+        // Produtos em destaque
+        produtosDestaque.slice(0, 4 - montagensDestaque.length).forEach(produto => {
             const card = document.createElement('div');
             card.className = 'produto-card';
             card.style.background = 'rgba(255,255,255,0.15)';
@@ -308,7 +385,7 @@ function renderizarDestaques() {
 }
 
 // ============================================
-// ===== MODAL DE PRODUTO ====================
+// ===== MODAL DE PRODUTO (PIZZA) ============
 // ============================================
 
 function abrirModalProduto(produtoId) {
@@ -329,14 +406,12 @@ function abrirModalProduto(produtoId) {
     img.src = produtoSelecionado.imagem || LOGO_PADRAO;
     img.onerror = () => { img.src = LOGO_PADRAO; };
     
-    // 🍕 SE FOR PIZZA: mostra lista de sabores (outros produtos da categoria pizza)
     const saboresDiv = document.getElementById('saboresPizzaDiv');
     if (produtoSelecionado.categoria === 'pizza') {
         saboresDiv.style.display = 'block';
         const lista = document.getElementById('saboresLista');
         lista.innerHTML = '';
         
-        // Busca todos os produtos ATIVOS da categoria pizza (exceto o próprio produto)
         const pizzasDisponiveis = produtos.filter(p => 
             p.categoria === 'pizza' && 
             p.disponivel !== false && 
@@ -364,7 +439,6 @@ function abrirModalProduto(produtoId) {
         saboresDiv.style.display = 'none';
     }
     
-    // Adicionais
     const adicionaisDiv = document.getElementById('adicionaisDiv');
     const adicionaisCat = adicionaisPorCategoria[produtoSelecionado.categoria] || [];
     if (adicionaisCat.length > 0) {
@@ -384,16 +458,16 @@ function abrirModalProduto(produtoId) {
         adicionaisDiv.style.display = 'none';
     }
     
+    // Esconde seção de montagem
+    document.getElementById('montagemDiv').style.display = 'none';
+    
     document.getElementById('modalProduto').style.display = 'flex';
 }
 
 function fecharModalProduto() {
     document.getElementById('modalProduto').style.display = 'none';
-    
-    // Limpa o estado de edição
     window.editandoCarrinhoIndex = null;
     
-    // Restaura o botão original
     const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
     if (btnAdicionar) {
         btnAdicionar.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
@@ -402,7 +476,6 @@ function fecharModalProduto() {
 
 function toggleSaborPizza(checkbox, pizzaId, pizzaNome, pizzaPreco) {
     if (checkbox.checked) {
-        // Já tem 2 sabores selecionados?
         if (saboresSelecionados.length >= 2) {
             checkbox.checked = false;
             mostrarToast('Máximo 2 sabores', 'Você já escolheu 2 sabores para meio a meio', 'alerta');
@@ -412,8 +485,6 @@ function toggleSaborPizza(checkbox, pizzaId, pizzaNome, pizzaPreco) {
     } else {
         saboresSelecionados = saboresSelecionados.filter(s => s.id !== pizzaId);
     }
-    
-    // 🔥 Atualiza o preço mostrado no modal
     atualizarPrecoPizza();
 }
 
@@ -422,13 +493,11 @@ function atualizarPrecoPizza() {
     
     let precoBase = produtoSelecionado.preco;
     
-    // Se tem sabores selecionados, pega o MAIOR preço entre eles
     if (saboresSelecionados.length > 0) {
         const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => s.preco));
         precoBase = Math.max(precoBase, maiorPrecoSabor);
     }
     
-    // Adiciona preço dos adicionais
     let precoFinal = precoBase;
     adicionaisSelecionados.forEach(adicional => {
         precoFinal += adicional.preco;
@@ -444,7 +513,6 @@ function toggleAdicional(checkbox, nome, preco) {
         adicionaisSelecionados = adicionaisSelecionados.filter(a => a.nome !== nome);
     }
     
-    // Se for pizza, atualiza o preço considerando os adicionais
     if (produtoSelecionado && produtoSelecionado.categoria === 'pizza') {
         atualizarPrecoPizza();
     }
@@ -462,55 +530,250 @@ function diminuirQuantidade() {
     }
 }
 
-function adicionarAoCarrinho() {
-    if (!produtoSelecionado) return;
+// ============================================
+// ===== MODAL DE MONTAGEM ===================
+// ============================================
+
+function abrirModalMontagem(montagemId) {
+    montagemSelecionada = montagens.find(m => m.id === montagemId);
+    if (!montagemSelecionada) return;
     
-    let precoFinal = produtoSelecionado.preco;
+    quantidadeSelecionada = 1;
+    tamanhoSelecionado = montagemSelecionada.tamanhos?.[0] || null;
+    itensMontagemSelecionados = [];
     
-    // 🍕 Se for pizza com sabores selecionados
-    if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
-        const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => s.preco));
-        precoFinal = Math.max(precoFinal, maiorPrecoSabor);
+    document.getElementById('modalProdutoNome').innerText = montagemSelecionada.nome;
+    document.getElementById('modalProdutoDesc').innerText = montagemSelecionada.descricao || '';
+    document.getElementById('quantidadeProduto').innerText = '1';
+    document.getElementById('obsItem').value = '';
+    
+    const img = document.getElementById('modalProdutoImg');
+    img.src = montagemSelecionada.imagem || LOGO_PADRAO;
+    img.onerror = () => { img.src = LOGO_PADRAO; };
+    
+    // Esconde seções de pizza
+    document.getElementById('saboresPizzaDiv').style.display = 'none';
+    document.getElementById('adicionaisDiv').style.display = 'none';
+    
+    // Mostra seção de montagem
+    const montagemDiv = document.getElementById('montagemDiv');
+    montagemDiv.style.display = 'block';
+    montagemDiv.innerHTML = '';
+    
+    // Tamanhos
+    if (montagemSelecionada.tamanhos && montagemSelecionada.tamanhos.length > 0) {
+        const tamanhoSection = document.createElement('div');
+        tamanhoSection.className = 'montagem-section';
+        tamanhoSection.innerHTML = '<h4>📏 Escolha o tamanho</h4>';
+        
+        const tamanhoLista = document.createElement('div');
+        tamanhoLista.className = 'montagem-lista';
+        
+        montagemSelecionada.tamanhos.forEach((tamanho, idx) => {
+            const div = document.createElement('div');
+            div.className = 'montagem-item-radio';
+            div.innerHTML = `
+                <input type="radio" name="tamanhoMontagem" value="${tamanho.id}" 
+                       ${idx === 0 ? 'checked' : ''} 
+                       onchange="selecionarTamanho('${tamanho.id}')">
+                <span>${tamanho.nome} ${tamanho.preco > 0 ? `(+${formatarPreco(tamanho.preco)})` : ''}</span>
+            `;
+            tamanhoLista.appendChild(div);
+        });
+        
+        tamanhoSection.appendChild(tamanhoLista);
+        montagemDiv.appendChild(tamanhoSection);
     }
     
-    // Adiciona preço dos adicionais
-    adicionaisSelecionados.forEach(adicional => {
-        precoFinal += adicional.preco;
+    // Grupos
+    montagemSelecionada.grupos.forEach(grupo => {
+        const grupoSection = document.createElement('div');
+        grupoSection.className = 'montagem-section';
+        
+        const obrigatorio = grupo.obrigatorio ? ' *' : '';
+        const limite = grupo.limite > 1 ? ` (escolha até ${grupo.limite})` : ' (escolha 1)';
+        
+        grupoSection.innerHTML = `<h4>${grupo.nome}${obrigatorio}<small>${limite}</small></h4>`;
+        
+        const itensLista = document.createElement('div');
+        itensLista.className = 'montagem-lista';
+        
+        grupo.itens.forEach(item => {
+            if (item.disponivel === false) return;
+            
+            const div = document.createElement('div');
+            div.className = 'montagem-item';
+            div.innerHTML = `
+                <input type="checkbox" 
+                       value="${item.id}" 
+                       data-grupo="${grupo.id}"
+                       data-nome="${item.nome}" 
+                       data-preco="${item.preco}" 
+                       onchange="toggleItemMontagem(this, '${grupo.id}', '${item.id}', '${item.nome.replace(/'/g, "\\'")}', ${item.preco}, ${grupo.limite})">
+                <span>${item.nome} ${item.preco > 0 ? `(+${formatarPreco(item.preco)})` : ''}</span>
+            `;
+            itensLista.appendChild(div);
+        });
+        
+        grupoSection.appendChild(itensLista);
+        montagemDiv.appendChild(grupoSection);
     });
     
-    let nomeFinal = produtoSelecionado.nome;
+    atualizarPrecoMontagem();
+    document.getElementById('modalProduto').style.display = 'flex';
+}
+
+function selecionarTamanho(tamanhoId) {
+    tamanhoSelecionado = montagemSelecionada.tamanhos.find(t => t.id === tamanhoId);
+    atualizarPrecoMontagem();
+}
+
+function toggleItemMontagem(checkbox, grupoId, itemId, itemNome, itemPreco, limite) {
+    const grupo = montagemSelecionada.grupos.find(g => g.id === grupoId);
     
-    // Monta o nome com os sabores
-    if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
-        if (saboresSelecionados.length === 1) {
-            nomeFinal = `${produtoSelecionado.nome} - ${saboresSelecionados[0].nome}`;
-        } else if (saboresSelecionados.length === 2) {
-            nomeFinal = `${produtoSelecionado.nome} - Meio ${saboresSelecionados[0].nome} / Meio ${saboresSelecionados[1].nome}`;
+    if (checkbox.checked) {
+        // Conta quantos itens desse grupo já estão selecionados
+        const selecionadosNoGrupo = itensMontagemSelecionados.filter(i => i.grupoId === grupoId);
+        
+        if (selecionadosNoGrupo.length >= limite) {
+            checkbox.checked = false;
+            mostrarToast(`Limite atingido`, `Você só pode escolher até ${limite} item(ns) em "${grupo.nome}"`, 'alerta');
+            return;
+        }
+        
+        itensMontagemSelecionados.push({ grupoId, itemId, nome: itemNome, preco: itemPreco });
+    } else {
+        itensMontagemSelecionados = itensMontagemSelecionados.filter(i => i.itemId !== itemId);
+    }
+    
+    atualizarPrecoMontagem();
+}
+
+function atualizarPrecoMontagem() {
+    if (!montagemSelecionada) return;
+    
+    let preco = montagemSelecionada.precoBase;
+    
+    if (tamanhoSelecionado) {
+        preco += tamanhoSelecionado.preco;
+    }
+    
+    itensMontagemSelecionados.forEach(item => {
+        preco += item.preco || 0;
+    });
+    
+    document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(preco);
+}
+
+// ============================================
+// ===== ADICIONAR AO CARRINHO ===============
+// ============================================
+
+function adicionarAoCarrinho() {
+    // 🛠️ Se for montagem
+    if (montagemSelecionada) {
+        // Valida grupos obrigatórios
+        for (const grupo of montagemSelecionada.grupos) {
+            if (grupo.obrigatorio) {
+                const selecionados = itensMontagemSelecionados.filter(i => i.grupoId === grupo.id);
+                if (selecionados.length === 0) {
+                    mostrarToast('Item obrigatório', `Selecione pelo menos 1 item em "${grupo.nome}"`, 'alerta');
+                    return;
+                }
+            }
+        }
+        
+        let precoFinal = montagemSelecionada.precoBase;
+        if (tamanhoSelecionado) precoFinal += tamanhoSelecionado.preco;
+        itensMontagemSelecionados.forEach(item => { precoFinal += item.preco || 0; });
+        
+        // Monta descrição do item
+        let descricaoMontagem = [];
+        if (tamanhoSelecionado) descricaoMontagem.push(`📏 ${tamanhoSelecionado.nome}`);
+        
+        montagemSelecionada.grupos.forEach(grupo => {
+            const itensDoGrupo = itensMontagemSelecionados.filter(i => i.grupoId === grupo.id);
+            if (itensDoGrupo.length > 0) {
+                descricaoMontagem.push(`${grupo.nome}: ${itensDoGrupo.map(i => i.nome).join(', ')}`);
+            }
+        });
+        
+        const nomeFinal = `${montagemSelecionada.nome}${tamanhoSelecionado ? ' (' + tamanhoSelecionado.nome + ')' : ''}`;
+        
+        const itemCarrinho = {
+            id: montagemSelecionada.id + '-' + Date.now(),
+            produtoId: montagemSelecionada.id,
+            tipo: 'montagem',
+            nome: nomeFinal,
+            precoUnitario: precoFinal,
+            quantidade: quantidadeSelecionada,
+            observacao: document.getElementById('obsItem').value,
+            montagemDetalhes: {
+                montagemId: montagemSelecionada.id,
+                tamanho: tamanhoSelecionado,
+                itens: [...itensMontagemSelecionados],
+                descricao: descricaoMontagem
+            }
+        };
+        
+        if (window.editandoCarrinhoIndex !== undefined && window.editandoCarrinhoIndex !== null) {
+            carrinho[window.editandoCarrinhoIndex] = itemCarrinho;
+            window.editandoCarrinhoIndex = null;
+            mostrarToast('Item atualizado!', 'sucesso');
+        } else {
+            carrinho.push(itemCarrinho);
+            mostrarToast(`${nomeFinal} adicionado ao carrinho!`, 'sucesso');
+        }
+        
+        montagemSelecionada = null;
+        tamanhoSelecionado = null;
+        itensMontagemSelecionados = [];
+    }
+    // Produto normal ou pizza
+    else if (produtoSelecionado) {
+        let precoFinal = produtoSelecionado.preco;
+        
+        if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
+            const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => s.preco));
+            precoFinal = Math.max(precoFinal, maiorPrecoSabor);
+        }
+        
+        adicionaisSelecionados.forEach(adicional => {
+            precoFinal += adicional.preco;
+        });
+        
+        let nomeFinal = produtoSelecionado.nome;
+        
+        if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
+            if (saboresSelecionados.length === 1) {
+                nomeFinal = `${produtoSelecionado.nome} - ${saboresSelecionados[0].nome}`;
+            } else if (saboresSelecionados.length === 2) {
+                nomeFinal = `${produtoSelecionado.nome} - Meio ${saboresSelecionados[0].nome} / Meio ${saboresSelecionados[1].nome}`;
+            }
+        }
+        
+        const itemCarrinho = {
+            id: produtoSelecionado.id + '-' + Date.now(),
+            produtoId: produtoSelecionado.id,
+            tipo: 'produto',
+            nome: nomeFinal,
+            precoUnitario: precoFinal,
+            quantidade: quantidadeSelecionada,
+            observacao: document.getElementById('obsItem').value,
+            adicionais: [...adicionaisSelecionados],
+            sabores: [...saboresSelecionados]
+        };
+        
+        if (window.editandoCarrinhoIndex !== undefined && window.editandoCarrinhoIndex !== null) {
+            carrinho[window.editandoCarrinhoIndex] = itemCarrinho;
+            window.editandoCarrinhoIndex = null;
+            mostrarToast('Item atualizado!', 'sucesso');
+        } else {
+            carrinho.push(itemCarrinho);
+            mostrarToast(`${nomeFinal} adicionado ao carrinho!`, 'sucesso');
         }
     }
     
-    const itemCarrinho = {
-        id: produtoSelecionado.id + '-' + Date.now(),
-        produtoId: produtoSelecionado.id,
-        nome: nomeFinal,
-        precoUnitario: precoFinal,
-        quantidade: quantidadeSelecionada,
-        observacao: document.getElementById('obsItem').value,
-        adicionais: [...adicionaisSelecionados],
-        sabores: [...saboresSelecionados]
-    };
-    
-    // Verifica se está editando um item existente
-    if (window.editandoCarrinhoIndex !== undefined && window.editandoCarrinhoIndex !== null) {
-        carrinho[window.editandoCarrinhoIndex] = itemCarrinho;
-        window.editandoCarrinhoIndex = null;
-        mostrarToast('Item atualizado!', 'sucesso');
-    } else {
-        carrinho.push(itemCarrinho);
-        mostrarToast(`${nomeFinal} adicionado ao carrinho!`, 'sucesso');
-    }
-    
-    // Restaura o botão original
     const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
     if (btnAdicionar) {
         btnAdicionar.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
@@ -548,15 +811,17 @@ function renderizarCarrinho() {
         const div = document.createElement('div');
         div.className = 'carrinho-item';
         
-        let adicionaisHtml = '';
-        if (item.adicionais && item.adicionais.length) {
-            adicionaisHtml = `
-                <div class="item-adicionais">
-                    ➕ ${item.adicionais.map(a => `${a.nome}${a.preco > 0 ? ` (+${formatarPreco(a.preco)})` : ''}`).join(', ')}
-                </div>
-            `;
+        // 🛠️ Detalhes da montagem
+        let detalhesHtml = '';
+        if (item.tipo === 'montagem' && item.montagemDetalhes) {
+            detalhesHtml = '<div class="item-adicionais" style="font-size: 0.75rem;">';
+            item.montagemDetalhes.descricao.forEach(linha => {
+                detalhesHtml += `${linha}<br>`;
+            });
+            detalhesHtml += '</div>';
         }
         
+        // Sabores pizza
         let saboresHtml = '';
         if (item.sabores && item.sabores.length) {
             saboresHtml = `
@@ -566,11 +831,22 @@ function renderizarCarrinho() {
             `;
         }
         
+        // Adicionais
+        let adicionaisHtml = '';
+        if (item.adicionais && item.adicionais.length) {
+            adicionaisHtml = `
+                <div class="item-adicionais">
+                    ➕ ${item.adicionais.map(a => `${a.nome}${a.preco > 0 ? ` (+${formatarPreco(a.preco)})` : ''}`).join(', ')}
+                </div>
+            `;
+        }
+        
         div.innerHTML = `
             <div class="item-header">
                 <span class="item-nome">${item.quantidade}x ${item.nome}</span>
                 <span class="item-preco">${formatarPreco(subtotal)}</span>
             </div>
+            ${detalhesHtml}
             ${saboresHtml}
             ${adicionaisHtml}
             ${item.observacao ? `<div class="item-obs">📝 ${item.observacao}</div>` : ''}
@@ -581,7 +857,7 @@ function renderizarCarrinho() {
                     <button class="quantidade-btn" onclick="alterarQuantidade(${idx}, 1)">+</button>
                 </div>
                 <div class="item-actions">
-                    <button class="btn-editar-item" onclick="editarItemCarrinho(${idx})"><i class="fas fa-edit"></i></button>
+                    ${item.tipo === 'produto' ? `<button class="btn-editar-item" onclick="editarItemCarrinho(${idx})"><i class="fas fa-edit"></i></button>` : ''}
                     <button class="btn-duplicar-item" onclick="duplicarItemCarrinho(${idx})"><i class="fas fa-copy"></i></button>
                     <button class="btn-remover-item" onclick="removerItemCarrinho(${idx})"><i class="fas fa-trash"></i></button>
                 </div>
@@ -618,50 +894,64 @@ function duplicarItemCarrinho(index) {
 
 function editarItemCarrinho(index) {
     const item = carrinho[index];
-    const produto = produtos.find(p => p.id === item.produtoId);
-    if (!produto) return;
-    
-    window.editandoCarrinhoIndex = index;
-    produtoSelecionado = produto;
-    
-    quantidadeSelecionada = item.quantidade;
-    document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
-    
-    saboresSelecionados = [...(item.sabores || [])];
-    adicionaisSelecionados = item.adicionais ? item.adicionais.map(a => ({ nome: a.nome, preco: a.preco })) : [];
-    document.getElementById('obsItem').value = item.observacao || '';
-    
-    // Preenche o modal (reaproveita a abertura normal)
-    abrirModalProduto(item.produtoId);
-    
-    // Restaura os checkboxes dos sabores
-    setTimeout(() => {
-        const checkboxes = document.querySelectorAll('#saboresLista input[type="checkbox"]');
-        checkboxes.forEach(cb => {
-            const saborId = cb.value;
-            cb.checked = saboresSelecionados.some(s => s.id === saborId);
-        });
-        atualizarPrecoPizza();
-    }, 100);
-    
-    // Restaura os checkboxes dos adicionais
-    setTimeout(() => {
-        const checkboxes = document.querySelectorAll('#adicionaisLista input[type="checkbox"]');
-        checkboxes.forEach(cb => {
-            try {
-                const adicional = JSON.parse(cb.value);
-                cb.checked = adicionaisSelecionados.some(a => a.nome === adicional.nome);
-            } catch(e) {}
-        });
-    }, 100);
-    
-    // Restaura a quantidade
-    document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
-    
-    // Altera o botão
-    const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
-    if (btnAdicionar) {
-        btnAdicionar.innerHTML = '<i class="fas fa-save"></i> Atualizar Item';
+    if (item.tipo === 'montagem') {
+        // Reabre modal de montagem
+        abrirModalMontagem(item.produtoId);
+        // Restaura seleções
+        setTimeout(() => {
+            if (item.montagemDetalhes) {
+                if (item.montagemDetalhes.tamanho) {
+                    const radio = document.querySelector(`input[name="tamanhoMontagem"][value="${item.montagemDetalhes.tamanho.id}"]`);
+                    if (radio) radio.checked = true;
+                    tamanhoSelecionado = item.montagemDetalhes.tamanho;
+                }
+                if (item.montagemDetalhes.itens) {
+                    itensMontagemSelecionados = [...item.montagemDetalhes.itens];
+                    document.querySelectorAll('#montagemDiv input[type="checkbox"]').forEach(cb => {
+                        cb.checked = itensMontagemSelecionados.some(i => i.itemId === cb.value);
+                    });
+                }
+                atualizarPrecoMontagem();
+            }
+            document.getElementById('obsItem').value = item.observacao || '';
+            quantidadeSelecionada = item.quantidade;
+            document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
+        }, 100);
+        
+        window.editandoCarrinhoIndex = index;
+        const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
+        if (btnAdicionar) btnAdicionar.innerHTML = '<i class="fas fa-save"></i> Atualizar Item';
+    } else {
+        const produto = produtos.find(p => p.id === item.produtoId);
+        if (!produto) return;
+        
+        window.editandoCarrinhoIndex = index;
+        produtoSelecionado = produto;
+        quantidadeSelecionada = item.quantidade;
+        saboresSelecionados = [...(item.sabores || [])];
+        adicionaisSelecionados = item.adicionais ? item.adicionais.map(a => ({ nome: a.nome, preco: a.preco })) : [];
+        document.getElementById('obsItem').value = item.observacao || '';
+        
+        abrirModalProduto(item.produtoId);
+        
+        setTimeout(() => {
+            const checkboxesSabores = document.querySelectorAll('#saboresLista input[type="checkbox"]');
+            checkboxesSabores.forEach(cb => {
+                cb.checked = saboresSelecionados.some(s => s.id === cb.value);
+            });
+            const checkboxesAdicionais = document.querySelectorAll('#adicionaisLista input[type="checkbox"]');
+            checkboxesAdicionais.forEach(cb => {
+                try {
+                    const adicional = JSON.parse(cb.value);
+                    cb.checked = adicionaisSelecionados.some(a => a.nome === adicional.nome);
+                } catch(e) {}
+            });
+            atualizarPrecoPizza();
+        }, 100);
+        
+        document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
+        const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
+        if (btnAdicionar) btnAdicionar.innerHTML = '<i class="fas fa-save"></i> Atualizar Item';
     }
 }
 
@@ -840,3 +1130,7 @@ window.removerItemCarrinho = removerItemCarrinho;
 window.duplicarItemCarrinho = duplicarItemCarrinho;
 window.editarItemCarrinho = editarItemCarrinho;
 window.initMobileFixes = initMobileFixes;
+window.abrirModalMontagem = abrirModalMontagem;
+window.selecionarTamanho = selecionarTamanho;
+window.toggleItemMontagem = toggleItemMontagem;
+window.atualizarPrecoMontagem = atualizarPrecoMontagem;
