@@ -839,42 +839,78 @@ body {
 }
 
 /* ============================================ */
-/* ===== ADMIN MONTAGENS ====================== */
+/* ===== ADMIN MONTAGENS ======================= */
 /* ============================================ */
 
 .montagem-section-admin {
-    margin: 15px 0;
-    padding: 20px;
-    border: 2px solid #e0e0e0;
-    border-radius: 16px;
-    background: #fafafa;
+    margin: 20px 0;
+    padding: 24px;
+    border-radius: 18px;
+    background: linear-gradient(145deg, #ffffff, #f3f3f3);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    border: 1px solid #e5e5e5;
+    transition: all 0.2s ease;
+}
+
+.montagem-section-admin:hover {
+    box-shadow: 0 10px 25px rgba(0,0,0,0.12);
 }
 
 .montagem-section-admin h4 {
-    margin-bottom: 12px;
-    color: #6a1b9a;
-    font-size: 1rem;
+    margin-bottom: 16px;
+    color: #5e35b1;
+    font-size: 1.1rem;
     font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
+
+.montagem-section-admin h4::before {
+    content: "⚙️";
+    font-size: 1rem;
+}
+
+/* Itens */
 
 .montagem-admin-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 5px;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    transition: background 0.2s ease;
+    cursor: pointer;
 }
 
+.montagem-admin-item:hover {
+    background: rgba(106, 27, 154, 0.08);
+}
+
+/* Grupo */
+
 .grupo-montagem-box {
-    padding: 15px;
-    margin-bottom: 15px;
-    border: 2px solid #ffcc80;
-    border-radius: 12px;
-    background: #fff8e1;
+    padding: 18px;
+    margin-bottom: 18px;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #fffdf7, #fff3cd);
+    border: 1px solid #ffe0b2;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+
+.grupo-montagem-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
 }
 
 .grupo-montagem-box .grupo-titulo {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #ef6c00;
+    font-size: 0.95rem;
+    letter-spacing: 0.3px;
 }
 
 /* ============================================ */
