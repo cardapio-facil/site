@@ -72,18 +72,14 @@ async function salvarConfigFirebase(config) {
     }
 }
 
-// Salvar Pedido com transação atômica para número
 async function salvarPedidoFirebase(pedido) {
     try {
-        // Gera a chave da data atual (YYYYMMDD)
         const hoje = new Date();
-        const dataKey = hoje.getFullYear() +
-            String(hoje.getMonth() + 1).padStart(2, '0') +
-            String(hoje.getDate()).padStart(2, '0');
+        const chaveMensal = hoje.getFullYear() +
+            String(hoje.getMonth() + 1).padStart(2, '0');
         
-        const contadorRef = database.ref(`restaurantes/${RESTAURANTE_ID}/contadores/${dataKey}`);
+        const contadorRef = database.ref(`restaurantes/${RESTAURANTE_ID}/contadores/${chaveMensal}`);
         
-        // Usa transação para evitar concorrência
         const numeroPedido = await new Promise((resolve, reject) => {
             contadorRef.transaction((valorAtual) => {
                 if (valorAtual === null) {
@@ -95,9 +91,7 @@ async function salvarPedidoFirebase(pedido) {
                     reject(erro);
                 } else if (committed) {
                     const numero = snapshot.val().ultimoNumero;
-                    // Formata: 20240315-001
-                    const numeroFormatado = `${dataKey}-${String(numero).padStart(3, '0')}`;
-                    resolve(numeroFormatado);
+                    resolve(String(numero));  // ✅ Só o número: "45"
                 } else {
                     reject(new Error('Transação não confirmada'));
                 }
@@ -105,6 +99,8 @@ async function salvarPedidoFirebase(pedido) {
         });
         
         pedido.numero = numeroPedido;
+        
+        // ... resto da função (limparUndefined, set no Firebase)
         
         // Função para remover undefined recursivamente (Firebase não aceita)
         function limparUndefined(obj) {
