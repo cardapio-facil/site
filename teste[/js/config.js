@@ -150,16 +150,37 @@ const MONTAGENS_PADRAO = [
     }
 ];
 
-// ===== FUNÇÕES AUXILIARES =====
-function formatarPreco(valor) {
+// ===== FUNÇÕES AUXILIARES (ATUALIZADAS) =====
+
+/**
+ * Formata valor em centavos para exibição
+ * @param {number} centavos - Valor em centavos (ex: 3290 = R$ 32,90)
+ * @returns {string} Valor formatado
+ */
+function formatarPreco(centavos) {
+    // Se já for float (legado), converte
+    if (typeof centavos === 'number' && centavos % 1 !== 0) {
+        centavos = Math.round(centavos * 100);
+    }
+    
     return new Intl.NumberFormat('pt-BR', {
         style: 'currency',
         currency: 'BRL'
-    }).format(valor);
+    }).format(centavos / 100);
 }
 
+/**
+ * Converte string de preço para centavos
+ * @param {string|number} precoStr - "R$ 32,90" ou 32.90
+ * @returns {number} Valor em centavos
+ */
 function parsePreco(precoStr) {
-    if (typeof precoStr === 'number') return precoStr;
+    if (typeof precoStr === 'number') {
+        // Se já for inteiro (centavos), retorna
+        if (precoStr % 1 === 0 && precoStr > 100) return precoStr;
+        // Se for float, converte
+        return Math.round(precoStr * 100);
+    }
     if (!precoStr) return 0;
     
     const valor = precoStr.toString()
@@ -168,7 +189,25 @@ function parsePreco(precoStr) {
         .replace(',', '.')
         .trim();
     
-    return parseFloat(valor) || 0;
+    return Math.round(parseFloat(valor) * 100) || 0;
+}
+
+/**
+ * Converte centavos para número float (para cálculos internos)
+ * @param {number} centavos
+ * @returns {number}
+ */
+function centavosParaFloat(centavos) {
+    return centavos / 100;
+}
+
+/**
+ * Converte float para centavos
+ * @param {number} float
+ * @returns {number}
+ */
+function floatParaCentavos(float) {
+    return Math.round(float * 100);
 }
 
 function getIconeCategoria(cat) {
