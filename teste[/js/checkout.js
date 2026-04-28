@@ -12,8 +12,37 @@ function abrirCheckout() {
         return;
     }
     
-    if (!verificarHorario()) {
-        mostrarToast('Restaurante fechado no momento!', 'alerta');
+    // 🆕 Verifica horário antes de abrir checkout
+    const statusLoja = verificarStatusLoja();
+    if (!statusLoja.aberto) {
+        const mensagem = statusLoja.motivo === 'feriado' ? 
+            'Restaurante fechado hoje (feriado)!' : 
+            statusLoja.motivo === 'fechado' ?
+            'Restaurante fechado no momento!' :
+            'Restaurante fora do horário de funcionamento!';
+        mostrarToast(mensagem, 'alerta');
+        return;
+    }
+    
+    // 🆕 Verifica se todos os itens do carrinho estão disponíveis
+    const agora = new Date();
+    const itensIndisponiveis = [];
+    
+    carrinho.forEach(item => {
+        const produto = produtos.find(p => p.id === item.produtoId);
+        if (produto) {
+            if (!isCategoriaDisponivel(produto.categoria, agora)) {
+                itensIndisponiveis.push(item.nome);
+            }
+        }
+    });
+    
+    if (itensIndisponiveis.length > 0) {
+        mostrarToast(
+            'Itens indisponíveis', 
+            `Os seguintes itens não estão disponíveis neste horário: ${itensIndisponiveis.join(', ')}. Remova-os para continuar.`,
+            'alerta'
+        );
         return;
     }
     
@@ -101,7 +130,6 @@ function abrirModalBuscaEndereco() {
     const modal = document.getElementById('modalBuscaEndereco');
     const cidadeUfSpan = document.getElementById('cidadeUfBusca');
     
-    // Usar APENAS configRestaurante
     const cidade = configRestaurante.cidade || 'Conselheiro Lafaiete';
     const uf = configRestaurante.uf || 'MG';
     
@@ -109,7 +137,6 @@ function abrirModalBuscaEndereco() {
         cidadeUfSpan.textContent = `${cidade} - ${uf}`;
     }
     
-    // Limpar resultados anteriores
     const resultadosDiv = document.getElementById('resultadosBuscaEndereco');
     if (resultadosDiv) {
         resultadosDiv.innerHTML = `
@@ -128,7 +155,6 @@ function abrirModalBuscaEndereco() {
     if (modal) {
         modal.style.display = 'flex';
         
-        // Focar no campo
         setTimeout(() => {
             if (inputBusca) inputBusca.focus();
         }, 100);
@@ -150,7 +176,6 @@ async function buscarEnderecoAvancado() {
     const termo = document.getElementById('buscaEnderecoInput').value.trim();
     const resultadosDiv = document.getElementById('resultadosBuscaEndereco');
     
-    // Usar APENAS configRestaurante
     const cidade = configRestaurante.cidade || 'Conselheiro Lafaiete';
     const uf = configRestaurante.uf || 'MG';
 
@@ -239,7 +264,6 @@ function selecionarCepDaBusca(item) {
     
     fecharModalBuscaEndereco();
     
-    // Executa a busca do CEP automaticamente
     setTimeout(() => {
         buscarCep();
     }, 200);
@@ -257,7 +281,6 @@ function buscarCep() {
     const cep = cepInput.value.replace(/\D/g, '');
     
     if (cep.length !== 8) {
-        // Se não tem 8 dígitos, abre o modal de busca
         abrirModalBuscaEndereco();
         return;
     }
@@ -697,10 +720,17 @@ function carregarDadosCliente() {
 }
 
 // ============================================
-// ===== CONFIRMAR PEDIDO (ATUALIZADO) ========
+// ===== CONFIRMAR PEDIDO ====================
 // ============================================
 
 async function confirmarPedido() {
+    // 🆕 Verificação final de horário
+    const statusLoja = verificarStatusLoja();
+    if (!statusLoja.aberto) {
+        mostrarToast('Restaurante fechado!', 'Não é possível finalizar o pedido no momento.', 'erro');
+        return;
+    }
+    
     const nome = document.getElementById('checkoutNome').value.trim();
     const telefone = document.getElementById('checkoutTelefone').value.trim();
     
@@ -750,13 +780,11 @@ async function confirmarPedido() {
         };
     }
     
-    // Calcular totais em CENTAVOS
     const pagamento = document.getElementById('checkoutPagamento').value;
     const troco = pagamento === 'dinheiro' 
         ? floatParaCentavos(parseFloat(document.getElementById('checkoutTroco').value) || 0)
         : null;
     
-    // Processa itens do carrinho para a nova estrutura
     const itens = carrinho.map(item => {
         const precoUnitarioCentavos = floatParaCentavos(item.precoUnitario);
         const totalItemCentavos = precoUnitarioCentavos * item.quantidade;
@@ -770,7 +798,6 @@ async function confirmarPedido() {
         };
         
         if (item.tipo === 'montagem') {
-            // 🛠️ Item de montagem
             itemBase.refs = {
                 produtoId: item.produtoId,
                 tamanhoId: item.montagemDetalhes?.tamanho?.id || null,
@@ -810,8 +837,7 @@ async function confirmarPedido() {
                 }).filter(g => g.itens.length > 0) || [],
                 observacao: item.observacao || ''
             };
-        } else if (item.tipo === 'produto' && item.sabores && item.sabores.length > 0) {
-            // 🍕 Pizza
+        } else if (item.sabores && item.sabores.length > 0) {
             const produtoBase = produtos.find(p => p.id === item.produtoId);
             
             itemBase.refs = {
@@ -835,7 +861,6 @@ async function confirmarPedido() {
                 observacao: item.observacao || ''
             };
         } else {
-            // 📦 Produto simples
             const produtoBase = produtos.find(p => p.id === item.produtoId);
             
             itemBase.refs = {
@@ -857,14 +882,13 @@ async function confirmarPedido() {
         return itemBase;
     });
     
-    // Calcula subtotal em centavos
     const subtotalCentavos = itens.reduce((sum, item) => sum + item.totalItem, 0);
     const freteCentavos = floatParaCentavos(parseFloat(document.getElementById('checkoutFrete').dataset.valor) || 0);
     const totalCentavos = subtotalCentavos + freteCentavos;
     
     const pedido = {
         id: 'ped_' + gerarId(),
-        numero: null, // Será gerado pelo Firebase com transação
+        numero: null,
         criadoEm: firebase.database.ServerValue.TIMESTAMP,
         atualizadoEm: firebase.database.ServerValue.TIMESTAMP,
         
@@ -904,7 +928,6 @@ async function confirmarPedido() {
     
     mostrarLoader(true);
     
-    // Gerar número do pedido com transação
     const sucesso = await salvarPedidoFirebase(pedido);
     
     if (sucesso) {
@@ -912,7 +935,8 @@ async function confirmarPedido() {
             salvarEndereco();
         }
         
-        mostrarToast(`✅ Pedido #${pedido.numero} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
+        const numeroPedido = pedido.numero;
+        mostrarToast(`✅ Pedido #${numeroPedido} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
         
         carrinho = [];
         renderizarCarrinho();
@@ -923,10 +947,7 @@ async function confirmarPedido() {
     mostrarLoader(false);
 }
 
-// ============================================
-// ===== EXPOR FUNÇÕES GLOBALMENTE ===========
-// ============================================
-
+// ===== EXPOR =====
 window.abrirCheckout = abrirCheckout;
 window.fecharModalCheckout = fecharModalCheckout;
 window.toggleCamposEntrega = toggleCamposEntrega;
@@ -941,19 +962,3 @@ window.selecionarCepDaBusca = selecionarCepDaBusca;
 window.buscarFretePorBairro = buscarFretePorBairro;
 window.salvarEndereco = salvarEndereco;
 window.confirmarPedido = confirmarPedido;
-
-// ============================================
-// ===== INICIALIZAÇÃO =======================
-// ============================================
-
-document.addEventListener('DOMContentLoaded', () => {
-    const cepInput = document.getElementById('checkoutCep');
-    if (cepInput) {
-        cepInput.addEventListener('blur', buscarCep);
-    }
-    
-    const btnSalvarEndereco = document.getElementById('btnSalvarEndereco');
-    if (btnSalvarEndereco) {
-        btnSalvarEndereco.addEventListener('click', salvarEndereco);
-    }
-});
