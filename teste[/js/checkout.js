@@ -697,7 +697,7 @@ function carregarDadosCliente() {
 }
 
 // ============================================
-// ===== CONFIRMAR PEDIDO ====================
+// ===== CONFIRMAR PEDIDO (ATUALIZADO) ========
 // ============================================
 
 async function confirmarPedido() {
@@ -737,51 +737,174 @@ async function confirmarPedido() {
         }
         
         endereco = {
-            bairro,
-            rua,
-            numero,
-            complemento: document.getElementById('checkoutComplemento').value,
+            cep: document.getElementById('checkoutCep').value.replace(/\D/g, ''),
+            rua: rua,
+            numero: numero,
+            bairro: bairro,
             cidade: document.getElementById('checkoutCidade').value,
-            cep: document.getElementById('checkoutCep').value
+            complemento: document.getElementById('checkoutComplemento').value,
+            geo: {
+                lat: null,
+                lng: null
+            }
         };
     }
     
-    const subtotal = carrinho.reduce((sum, item) => sum + (item.precoUnitario * item.quantidade), 0);
-    const frete = parseFloat(document.getElementById('checkoutFrete').dataset.valor) || 0;
-    const total = subtotal + frete;
-    
-    const observacaoGeral = document.getElementById('observacaoGeral').value;
+    // Calcular totais em CENTAVOS
     const pagamento = document.getElementById('checkoutPagamento').value;
-    const troco = pagamento === 'dinheiro' ? parseFloat(document.getElementById('checkoutTroco').value) || null : null;
+    const troco = pagamento === 'dinheiro' 
+        ? floatParaCentavos(parseFloat(document.getElementById('checkoutTroco').value) || 0)
+        : null;
+    
+    // Processa itens do carrinho para a nova estrutura
+    const itens = carrinho.map(item => {
+        const precoUnitarioCentavos = floatParaCentavos(item.precoUnitario);
+        const totalItemCentavos = precoUnitarioCentavos * item.quantidade;
+        
+        const itemBase = {
+            itemId: item.id,
+            tipo: item.tipo || 'produto',
+            quantidade: item.quantidade,
+            precoUnitario: precoUnitarioCentavos,
+            totalItem: totalItemCentavos
+        };
+        
+        if (item.tipo === 'montagem') {
+            // 🛠️ Item de montagem
+            itemBase.refs = {
+                produtoId: item.produtoId,
+                tamanhoId: item.montagemDetalhes?.tamanho?.id || null,
+                componentes: item.montagemDetalhes?.itens?.map(i => ({
+                    grupoId: i.grupoId,
+                    itemId: i.itemId
+                })) || []
+            };
+            
+            itemBase.snapshot = {
+                nome: item.nome,
+                categoria: montagens.find(m => m.id === item.produtoId)?.categoria || '',
+                precoBase: floatParaCentavos(
+                    montagens.find(m => m.id === item.produtoId)?.precoBase || 0
+                ),
+                tamanho: item.montagemDetalhes?.tamanho ? {
+                    id: item.montagemDetalhes.tamanho.id,
+                    nome: item.montagemDetalhes.tamanho.nome,
+                    preco: floatParaCentavos(item.montagemDetalhes.tamanho.preco || 0)
+                } : null,
+                grupos: montagens.find(m => m.id === item.produtoId)?.grupos?.map(grupo => {
+                    const itensDoGrupo = item.montagemDetalhes?.itens
+                        ?.filter(i => i.grupoId === grupo.id)
+                        ?.map(i => {
+                            const itemOriginal = grupo.itens.find(gi => gi.id === i.itemId);
+                            return {
+                                id: i.itemId,
+                                nome: itemOriginal?.nome || i.nome,
+                                preco: floatParaCentavos(itemOriginal?.preco || i.preco || 0)
+                            };
+                        }) || [];
+                    
+                    return {
+                        nome: grupo.nome,
+                        itens: itensDoGrupo
+                    };
+                }).filter(g => g.itens.length > 0) || [],
+                observacao: item.observacao || ''
+            };
+        } else if (item.tipo === 'produto' && item.sabores && item.sabores.length > 0) {
+            // 🍕 Pizza
+            const produtoBase = produtos.find(p => p.id === item.produtoId);
+            
+            itemBase.refs = {
+                produtoId: item.produtoId,
+                saboresIds: item.sabores.map(s => s.id)
+            };
+            
+            itemBase.snapshot = {
+                nome: item.nome,
+                categoria: produtoBase?.categoria || 'pizza',
+                precoBase: floatParaCentavos(produtoBase?.preco || 0),
+                sabores: item.sabores.map(s => ({
+                    id: s.id,
+                    nome: s.nome,
+                    preco: floatParaCentavos(s.preco)
+                })),
+                adicionais: item.adicionais?.map(a => ({
+                    nome: a.nome,
+                    preco: floatParaCentavos(a.preco)
+                })) || [],
+                observacao: item.observacao || ''
+            };
+        } else {
+            // 📦 Produto simples
+            const produtoBase = produtos.find(p => p.id === item.produtoId);
+            
+            itemBase.refs = {
+                produtoId: item.produtoId
+            };
+            
+            itemBase.snapshot = {
+                nome: item.nome,
+                categoria: produtoBase?.categoria || '',
+                precoBase: floatParaCentavos(produtoBase?.preco || 0),
+                adicionais: item.adicionais?.map(a => ({
+                    nome: a.nome,
+                    preco: floatParaCentavos(a.preco)
+                })) || [],
+                observacao: item.observacao || ''
+            };
+        }
+        
+        return itemBase;
+    });
+    
+    // Calcula subtotal em centavos
+    const subtotalCentavos = itens.reduce((sum, item) => sum + item.totalItem, 0);
+    const freteCentavos = floatParaCentavos(parseFloat(document.getElementById('checkoutFrete').dataset.valor) || 0);
+    const totalCentavos = subtotalCentavos + freteCentavos;
     
     const pedido = {
-        id: gerarId(),
-        numero: Math.floor(Math.random() * 10000),
-        data: new Date().toISOString(),
-        cliente: { nome, telefone },
-      itens: carrinho.map(item => ({
-    nome: item.nome || '',
-    quantidade: item.quantidade || 1,
-    precoUnitario: item.precoUnitario || 0,
-    observacao: item.observacao || '',
-    adicionais: item.adicionais && item.adicionais.length > 0 ? item.adicionais : [],
-    sabores: item.sabores && item.sabores.length > 0 ? item.sabores : [],
-    tipo: item.tipo || 'produto',
-    montagemDetalhes: item.montagemDetalhes || null
-})),
-        subtotal: subtotal,
-        frete: frete,
-        total: total,
+        id: 'ped_' + gerarId(),
+        numero: null, // Será gerado pelo Firebase com transação
+        criadoEm: firebase.database.ServerValue.TIMESTAMP,
+        atualizadoEm: firebase.database.ServerValue.TIMESTAMP,
+        
+        status: 'novo',
+        statusHistorico: [{
+            status: 'novo',
+            em: firebase.database.ServerValue.TIMESTAMP,
+            por: 'sistema'
+        }],
+        
+        cliente: {
+            nome: nome,
+            telefone: telefone
+        },
+        
         tipoEntrega: tipoEntrega,
         endereco: endereco,
-        pagamento: pagamento,
-        troco: troco,
-        observacaoGeral: observacaoGeral,
-        status: 'novo'
+        
+        pagamento: {
+            tipo: pagamento,
+            trocoPara: troco
+        },
+        
+        subtotal: subtotalCentavos,
+        frete: freteCentavos,
+        total: totalCentavos,
+        
+        observacaoGeral: document.getElementById('observacaoGeral')?.value || '',
+        
+        meta: {
+            origem: 'web',
+            versao: '2.0.0'
+        },
+        
+        itens: itens
     };
     
     mostrarLoader(true);
     
+    // Gerar número do pedido com transação
     const sucesso = await salvarPedidoFirebase(pedido);
     
     if (sucesso) {
@@ -789,7 +912,7 @@ async function confirmarPedido() {
             salvarEndereco();
         }
         
-        mostrarToast(`✅ Pedido #${pedido.numero} realizado com sucesso!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
+        mostrarToast(`✅ Pedido #${pedido.numero} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
         
         carrinho = [];
         renderizarCarrinho();
