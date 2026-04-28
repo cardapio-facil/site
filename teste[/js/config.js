@@ -8,19 +8,19 @@ const NOME_RESTAURANTE = 'Delivery Pro';
 const LOGO_PADRAO = 'https://png.pngtree.com/png-clipart/20200727/original/pngtree-pin-food-delivery-map-location-delivery-logo-concept-png-image_5137624.jpg';
 
 // SENHAS (mude para suas senhas)
-const SENHA_MASTER = '123';      // Acesso total (editar produtos, categorias, etc.)
-const SENHA_VIEW = 'view123';    // Apenas visualização
+const SENHA_MASTER = '123';
+const SENHA_VIEW = 'view123';
 
 // CONFIGURAÇÕES PADRÃO DO RESTAURANTE
 const CONFIG_PADRAO = {
     horaAbre: '11:00',
     horaFecha: '23:00',
-    tipoFrete: 'bairro',        // 'bairro' ou 'fixo'
-    freteFixo: 5.00,
+    tipoFrete: 'bairro',
+    freteFixo: 500,                    // ✅ Em centavos (R$ 5,00)
     fretesPorBairro: {
-        'centro': 5.00,
-        'santo antonio': 7.00,
-        'castelo': 8.00
+        'centro': 500,                 // R$ 5,00
+        'santo antonio': 700,          // R$ 7,00
+        'castelo': 800                 // R$ 8,00
     },
     cidade: 'Conselheiro Lafaiete',
     uf: 'MG',
@@ -44,12 +44,12 @@ const CONFIG_PADRAO = {
 
 // CATEGORIAS PADRÃO
 const CATEGORIAS_PADRAO = [
-    'hamburguer', 
+    'hamburguer',
     'pizza',
-    'refeicao', 
-    'cachorro-quente', 
-    'porcao', 
-    'bebidas', 
+    'refeicao',
+    'cachorro-quente',
+    'porcao',
+    'bebidas',
     'doces'
 ];
 
@@ -89,21 +89,21 @@ const CATEGORIAS_VISIVEIS_PADRAO = {
     'doces': true
 };
 
-// 🛠️ ESTRUTURA PADRÃO DE MONTAGEM (exemplo Marmitex)
+// 🛠️ ESTRUTURA PADRÃO DE MONTAGEM (preços em centavos)
 const MONTAGENS_PADRAO = [
     {
         id: 'mont1',
         nome: 'Marmitex',
         descricao: 'Monte sua refeição do seu jeito',
         categoria: 'refeicao',
-        precoBase: 25.00,
+        precoBase: 2500,             // ✅ R$ 25,00
         imagem: '',
         disponivel: true,
         destaque: true,
         tamanhos: [
             { id: 'tam1', nome: 'Pequeno (500g)', preco: 0 },
-            { id: 'tam2', nome: 'Médio (700g)', preco: 5.00 },
-            { id: 'tam3', nome: 'Grande (1kg)', preco: 10.00 }
+            { id: 'tam2', nome: 'Médio (700g)', preco: 500 },    // R$ 5,00
+            { id: 'tam3', nome: 'Grande (1kg)', preco: 1000 }    // R$ 10,00
         ],
         grupos: [
             {
@@ -113,9 +113,9 @@ const MONTAGENS_PADRAO = [
                 obrigatorio: true,
                 itens: [
                     { id: 'itm1', nome: 'Frango Grelhado', preco: 0, disponivel: true },
-                    { id: 'itm2', nome: 'Bife Acebolado', preco: 5.00, disponivel: true },
-                    { id: 'itm3', nome: 'Linguiça Toscana', preco: 3.00, disponivel: true },
-                    { id: 'itm4', nome: 'Filé de Tilápia', preco: 7.00, disponivel: true }
+                    { id: 'itm2', nome: 'Bife Acebolado', preco: 500, disponivel: true },
+                    { id: 'itm3', nome: 'Linguiça Toscana', preco: 300, disponivel: true },
+                    { id: 'itm4', nome: 'Filé de Tilápia', preco: 700, disponivel: true }
                 ]
             },
             {
@@ -125,13 +125,13 @@ const MONTAGENS_PADRAO = [
                 obrigatorio: true,
                 itens: [
                     { id: 'itm5', nome: 'Arroz Branco', preco: 0, disponivel: true },
-                    { id: 'itm6', nome: 'Arroz Integral', preco: 2.00, disponivel: true },
+                    { id: 'itm6', nome: 'Arroz Integral', preco: 200, disponivel: true },
                     { id: 'itm7', nome: 'Feijão Carioca', preco: 0, disponivel: true },
-                    { id: 'itm8', nome: 'Feijão Tropeiro', preco: 3.00, disponivel: true },
-                    { id: 'itm9', nome: 'Batata Frita', preco: 4.00, disponivel: true },
+                    { id: 'itm8', nome: 'Feijão Tropeiro', preco: 300, disponivel: true },
+                    { id: 'itm9', nome: 'Batata Frita', preco: 400, disponivel: true },
                     { id: 'itm10', nome: 'Salada Verde', preco: 0, disponivel: true },
-                    { id: 'itm11', nome: 'Legumes Salteados', preco: 2.00, disponivel: true },
-                    { id: 'itm12', nome: 'Purê de Batata', preco: 2.00, disponivel: true }
+                    { id: 'itm11', nome: 'Legumes Salteados', preco: 200, disponivel: true },
+                    { id: 'itm12', nome: 'Purê de Batata', preco: 200, disponivel: true }
                 ]
             },
             {
@@ -140,17 +140,17 @@ const MONTAGENS_PADRAO = [
                 limite: 2,
                 obrigatorio: false,
                 itens: [
-                    { id: 'itm13', nome: 'Ovo Frito', preco: 3.00, disponivel: true },
-                    { id: 'itm14', nome: 'Bacon Crocante', preco: 5.00, disponivel: true },
-                    { id: 'itm15', nome: 'Queijo Coalho', preco: 4.00, disponivel: true },
-                    { id: 'itm16', nome: 'Banana Frita', preco: 3.00, disponivel: true }
+                    { id: 'itm13', nome: 'Ovo Frito', preco: 300, disponivel: true },
+                    { id: 'itm14', nome: 'Bacon Crocante', preco: 500, disponivel: true },
+                    { id: 'itm15', nome: 'Queijo Coalho', preco: 400, disponivel: true },
+                    { id: 'itm16', nome: 'Banana Frita', preco: 300, disponivel: true }
                 ]
             }
         ]
     }
 ];
 
-// ===== FUNÇÕES AUXILIARES (ATUALIZADAS) =====
+// ===== FUNÇÕES AUXILIARES =====
 
 /**
  * Formata valor em centavos para exibição
@@ -158,6 +158,8 @@ const MONTAGENS_PADRAO = [
  * @returns {string} Valor formatado
  */
 function formatarPreco(centavos) {
+    if (centavos === null || centavos === undefined) return 'R$ 0,00';
+    
     // Se já for float (legado), converte
     if (typeof centavos === 'number' && centavos % 1 !== 0) {
         centavos = Math.round(centavos * 100);
@@ -171,14 +173,16 @@ function formatarPreco(centavos) {
 
 /**
  * Converte string de preço para centavos
- * @param {string|number} precoStr - "R$ 32,90" ou 32.90
+ * @param {string|number} precoStr - "R$ 32,90" ou 32.90 ou 3290
  * @returns {number} Valor em centavos
  */
 function parsePreco(precoStr) {
     if (typeof precoStr === 'number') {
-        // Se já for inteiro (centavos), retorna
+        // Se já for inteiro e grande (centavos), retorna
         if (precoStr % 1 === 0 && precoStr > 100) return precoStr;
         // Se for float, converte
+        if (precoStr % 1 !== 0) return Math.round(precoStr * 100);
+        // Se for inteiro pequeno (ex: 10 = R$ 10,00), multiplica
         return Math.round(precoStr * 100);
     }
     if (!precoStr) return 0;
@@ -189,25 +193,40 @@ function parsePreco(precoStr) {
         .replace(',', '.')
         .trim();
     
-    return Math.round(parseFloat(valor) * 100) || 0;
+    const float = parseFloat(valor);
+    
+    // Se o valor for muito pequeno (ex: 0.10), assume que já está em reais e multiplica
+    if (float < 100 && float % 1 !== 0) {
+        return Math.round(float * 100);
+    }
+    
+    // Se for inteiro pequeno (ex: 10), assume reais
+    if (float < 100 && float % 1 === 0) {
+        return Math.round(float * 100);
+    }
+    
+    // Se for grande, assume centavos
+    return Math.round(float);
 }
 
 /**
- * Converte centavos para número float (para cálculos internos)
+ * Converte centavos para número float (para inputs)
  * @param {number} centavos
  * @returns {number}
  */
 function centavosParaFloat(centavos) {
+    if (!centavos) return 0;
     return centavos / 100;
 }
 
 /**
- * Converte float para centavos
- * @param {number} float
+ * Converte float (reais) para centavos
+ * @param {number} valorEmReais
  * @returns {number}
  */
-function floatParaCentavos(float) {
-    return Math.round(float * 100);
+function floatParaCentavos(valorEmReais) {
+    if (!valorEmReais) return 0;
+    return Math.round(valorEmReais * 100);
 }
 
 function getIconeCategoria(cat) {
@@ -227,8 +246,8 @@ function isCategoriaFixa(cat) {
 }
 
 function getSaboresPizzaDisponiveis() {
-    return produtos.filter(p => 
-        p.categoria === CATEGORIA_FIXA && 
+    return produtos.filter(p =>
+        p.categoria === CATEGORIA_FIXA &&
         p.disponivel !== false
     );
 }
@@ -241,24 +260,18 @@ function calcularPrecoPizza(precoBase, saboresEscolhidos) {
     return Math.max(precoBase, maiorPrecoSabor);
 }
 
-// 🛠️ Calcula preço da montagem
 function calcularPrecoMontagem(montagem, tamanhoEscolhido, itensSelecionados) {
     let preco = montagem.precoBase;
-    
-    // Adiciona preço do tamanho
     if (tamanhoEscolhido) {
         preco += tamanhoEscolhido.preco;
     }
-    
-    // Adiciona preço dos itens selecionados
     itensSelecionados.forEach(item => {
         preco += item.preco || 0;
     });
-    
     return preco;
 }
 
-// ===== FUNÇÃO DE TOAST MELHORADA =====
+// ===== FUNÇÃO DE TOAST =====
 function mostrarToast(mensagem, tipo = 'info', titulo = '') {
     let container = document.getElementById('toastContainer');
     
@@ -360,6 +373,8 @@ function isRestauranteAberto() {
 // ===== EXPOR FUNÇÕES GLOBALMENTE =====
 window.formatarPreco = formatarPreco;
 window.parsePreco = parsePreco;
+window.centavosParaFloat = centavosParaFloat;
+window.floatParaCentavos = floatParaCentavos;
 window.getIconeCategoria = getIconeCategoria;
 window.getNomeCategoria = getNomeCategoria;
 window.gerarId = gerarId;
