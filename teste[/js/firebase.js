@@ -68,10 +68,43 @@ async function salvarConfigFirebase(config) {
     }
 }
 
-// Salvar Pedido
+// ===== FUNÇÕES DE PERSISTÊNCIA (ATUALIZADAS) =====
+
+// Salvar Pedido com transação para número
 async function salvarPedidoFirebase(pedido) {
     try {
-        // Função para limpar undefined de um objeto recursivamente
+        // Gera a chave da data atual (YYYYMMDD)
+        const hoje = new Date();
+        const dataKey = hoje.getFullYear() +
+            String(hoje.getMonth() + 1).padStart(2, '0') +
+            String(hoje.getDate()).padStart(2, '0');
+        
+        const contadorRef = database.ref(`restaurantes/${RESTAURANTE_ID}/contadores/${dataKey}`);
+        
+        // Usa transação para evitar concorrência
+        const numeroPedido = await new Promise((resolve, reject) => {
+            contadorRef.transaction((valorAtual) => {
+                if (valorAtual === null) {
+                    return { ultimoNumero: 1 };
+                }
+                return { ultimoNumero: (valorAtual.ultimoNumero || 0) + 1 };
+            }, (erro, committed, snapshot) => {
+                if (erro) {
+                    reject(erro);
+                } else if (committed) {
+                    const numero = snapshot.val().ultimoNumero;
+                    // Formata: 20240315-001
+                    const numeroFormatado = `${dataKey}-${String(numero).padStart(3, '0')}`;
+                    resolve(numeroFormatado);
+                } else {
+                    reject(new Error('Transação não confirmada'));
+                }
+            });
+        });
+        
+        pedido.numero = numeroPedido;
+        
+        // Função para remover undefined recursivamente
         function limparUndefined(obj) {
             if (obj === null || obj === undefined) return null;
             if (Array.isArray(obj)) {
@@ -95,6 +128,7 @@ async function salvarPedidoFirebase(pedido) {
         console.log('📤 Salvando pedido:', pedidoLimpo);
         await dbRef.child('pedidos/' + pedidoLimpo.id).set(pedidoLimpo);
         console.log('✅ Pedido salvo com sucesso!');
+        
         return true;
     } catch (error) {
         console.error('❌ Erro ao salvar pedido:', error);
