@@ -105,7 +105,7 @@
             </div>
         </div>
         
-        <!-- 🛠️ Seção de Montagem (Monte o Produto) -->
+        <!-- 🛠️ Seção de Montagem -->
         <div id="montagemDiv" style="display: none;"></div>
         
         <div class="quantidade-selector">
@@ -188,12 +188,34 @@
         
         <!-- Aba Configurações -->
         <div id="adminConfig" style="display: none;">
+            <!-- 🆕 Status Manual -->
             <div class="config-field">
-                <label>Horário de funcionamento:</label>
-                <input type="time" id="configHoraAbre" value="11:00"> até
-                <input type="time" id="configHoraFecha" value="23:00">
+                <label>Status da loja:</label>
+                <select id="configStatusManual" class="select-field">
+                    <option value="aberto">🟢 Aberto</option>
+                    <option value="fechado">🔴 Fechado</option>
+                </select>
             </div>
             
+            <!-- 🆕 Horários da Loja -->
+            <div class="config-field">
+                <label>Horários da loja:</label>
+                <div id="configHorariosLoja" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+            
+            <!-- 🆕 Gerenciar Horários -->
+            <button class="btn-add-full" onclick="abrirModalGerenciarHorarios()" style="background: linear-gradient(135deg, #9c27b0, #e040fb);">
+                🕐 Gerenciar Horários
+            </button>
+            
+            <!-- 🆕 Gerenciar Feriados -->
+            <button class="btn-add-full" onclick="abrirModalGerenciarFeriados()" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                📅 Gerenciar Feriados
+            </button>
+            
+            <hr style="margin: 20px 0; border-color: var(--cor-borda);">
+            
+            <!-- Frete -->
             <div class="config-field">
                 <label>Tipo de frete:</label>
                 <select id="configTipoFrete" onchange="toggleFreteFixo()" class="select-field">
@@ -363,11 +385,6 @@
             </label>
         </div>
         
-        <div id="saboresCadastro" style="display: none;">
-            <label>Sabores da pizza (separados por vírgula)</label>
-            <input type="text" id="produtoSabores" class="checkout-input" placeholder="Calabresa, Portuguesa, Mussarela...">
-        </div>
-        
         <button class="btn-adicionar-carrinho" onclick="salvarProduto()" style="background: var(--cor-primaria);">Salvar Produto</button>
     </div>
 </div>
@@ -416,7 +433,6 @@
             </label>
         </div>
         
-        <!-- TAMANHOS -->
         <div class="montagem-section-admin">
             <h4>📏 Tamanhos</h4>
             <div id="tamanhosContainer"></div>
@@ -425,7 +441,6 @@
             </button>
         </div>
         
-        <!-- GRUPOS -->
         <div class="montagem-section-admin" style="margin-top: 20px;">
             <h4>📦 Grupos de Itens</h4>
             <div id="gruposContainer"></div>
@@ -457,6 +472,102 @@
         <button class="btn-adicionar-carrinho" onclick="salvarDestaques()" style="background: var(--cor-secundaria);">
             💾 Salvar Destaques
         </button>
+    </div>
+</div>
+
+<!-- ========== 🆕 MODAL GERENCIAR HORÁRIOS ========== -->
+<div class="modal" id="modalGerenciarHorarios">
+    <div class="modal-content modal-content-large">
+        <div class="modal-header">
+            <h3>🕐 Gerenciar Horários</h3>
+            <button class="close-modal" onclick="fecharModalGerenciarHorarios()">&times;</button>
+        </div>
+        
+        <input type="hidden" id="editHorarioId">
+        
+        <div class="form-group">
+    <label>Nome do horário *</label>
+    <input type="text" id="horarioNome" class="checkout-input">
+</div> placeholder="Ex: Almoço, Jantar, Madrugada...">
+        
+        <div class="checkout-row">
+            <div>
+               <div class="form-group">
+    <label>Hora início *</label>
+    <input type="time" id="horarioInicio" class="checkout-input">
+</div>
+            <div>
+              <div class="form-group">
+    <label>Hora fim *</label>
+    <input type="time" id="horarioFim" class="checkout-input">
+</div>
+        </div>
+        
+       <div class="form-group">
+    <label class="checkbox-label">
+        <input type="checkbox" id="horarioViradaDia">
+        Permite virada de dia (ex: 23:00 às 01:00)
+    </label>
+</div>
+        
+       <div class="form-group">
+    <label>Dias da semana</label>
+    <div class="checkbox-group" id="diasSemanaCheckboxes"></div>
+</div>
+            <label class="checkbox-label"><input type="checkbox" value="1" onchange="atualizarCheckboxTodos(this)"> Seg</label>
+            <label class="checkbox-label"><input type="checkbox" value="2" onchange="atualizarCheckboxTodos(this)"> Ter</label>
+            <label class="checkbox-label"><input type="checkbox" value="3" onchange="atualizarCheckboxTodos(this)"> Qua</label>
+            <label class="checkbox-label"><input type="checkbox" value="4" onchange="atualizarCheckboxTodos(this)"> Qui</label>
+            <label class="checkbox-label"><input type="checkbox" value="5" onchange="atualizarCheckboxTodos(this)"> Sex</label>
+            <label class="checkbox-label"><input type="checkbox" value="6" onchange="atualizarCheckboxTodos(this)"> Sáb</label>
+            <label class="checkbox-label"><input type="checkbox" value="7" onchange="atualizarCheckboxTodos(this)"> Dom</label>
+            <label class="checkbox-label"><input type="checkbox" id="todosDias" onchange="toggleTodosDias(this)"> Todos</label>
+        </div>
+        
+      <div class="form-group">
+    <label>Categorias que este horário atende</label>
+    <div class="checkbox-group" id="categoriasHorarioCheckboxes"></div>
+</div>
+        
+        <button class="btn-adicionar-carrinho" onclick="salvarHorario()" style="background: #9c27b0;">
+            💾 Salvar Horário
+        </button>
+        
+        <hr style="margin: 20px 0; border-color: var(--cor-borda);">
+        
+        <h4 style="margin-bottom: 15px;">📋 Horários cadastrados</h4>
+        <div id="listaHorariosCadastrados" class="admin-list"></div>
+    </div>
+</div>
+
+<!-- ========== 🆕 MODAL GERENCIAR FERIADOS ========== -->
+<div class="modal" id="modalGerenciarFeriados">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📅 Gerenciar Feriados</h3>
+            <button class="close-modal" onclick="fecharModalGerenciarFeriados()">&times;</button>
+        </div>
+        
+        <input type="hidden" id="editFeriadoId">
+        
+        <label>Nome do feriado *</label>
+        <input type="text" id="feriadoNome" class="checkout-input" placeholder="Ex: Natal, Ano Novo...">
+        
+        <label>Data *</label>
+        <input type="date" id="feriadoData" class="checkout-input">
+        
+        <label class="checkbox-label" style="margin-bottom: 15px;">
+            <input type="checkbox" id="feriadoRecorrente" checked> Recorrente (todo ano)
+        </label>
+        
+        <button class="btn-adicionar-carrinho" onclick="salvarFeriado()" style="background: #e74c3c;">
+            💾 Salvar Feriado
+        </button>
+        
+        <hr style="margin: 20px 0; border-color: var(--cor-borda);">
+        
+        <h4 style="margin-bottom: 15px;">📋 Feriados cadastrados</h4>
+        <div id="listaFeriadosCadastrados" class="admin-list"></div>
     </div>
 </div>
 
