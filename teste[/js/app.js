@@ -9,6 +9,8 @@ let carrinho = [];
 let configRestaurante = { ...CONFIG_PADRAO };
 let montagens = [...MONTAGENS_PADRAO];
 let categoriasVisiveis = { ...CATEGORIAS_VISIVEIS_PADRAO };
+let horarios = [...HORARIOS_PADRAO];
+let feriados = [...FERIADOS_PADRAO];
 
 let adminLogado = false;
 let nivelAcesso = null;
@@ -21,7 +23,6 @@ let adicionaisSelecionados = [];
 
 let categoriaAtual = 'todos';
 
-// 🛠️ Variáveis para montagem
 let montagemSelecionada = null;
 let tamanhoSelecionado = null;
 let itensMontagemSelecionados = [];
@@ -43,11 +44,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (data.config) configRestaurante = { ...CONFIG_PADRAO, ...data.config };
     if (data.categoriasVisiveis) categoriasVisiveis = data.categoriasVisiveis;
     if (data.montagens) montagens = data.montagens;
+    if (data.horarios) horarios = data.horarios;
+    if (data.feriados) feriados = data.feriados;
     
-    if (produtos.length === 0) {
-        criarProdutosExemplo();
-    }
-    
+    if (produtos.length === 0) criarProdutosExemplo();
     if (montagens.length === 0) {
         montagens = [...MONTAGENS_PADRAO];
         salvarMontagensFirebase(montagens);
@@ -90,16 +90,16 @@ function atualizarAlturaHeader() {
 
 function criarProdutosExemplo() {
     produtos = [
-        { id: 'prod1', nome: 'X-Bacon Supremo', descricao: 'Pão, carne 180g, bacon, queijo, alface, tomate', preco: 32.90, categoria: 'hamburguer', imagem: '', disponivel: true, destaque: true },
-        { id: 'prod2', nome: 'X-Salada', descricao: 'Pão, carne, queijo, alface, tomate', preco: 25.90, categoria: 'hamburguer', imagem: '', disponivel: true, destaque: false },
-        { id: 'prod3', nome: 'Pizza Grande', descricao: 'Pizza grande 8 fatias - Escolha até 2 sabores', preco: 45.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: true },
-        { id: 'prod4', nome: 'Pizza Calabresa', descricao: 'Molho, mussarela, calabresa, cebola', preco: 48.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: false },
-        { id: 'prod5', nome: 'Pizza Portuguesa', descricao: 'Molho, mussarela, presunto, ovos, cebola, azeitona', preco: 52.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: false },
-        { id: 'prod6', nome: 'Pizza Frango com Catupiry', descricao: 'Molho, mussarela, frango, catupiry', preco: 55.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: true },
-        { id: 'prod7', nome: 'Pizza Marguerita', descricao: 'Molho, mussarela, tomate, manjericão', preco: 50.00, categoria: 'pizza', imagem: '', disponivel: true, destaque: false },
-        { id: 'prod8', nome: 'Refeição Executiva', descricao: 'Arroz, feijão, bife, salada', preco: 28.90, categoria: 'refeicao', imagem: '', disponivel: true, destaque: false },
-        { id: 'prod9', nome: 'Batata Frita', descricao: 'Porção de batata frita crocante', preco: 15.00, categoria: 'porcao', imagem: '', disponivel: true, destaque: false },
-        { id: 'prod10', nome: 'Coca-Cola 2L', descricao: 'Refrigerante Coca-Cola 2 litros', preco: 12.00, categoria: 'bebidas', imagem: '', disponivel: true, destaque: false }
+        { id: 'prod1', nome: 'X-Bacon Supremo', descricao: 'Pão, carne 180g, bacon, queijo, alface, tomate', preco: 3290, categoria: 'hamburguer', imagem: '', disponivel: true, destaque: true },
+        { id: 'prod2', nome: 'X-Salada', descricao: 'Pão, carne, queijo, alface, tomate', preco: 2590, categoria: 'hamburguer', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod3', nome: 'Pizza Grande', descricao: 'Pizza grande 8 fatias - Escolha até 2 sabores', preco: 4500, categoria: 'pizza', imagem: '', disponivel: true, destaque: true },
+        { id: 'prod4', nome: 'Pizza Calabresa', descricao: 'Molho, mussarela, calabresa, cebola', preco: 4800, categoria: 'pizza', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod5', nome: 'Pizza Portuguesa', descricao: 'Molho, mussarela, presunto, ovos, cebola, azeitona', preco: 5200, categoria: 'pizza', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod6', nome: 'Pizza Frango com Catupiry', descricao: 'Molho, mussarela, frango, catupiry', preco: 5500, categoria: 'pizza', imagem: '', disponivel: true, destaque: true },
+        { id: 'prod7', nome: 'Pizza Marguerita', descricao: 'Molho, mussarela, tomate, manjericão', preco: 5000, categoria: 'pizza', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod8', nome: 'Refeição Executiva', descricao: 'Arroz, feijão, bife, salada', preco: 2890, categoria: 'refeicao', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod9', nome: 'Batata Frita', descricao: 'Porção de batata frita crocante', preco: 1500, categoria: 'porcao', imagem: '', disponivel: true, destaque: false },
+        { id: 'prod10', nome: 'Coca-Cola 2L', descricao: 'Refrigerante Coca-Cola 2 litros', preco: 1200, categoria: 'bebidas', imagem: '', disponivel: true, destaque: false }
     ];
     salvarProdutosFirebase(produtos);
 }
@@ -114,7 +114,6 @@ function renderizarTodasCategorias() {
     
     criarWrapperCategorias(container);
     
-    // Tab "Todos"
     const tabTodos = document.createElement('div');
     tabTodos.className = 'categoria-tab ativo';
     tabTodos.innerHTML = '📱 Todos';
@@ -138,34 +137,30 @@ function renderizarTodasCategorias() {
 
 function criarWrapperCategorias(container) {
     let wrapper = document.querySelector('.categorias-wrapper');
+    if (wrapper) return;
     
-    if (!wrapper) {
-        wrapper = document.createElement('div');
-        wrapper.className = 'categorias-wrapper';
-        
-        const btnLeft = document.createElement('button');
-        btnLeft.className = 'categoria-nav-btn categoria-nav-left';
-        btnLeft.innerHTML = '◀';
-        btnLeft.onclick = () => scrollCategorias(-200);
-        
-        const btnRight = document.createElement('button');
-        btnRight.className = 'categoria-nav-btn categoria-nav-right';
-        btnRight.innerHTML = '▶';
-        btnRight.onclick = () => scrollCategorias(200);
-        
-        container.parentNode.insertBefore(wrapper, container);
-        wrapper.appendChild(btnLeft);
-        wrapper.appendChild(container);
-        wrapper.appendChild(btnRight);
-    }
+    wrapper = document.createElement('div');
+    wrapper.className = 'categorias-wrapper';
+    
+    const btnLeft = document.createElement('button');
+    btnLeft.className = 'categoria-nav-btn categoria-nav-left';
+    btnLeft.innerHTML = '◀';
+    btnLeft.onclick = () => scrollCategorias(-200);
+    
+    const btnRight = document.createElement('button');
+    btnRight.className = 'categoria-nav-btn categoria-nav-right';
+    btnRight.innerHTML = '▶';
+    btnRight.onclick = () => scrollCategorias(200);
+    
+    container.parentNode.insertBefore(wrapper, container);
+    wrapper.appendChild(btnLeft);
+    wrapper.appendChild(container);
+    wrapper.appendChild(btnRight);
 }
 
 function scrollCategorias(distancia) {
     const container = document.getElementById('categoriasTabs');
-    container.scrollBy({
-        left: distancia,
-        behavior: 'smooth'
-    });
+    container.scrollBy({ left: distancia, behavior: 'smooth' });
     setTimeout(verificarSetinhas, 400);
 }
 
@@ -182,56 +177,30 @@ function verificarSetinhas() {
     const noInicio = container.scrollLeft <= 2;
     const noFim = container.scrollLeft + container.clientWidth >= container.scrollWidth - 2;
     
-    if (podeScrollar && !noInicio) {
-        btnLeft.classList.add('visivel');
-    } else {
-        btnLeft.classList.remove('visivel');
-    }
-    
-    if (podeScrollar && !noFim) {
-        btnRight.classList.add('visivel');
-    } else {
-        btnRight.classList.remove('visivel');
-    }
+    btnLeft.classList.toggle('visivel', podeScrollar && !noInicio);
+    btnRight.classList.toggle('visivel', podeScrollar && !noFim);
 }
 
 function filtrarPorCategoria(categoria, tabElement = null) {
     categoriaAtual = categoria;
     
-    document.querySelectorAll('.categoria-tab').forEach(tab => {
-        tab.classList.remove('ativo');
-    });
+    document.querySelectorAll('.categoria-tab').forEach(tab => tab.classList.remove('ativo'));
     
     if (tabElement) {
         tabElement.classList.add('ativo');
-    }
-    
-    if (tabElement) {
+        
         const container = document.getElementById('categoriasTabs');
         const containerRect = container.getBoundingClientRect();
         const tabRect = tabElement.getBoundingClientRect();
-        
         const tabCentro = tabRect.left - containerRect.left + (tabRect.width / 2);
         const containerCentro = containerRect.width / 2;
         const scrollPara = container.scrollLeft + tabCentro - containerCentro;
         
-        container.scrollTo({
-            left: Math.max(0, scrollPara),
-            behavior: 'smooth'
-        });
-        
+        container.scrollTo({ left: Math.max(0, scrollPara), behavior: 'smooth' });
         setTimeout(verificarSetinhas, 400);
     }
     
     renderizarProdutos();
-    
-    const produtosGrid = document.getElementById('produtosGrid');
-    if (produtosGrid) {
-        produtosGrid.scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest'
-        });
-    }
 }
 
 // ============================================
@@ -251,7 +220,6 @@ function renderizarProdutos() {
         produtosFiltrados = produtosFiltrados.filter(p => p.disponivel !== false);
     }
     
-    // 🛠️ Busca montagens da categoria atual
     let montagensFiltradas = [];
     if (categoriaAtual === 'todos') {
         montagensFiltradas = montagens.filter(m => m.disponivel !== false);
@@ -273,53 +241,88 @@ function renderizarProdutos() {
         return;
     }
     
-    // Renderiza montagens primeiro (com selo "Você Escolhe")
+    // Verifica disponibilidade por horário
+    const statusLoja = verificarStatusLoja();
+    const agora = new Date();
+    
+    // Montagens
     montagensFiltradas.forEach(montagem => {
         const card = document.createElement('div');
-        card.className = 'produto-card montagem-card';
+        
+        // Verifica se está disponível por horário
+        const catDisponivel = !adminLogado ? isCategoriaDisponivel(montagem.categoria, agora) : true;
+        const lojaDisponivel = statusLoja.aberto;
+        const disponivel = lojaDisponivel && catDisponivel;
+        
+        card.className = `produto-card montagem-card ${!disponivel && !adminLogado ? 'fora-horario' : ''}`;
+        card.dataset.categoria = montagem.categoria;
         
         const imagemUrl = montagem.imagem || LOGO_PADRAO;
-        const menorPreco = montagem.precoBase;
+        
+        // Selo de horário
+        let seloHtml = '';
+        if (!disponivel && !adminLogado) {
+            const selo = getSeloForaHorario(montagem.categoria);
+            seloHtml = `<div class="selo-horario ${getCorClasseSelo(selo.cor)}">${selo.texto}</div>`;
+        }
         
         card.innerHTML = `
             <div class="badge-montagem">🧩 Você Escolhe</div>
             ${montagem.destaque ? '<div class="badge-destaque direita">🔥 Destaque</div>' : ''}
+            ${seloHtml}
             <img class="produto-img" src="${imagemUrl}" alt="${montagem.nome}" onerror="this.src='${LOGO_PADRAO}';">
             <div class="produto-info">
                 <div class="produto-nome">${montagem.nome}</div>
                 <div class="produto-desc">${montagem.descricao || ''}</div>
                 <div class="produto-footer">
-                    <span class="produto-preco">A partir de ${formatarPreco(menorPreco)}</span>
-                    <button class="btn-add btn-montagem" onclick="event.stopPropagation(); abrirModalMontagem('${montagem.id}')">+</button>
+                    <span class="produto-preco">A partir de ${formatarPreco(montagem.precoBase)}</span>
+                    ${disponivel ? `<button class="btn-add btn-montagem" onclick="event.stopPropagation(); abrirModalMontagem('${montagem.id}')">+</button>` : '<button class="btn-add" disabled style="background:#ccc;">🕐</button>'}
                 </div>
             </div>
         `;
         
-        card.onclick = () => abrirModalMontagem(montagem.id);
+        if (disponivel) {
+            card.onclick = () => abrirModalMontagem(montagem.id);
+        }
         container.appendChild(card);
     });
     
-    // Renderiza produtos normais
+    // Produtos normais
     produtosFiltrados.forEach(produto => {
         const card = document.createElement('div');
-        card.className = `produto-card ${!produto.disponivel ? 'indisponivel' : ''}`;
+        
+        const catDisponivel = !adminLogado ? isCategoriaDisponivel(produto.categoria, agora) : true;
+        const lojaDisponivel = statusLoja.aberto;
+        const disponivel = lojaDisponivel && catDisponivel && produto.disponivel;
+        
+        card.className = `produto-card ${!disponivel && !adminLogado ? 'fora-horario' : ''} ${!produto.disponivel ? 'indisponivel' : ''}`;
+        card.dataset.categoria = produto.categoria;
         
         const imagemUrl = produto.imagem || LOGO_PADRAO;
         
+        let seloHtml = '';
+        if (!disponivel && !adminLogado && produto.disponivel) {
+            const selo = getSeloForaHorario(produto.categoria);
+            seloHtml = `<div class="selo-horario ${getCorClasseSelo(selo.cor)}">${selo.texto}</div>`;
+        }
+        
         card.innerHTML = `
             ${produto.destaque ? '<div class="badge-destaque">🔥 Destaque</div>' : ''}
-            <img class="produto-img" src="${imagemUrl}" alt="${produto.nome}" onerror="this.src='${LOGO_PADRAO}'; this.classList.add('placeholder-img')">
+            ${seloHtml}
+            <img class="produto-img" src="${imagemUrl}" alt="${produto.nome}" onerror="this.src='${LOGO_PADRAO}';">
             <div class="produto-info">
                 <div class="produto-nome">${produto.nome}</div>
                 <div class="produto-desc">${produto.descricao || ''}</div>
                 <div class="produto-footer">
                     <span class="produto-preco">${formatarPreco(produto.preco)}</span>
-                    <button class="btn-add" onclick="event.stopPropagation(); abrirModalProduto('${produto.id}')">+</button>
+                    ${disponivel ? `<button class="btn-add" onclick="event.stopPropagation(); abrirModalProduto('${produto.id}')">+</button>` : '<button class="btn-add" disabled style="background:#ccc;">🕐</button>'}
                 </div>
             </div>
         `;
         
-        card.onclick = () => abrirModalProduto(produto.id);
+        if (disponivel) {
+            card.onclick = () => abrirModalProduto(produto.id);
+        }
         container.appendChild(card);
     });
     
@@ -327,10 +330,37 @@ function renderizarProdutos() {
     initMobileFixes();
 }
 
+function getCorClasseSelo(corHex) {
+    const mapa = {
+        '#f39c12': 'laranja',
+        '#3498db': 'azul',
+        '#9b59b6': 'roxo',
+        '#e74c3c': 'vermelho',
+        '#607d8b': 'cinza'
+    };
+    return mapa[corHex] || 'cinza';
+}
+
 function renderizarDestaques() {
     const section = document.getElementById('destaquesSection');
-    const produtosDestaque = produtos.filter(p => p.destaque && p.disponivel);
-    const montagensDestaque = montagens.filter(m => m.destaque && m.disponivel);
+    const statusLoja = verificarStatusLoja();
+    const agora = new Date();
+    
+    const produtosDestaque = produtos.filter(p => {
+        if (!p.destaque || !p.disponivel) return false;
+        if (!adminLogado) {
+            return statusLoja.aberto && isCategoriaDisponivel(p.categoria, agora);
+        }
+        return true;
+    });
+    
+    const montagensDestaque = montagens.filter(m => {
+        if (!m.destaque || !m.disponivel) return false;
+        if (!adminLogado) {
+            return statusLoja.aberto && isCategoriaDisponivel(m.categoria, agora);
+        }
+        return true;
+    });
     
     const totalDestaques = produtosDestaque.length + montagensDestaque.length;
     
@@ -339,18 +369,16 @@ function renderizarDestaques() {
         const grid = document.getElementById('destaquesGrid');
         grid.innerHTML = '';
         
-        // Montagens em destaque
         montagensDestaque.slice(0, 2).forEach(montagem => {
             const card = document.createElement('div');
             card.className = 'produto-card';
             card.style.background = 'rgba(255,255,255,0.15)';
             card.style.backdropFilter = 'blur(10px)';
-            
-            const imagemUrl = montagem.imagem || LOGO_PADRAO;
+            card.onclick = () => abrirModalMontagem(montagem.id);
             
             card.innerHTML = `
                 <div class="badge-montagem" style="font-size: 0.6rem; padding: 2px 8px;">🧩 Você Escolhe</div>
-                <img class="produto-img" src="${imagemUrl}" alt="${montagem.nome}" style="height: 120px;" onerror="this.src='${LOGO_PADRAO}'">
+                <img class="produto-img" src="${montagem.imagem || LOGO_PADRAO}" alt="${montagem.nome}" style="height: 120px;" onerror="this.src='${LOGO_PADRAO}'">
                 <div class="produto-info">
                     <div class="produto-nome" style="color: white;">${montagem.nome}</div>
                     <div class="produto-preco" style="color: white;">A partir de ${formatarPreco(montagem.precoBase)}</div>
@@ -360,17 +388,15 @@ function renderizarDestaques() {
             grid.appendChild(card);
         });
         
-        // Produtos em destaque
         produtosDestaque.slice(0, 4 - montagensDestaque.length).forEach(produto => {
             const card = document.createElement('div');
             card.className = 'produto-card';
             card.style.background = 'rgba(255,255,255,0.15)';
             card.style.backdropFilter = 'blur(10px)';
-            
-            const imagemUrl = produto.imagem || LOGO_PADRAO;
+            card.onclick = () => abrirModalProduto(produto.id);
             
             card.innerHTML = `
-                <img class="produto-img" src="${imagemUrl}" alt="${produto.nome}" style="height: 120px;" onerror="this.src='${LOGO_PADRAO}'">
+                <img class="produto-img" src="${produto.imagem || LOGO_PADRAO}" alt="${produto.nome}" style="height: 120px;" onerror="this.src='${LOGO_PADRAO}'">
                 <div class="produto-info">
                     <div class="produto-nome" style="color: white;">${produto.nome}</div>
                     <div class="produto-preco" style="color: white;">${formatarPreco(produto.preco)}</div>
@@ -385,7 +411,7 @@ function renderizarDestaques() {
 }
 
 // ============================================
-// ===== MODAL DE PRODUTO (PIZZA) ============
+// ===== MODAL DE PRODUTO =====================
 // ============================================
 
 function abrirModalProduto(produtoId) {
@@ -406,16 +432,15 @@ function abrirModalProduto(produtoId) {
     img.src = produtoSelecionado.imagem || LOGO_PADRAO;
     img.onerror = () => { img.src = LOGO_PADRAO; };
     
+    // Sabores pizza
     const saboresDiv = document.getElementById('saboresPizzaDiv');
     if (produtoSelecionado.categoria === 'pizza') {
         saboresDiv.style.display = 'block';
         const lista = document.getElementById('saboresLista');
         lista.innerHTML = '';
         
-        const pizzasDisponiveis = produtos.filter(p => 
-            p.categoria === 'pizza' && 
-            p.disponivel !== false && 
-            p.id !== produtoSelecionado.id
+        const pizzasDisponiveis = produtos.filter(p =>
+            p.categoria === 'pizza' && p.disponivel !== false && p.id !== produtoSelecionado.id
         );
         
         if (pizzasDisponiveis.length === 0) {
@@ -426,21 +451,16 @@ function abrirModalProduto(produtoId) {
                 div.className = 'sabor-item';
                 div.innerHTML = `
                     <span>🍕 ${pizza.nome} - <strong>${formatarPreco(pizza.preco)}</strong></span>
-                    <input type="checkbox" 
-                           value="${pizza.id}" 
-                           data-nome="${pizza.nome}" 
-                           data-preco="${pizza.preco}" 
-                           onchange="toggleSaborPizza(this, '${pizza.id}', '${pizza.nome.replace(/'/g, "\\'")}', ${pizza.preco})">
+                    <input type="checkbox" value="${pizza.id}" data-nome="${pizza.nome}" data-preco="${pizza.preco}" onchange="toggleSaborPizza(this, '${pizza.id}', '${pizza.nome.replace(/'/g, "\\'")}', ${pizza.preco})">
                 `;
                 div.style.cursor = 'pointer';
-div.onclick = function(e) {
-    // Não dispara se clicou no próprio checkbox
-    if (e.target.tagName !== 'INPUT') {
-        const cb = this.querySelector('input[type="checkbox"]');
-        cb.checked = !cb.checked;
-        cb.dispatchEvent(new Event('change'));
-    }
-};
+                div.onclick = function(e) {
+                    if (e.target.tagName !== 'INPUT') {
+                        const cb = this.querySelector('input[type="checkbox"]');
+                        cb.checked = !cb.checked;
+                        cb.dispatchEvent(new Event('change'));
+                    }
+                };
                 lista.appendChild(div);
             });
         }
@@ -448,6 +468,7 @@ div.onclick = function(e) {
         saboresDiv.style.display = 'none';
     }
     
+    // Adicionais
     const adicionaisDiv = document.getElementById('adicionaisDiv');
     const adicionaisCat = adicionaisPorCategoria[produtoSelecionado.categoria] || [];
     if (adicionaisCat.length > 0) {
@@ -462,33 +483,28 @@ div.onclick = function(e) {
                 <input type="checkbox" value='${JSON.stringify(adicional)}' onchange="toggleAdicional(this, '${adicional.nome}', ${adicional.preco})">
             `;
             div.style.cursor = 'pointer';
-div.onclick = function(e) {
-    if (e.target.tagName !== 'INPUT') {
-        const cb = this.querySelector('input[type="checkbox"]');
-        cb.checked = !cb.checked;
-        cb.dispatchEvent(new Event('change'));
-    }
-};
+            div.onclick = function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const cb = this.querySelector('input[type="checkbox"]');
+                    cb.checked = !cb.checked;
+                    cb.dispatchEvent(new Event('change'));
+                }
+            };
             lista.appendChild(div);
         });
     } else {
         adicionaisDiv.style.display = 'none';
     }
     
-    // Esconde seção de montagem
     document.getElementById('montagemDiv').style.display = 'none';
-    
     document.getElementById('modalProduto').style.display = 'flex';
 }
 
 function fecharModalProduto() {
     document.getElementById('modalProduto').style.display = 'none';
     window.editandoCarrinhoIndex = null;
-    
     const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
-    if (btnAdicionar) {
-        btnAdicionar.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
-    }
+    if (btnAdicionar) btnAdicionar.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
 }
 
 function toggleSaborPizza(checkbox, pizzaId, pizzaNome, pizzaPreco) {
@@ -509,16 +525,13 @@ function atualizarPrecoPizza() {
     if (!produtoSelecionado || produtoSelecionado.categoria !== 'pizza') return;
     
     let precoBase = produtoSelecionado.preco;
-    
     if (saboresSelecionados.length > 0) {
         const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => s.preco));
         precoBase = Math.max(precoBase, maiorPrecoSabor);
     }
     
     let precoFinal = precoBase;
-    adicionaisSelecionados.forEach(adicional => {
-        precoFinal += adicional.preco;
-    });
+    adicionaisSelecionados.forEach(adicional => { precoFinal += adicional.preco; });
     
     document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(precoFinal);
 }
@@ -529,7 +542,6 @@ function toggleAdicional(checkbox, nome, preco) {
     } else {
         adicionaisSelecionados = adicionaisSelecionados.filter(a => a.nome !== nome);
     }
-    
     if (produtoSelecionado && produtoSelecionado.categoria === 'pizza') {
         atualizarPrecoPizza();
     }
@@ -568,16 +580,13 @@ function abrirModalMontagem(montagemId) {
     img.src = montagemSelecionada.imagem || LOGO_PADRAO;
     img.onerror = () => { img.src = LOGO_PADRAO; };
     
-    // Esconde seções de pizza
     document.getElementById('saboresPizzaDiv').style.display = 'none';
     document.getElementById('adicionaisDiv').style.display = 'none';
     
-    // Mostra seção de montagem
     const montagemDiv = document.getElementById('montagemDiv');
     montagemDiv.style.display = 'block';
     montagemDiv.innerHTML = '';
     
-    // Tamanhos
     if (montagemSelecionada.tamanhos && montagemSelecionada.tamanhos.length > 0) {
         const tamanhoSection = document.createElement('div');
         tamanhoSection.className = 'montagem-section';
@@ -590,19 +599,17 @@ function abrirModalMontagem(montagemId) {
             const div = document.createElement('div');
             div.className = 'montagem-item-radio';
             div.innerHTML = `
-                <input type="radio" name="tamanhoMontagem" value="${tamanho.id}" 
-                       ${idx === 0 ? 'checked' : ''} 
-                       onchange="selecionarTamanho('${tamanho.id}')">
+                <input type="radio" name="tamanhoMontagem" value="${tamanho.id}" ${idx === 0 ? 'checked' : ''} onchange="selecionarTamanho('${tamanho.id}')">
                 <span>${tamanho.nome} ${tamanho.preco > 0 ? `(+${formatarPreco(tamanho.preco)})` : ''}</span>
             `;
             div.style.cursor = 'pointer';
-div.onclick = function(e) {
-    if (e.target.tagName !== 'INPUT') {
-        const radio = this.querySelector('input[type="radio"]');
-        radio.checked = true;
-        radio.dispatchEvent(new Event('change'));
-    }
-};
+            div.onclick = function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const radio = this.querySelector('input[type="radio"]');
+                    radio.checked = true;
+                    radio.dispatchEvent(new Event('change'));
+                }
+            };
             tamanhoLista.appendChild(div);
         });
         
@@ -610,7 +617,6 @@ div.onclick = function(e) {
         montagemDiv.appendChild(tamanhoSection);
     }
     
-    // Grupos
     montagemSelecionada.grupos.forEach(grupo => {
         const grupoSection = document.createElement('div');
         grupoSection.className = 'montagem-section';
@@ -629,22 +635,17 @@ div.onclick = function(e) {
             const div = document.createElement('div');
             div.className = 'montagem-item';
             div.innerHTML = `
-                <input type="checkbox" 
-                       value="${item.id}" 
-                       data-grupo="${grupo.id}"
-                       data-nome="${item.nome}" 
-                       data-preco="${item.preco}" 
-                       onchange="toggleItemMontagem(this, '${grupo.id}', '${item.id}', '${item.nome.replace(/'/g, "\\'")}', ${item.preco}, ${grupo.limite})">
+                <input type="checkbox" value="${item.id}" data-grupo="${grupo.id}" data-nome="${item.nome}" data-preco="${item.preco}" onchange="toggleItemMontagem(this, '${grupo.id}', '${item.id}', '${item.nome.replace(/'/g, "\\'")}', ${item.preco}, ${grupo.limite})">
                 <span>${item.nome} ${item.preco > 0 ? `(+${formatarPreco(item.preco)})` : ''}</span>
             `;
             div.style.cursor = 'pointer';
-div.onclick = function(e) {
-    if (e.target.tagName !== 'INPUT') {
-        const cb = this.querySelector('input[type="checkbox"]');
-        cb.checked = !cb.checked;
-        cb.dispatchEvent(new Event('change'));
-    }
-};
+            div.onclick = function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                    const cb = this.querySelector('input[type="checkbox"]');
+                    cb.checked = !cb.checked;
+                    cb.dispatchEvent(new Event('change'));
+                }
+            };
             itensLista.appendChild(div);
         });
         
@@ -665,15 +666,12 @@ function toggleItemMontagem(checkbox, grupoId, itemId, itemNome, itemPreco, limi
     const grupo = montagemSelecionada.grupos.find(g => g.id === grupoId);
     
     if (checkbox.checked) {
-        // Conta quantos itens desse grupo já estão selecionados
         const selecionadosNoGrupo = itensMontagemSelecionados.filter(i => i.grupoId === grupoId);
-        
         if (selecionadosNoGrupo.length >= limite) {
             checkbox.checked = false;
-            mostrarToast(`Limite atingido`, `Você só pode escolher até ${limite} item(ns) em "${grupo.nome}"`, 'alerta');
+            mostrarToast('Limite atingido', `Você só pode escolher até ${limite} item(ns) em "${grupo.nome}"`, 'alerta');
             return;
         }
-        
         itensMontagemSelecionados.push({ grupoId, itemId, nome: itemNome, preco: itemPreco });
     } else {
         itensMontagemSelecionados = itensMontagemSelecionados.filter(i => i.itemId !== itemId);
@@ -686,14 +684,8 @@ function atualizarPrecoMontagem() {
     if (!montagemSelecionada) return;
     
     let preco = montagemSelecionada.precoBase;
-    
-    if (tamanhoSelecionado) {
-        preco += tamanhoSelecionado.preco;
-    }
-    
-    itensMontagemSelecionados.forEach(item => {
-        preco += item.preco || 0;
-    });
+    if (tamanhoSelecionado) preco += tamanhoSelecionado.preco;
+    itensMontagemSelecionados.forEach(item => { preco += item.preco || 0; });
     
     document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(preco);
 }
@@ -703,9 +695,7 @@ function atualizarPrecoMontagem() {
 // ============================================
 
 function adicionarAoCarrinho() {
-    // 🛠️ Se for montagem
     if (montagemSelecionada) {
-        // Valida grupos obrigatórios
         for (const grupo of montagemSelecionada.grupos) {
             if (grupo.obrigatorio) {
                 const selecionados = itensMontagemSelecionados.filter(i => i.grupoId === grupo.id);
@@ -720,7 +710,6 @@ function adicionarAoCarrinho() {
         if (tamanhoSelecionado) precoFinal += tamanhoSelecionado.preco;
         itensMontagemSelecionados.forEach(item => { precoFinal += item.preco || 0; });
         
-        // Monta descrição do item
         let descricaoMontagem = [];
         if (tamanhoSelecionado) descricaoMontagem.push(`📏 ${tamanhoSelecionado.nome}`);
         
@@ -762,7 +751,6 @@ function adicionarAoCarrinho() {
         tamanhoSelecionado = null;
         itensMontagemSelecionados = [];
     }
-    // Produto normal ou pizza
     else if (produtoSelecionado) {
         let precoFinal = produtoSelecionado.preco;
         
@@ -771,9 +759,7 @@ function adicionarAoCarrinho() {
             precoFinal = Math.max(precoFinal, maiorPrecoSabor);
         }
         
-        adicionaisSelecionados.forEach(adicional => {
-            precoFinal += adicional.preco;
-        });
+        adicionaisSelecionados.forEach(adicional => { precoFinal += adicional.preco; });
         
         let nomeFinal = produtoSelecionado.nome;
         
@@ -805,11 +791,6 @@ function adicionarAoCarrinho() {
             carrinho.push(itemCarrinho);
             mostrarToast(`${nomeFinal} adicionado ao carrinho!`, 'sucesso');
         }
-    }
-    
-    const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
-    if (btnAdicionar) {
-        btnAdicionar.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
     }
     
     renderizarCarrinho();
@@ -844,34 +825,21 @@ function renderizarCarrinho() {
         const div = document.createElement('div');
         div.className = 'carrinho-item';
         
-        // 🛠️ Detalhes da montagem
         let detalhesHtml = '';
         if (item.tipo === 'montagem' && item.montagemDetalhes) {
             detalhesHtml = '<div class="item-adicionais" style="font-size: 0.75rem;">';
-            item.montagemDetalhes.descricao.forEach(linha => {
-                detalhesHtml += `${linha}<br>`;
-            });
+            item.montagemDetalhes.descricao.forEach(linha => { detalhesHtml += `${linha}<br>`; });
             detalhesHtml += '</div>';
         }
         
-        // Sabores pizza
         let saboresHtml = '';
         if (item.sabores && item.sabores.length) {
-            saboresHtml = `
-                <div class="item-adicionais">
-                    🍕 Sabores: ${item.sabores.map(s => s.nome).join(' e ')}
-                </div>
-            `;
+            saboresHtml = `<div class="item-adicionais">🍕 Sabores: ${item.sabores.map(s => s.nome).join(' e ')}</div>`;
         }
         
-        // Adicionais
         let adicionaisHtml = '';
         if (item.adicionais && item.adicionais.length) {
-            adicionaisHtml = `
-                <div class="item-adicionais">
-                    ➕ ${item.adicionais.map(a => `${a.nome}${a.preco > 0 ? ` (+${formatarPreco(a.preco)})` : ''}`).join(', ')}
-                </div>
-            `;
+            adicionaisHtml = `<div class="item-adicionais">➕ ${item.adicionais.map(a => `${a.nome}${a.preco > 0 ? ` (+${formatarPreco(a.preco)})` : ''}`).join(', ')}</div>`;
         }
         
         div.innerHTML = `
@@ -928,9 +896,7 @@ function duplicarItemCarrinho(index) {
 function editarItemCarrinho(index) {
     const item = carrinho[index];
     if (item.tipo === 'montagem') {
-        // Reabre modal de montagem
         abrirModalMontagem(item.produtoId);
-        // Restaura seleções
         setTimeout(() => {
             if (item.montagemDetalhes) {
                 if (item.montagemDetalhes.tamanho) {
@@ -968,12 +934,10 @@ function editarItemCarrinho(index) {
         abrirModalProduto(item.produtoId);
         
         setTimeout(() => {
-            const checkboxesSabores = document.querySelectorAll('#saboresLista input[type="checkbox"]');
-            checkboxesSabores.forEach(cb => {
+            document.querySelectorAll('#saboresLista input[type="checkbox"]').forEach(cb => {
                 cb.checked = saboresSelecionados.some(s => s.id === cb.value);
             });
-            const checkboxesAdicionais = document.querySelectorAll('#adicionaisLista input[type="checkbox"]');
-            checkboxesAdicionais.forEach(cb => {
+            document.querySelectorAll('#adicionaisLista input[type="checkbox"]').forEach(cb => {
                 try {
                     const adicional = JSON.parse(cb.value);
                     cb.checked = adicionaisSelecionados.some(a => a.nome === adicional.nome);
@@ -989,6 +953,41 @@ function editarItemCarrinho(index) {
 }
 
 // ============================================
+// ===== VERIFICAÇÃO DE HORÁRIO ==============
+// ============================================
+
+function verificarHorario() {
+    const status = verificarStatusLoja();
+    
+    const statusDiv = document.getElementById('statusHorarioHeader');
+    if (status.aberto) {
+        statusDiv.innerHTML = '🟢 ABERTO';
+        statusDiv.className = 'status-horario aberto';
+    } else {
+        statusDiv.innerHTML = '🔴 FECHADO';
+        statusDiv.className = 'status-horario fechado';
+    }
+    
+    // Atualiza cards visíveis
+    atualizarInterfaceHorarios();
+    
+    return status.aberto;
+}
+
+function atualizarInterfaceHorarios() {
+    document.querySelectorAll('.produto-card').forEach(card => {
+        const categoria = card.dataset.categoria;
+        if (!categoria) return;
+        
+        const status = verificarStatusLoja();
+        const agora = new Date();
+        const disponivel = status.aberto && isCategoriaDisponivel(categoria, agora);
+        
+        card.classList.toggle('fora-horario', !disponivel);
+    });
+}
+
+// ============================================
 // ===== ATALHO SECRETO ======================
 // ============================================
 
@@ -1000,9 +999,7 @@ function setupAtalhoSecreto() {
     
     logoArea.addEventListener('dblclick', function(e) {
         e.stopPropagation();
-        if (typeof abrirModalLogin === 'function') {
-            abrirModalLogin();
-        }
+        if (typeof abrirModalLogin === 'function') abrirModalLogin();
     });
     
     let toques = 0;
@@ -1016,9 +1013,7 @@ function setupAtalhoSecreto() {
             clearTimeout(timeout);
             e.preventDefault();
             e.stopPropagation();
-            if (typeof abrirModalLogin === 'function') {
-                abrirModalLogin();
-            }
+            if (typeof abrirModalLogin === 'function') abrirModalLogin();
             toques = 0;
         }
     });
@@ -1057,44 +1052,11 @@ function carregarTemaSalvo() {
 }
 
 // ============================================
-// ===== VERIFICAÇÃO DE HORÁRIO ==============
-// ============================================
-
-function verificarHorario() {
-    const agora = new Date();
-    const horaAtual = agora.getHours() * 60 + agora.getMinutes();
-    const [hAbre, mAbre] = configRestaurante.horaAbre.split(':').map(Number);
-    const [hFecha, mFecha] = configRestaurante.horaFecha.split(':').map(Number);
-    
-    const abertura = hAbre * 60 + mAbre;
-    const fechamento = hFecha * 60 + mFecha;
-    
-    let aberto = false;
-    if (fechamento > abertura) {
-        aberto = (horaAtual >= abertura && horaAtual <= fechamento);
-    } else {
-        aberto = (horaAtual >= abertura || horaAtual <= fechamento);
-    }
-    
-    const statusDiv = document.getElementById('statusHorarioHeader');
-    if (aberto) {
-        statusDiv.innerHTML = '🟢 ABERTO';
-        statusDiv.className = 'status-horario aberto';
-    } else {
-        statusDiv.innerHTML = '🔴 FECHADO';
-        statusDiv.className = 'status-horario fechado';
-    }
-    
-    return aberto;
-}
-
-// ============================================
 // ===== FIX STICKY MOBILE ====================
 // ============================================
 
 function initMobileFixes() {
     const isMobile = window.innerWidth <= 900;
-    
     const header = document.querySelector('.header');
     const categoriasWrapper = document.querySelector('.categorias-wrapper');
     
@@ -1107,14 +1069,12 @@ function initMobileFixes() {
         header.style.right = '';
         header.style.zIndex = '';
         header.style.width = '';
-        
         categoriasWrapper.style.position = '';
         categoriasWrapper.style.top = '';
         categoriasWrapper.style.left = '';
         categoriasWrapper.style.right = '';
         categoriasWrapper.style.zIndex = '';
         categoriasWrapper.style.width = '';
-        
         document.body.style.paddingTop = '';
         return;
     }
@@ -1140,15 +1100,9 @@ function initMobileFixes() {
 
 window.addEventListener('load', initMobileFixes);
 window.addEventListener('resize', debounce(initMobileFixes, 200));
+document.addEventListener('DOMContentLoaded', () => { setTimeout(initMobileFixes, 500); });
 
-document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initMobileFixes, 500);
-});
-
-// ============================================
-// ===== EXPOR FUNÇÕES GLOBALMENTE ===========
-// ============================================
-
+// ===== EXPOR =====
 window.toggleTema = toggleTema;
 window.abrirModalProduto = abrirModalProduto;
 window.fecharModalProduto = fecharModalProduto;
@@ -1167,3 +1121,4 @@ window.abrirModalMontagem = abrirModalMontagem;
 window.selecionarTamanho = selecionarTamanho;
 window.toggleItemMontagem = toggleItemMontagem;
 window.atualizarPrecoMontagem = atualizarPrecoMontagem;
+window.verificarHorario = verificarHorario;
