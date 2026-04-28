@@ -175,11 +175,6 @@ function abrirModalCadastroProduto() {
     document.getElementById('produtoDisponivel').checked = true;
     document.getElementById('produtoDestaque').checked = false;
     
-    const saboresCadastro = document.getElementById('saboresCadastro');
-    if (saboresCadastro) {
-        saboresCadastro.style.display = 'none';
-    }
-    
     document.getElementById('modalCadastroProduto').style.display = 'flex';
 }
 
@@ -202,11 +197,6 @@ function editarProduto(id) {
     document.getElementById('produtoDisponivel').checked = produto.disponivel;
     document.getElementById('produtoDestaque').checked = produto.destaque || false;
     document.getElementById('produtoCategoria').value = produto.categoria;
-    
-    const saboresCadastro = document.getElementById('saboresCadastro');
-    if (saboresCadastro) {
-        saboresCadastro.style.display = 'none';
-    }
     
     document.getElementById('modalCadastroProduto').style.display = 'flex';
 }
@@ -448,7 +438,6 @@ async function adicionarAdicional() {
     const sucesso = await salvarAdicionaisFirebase(adicionaisPorCategoria);
     if (sucesso) {
         mostrarToast('Adicional adicionado!', 'sucesso');
-        // ✅ NÃO limpa nada — mantém tudo preenchido
         carregarAdminAdicionais();
     }
 }
@@ -482,7 +471,6 @@ function carregarAdminMontagens() {
             <div style="text-align: center; padding: 40px; color: var(--cor-texto-claro);">
                 <i class="fas fa-puzzle-piece" style="font-size: 3rem; opacity: 0.3;"></i>
                 <p>Nenhuma montagem cadastrada</p>
-                <p style="font-size: 0.8rem;">Crie sua primeira montagem para "Monte o Produto"</p>
             </div>
         `;
         return;
@@ -504,20 +492,12 @@ function carregarAdminMontagens() {
                 <div>
                     <strong style="font-size: 1.1rem;">🧩 ${montagem.nome}</strong>
                     <div style="margin-top: 5px; font-size: 0.85rem; color: var(--cor-texto-claro);">
-                        📂 ${getNomeCategoria(montagem.categoria)} | 
-                        💰 Base: ${formatarPreco(montagem.precoBase)} | 
-                        📏 ${montagem.tamanhos?.length || 0} tamanhos | 
-                        📦 ${montagem.grupos.length} grupos | 
-                        📋 ${totalItens} itens
-                    </div>
-                    <div style="margin-top: 3px;">
-                        ${montagem.disponivel ? '✅ Ativo' : '❌ Inativo'} 
-                        ${montagem.destaque ? '⭐ Destaque' : ''}
+                        📂 ${getNomeCategoria(montagem.categoria)} | 💰 Base: ${formatarPreco(montagem.precoBase)}
                     </div>
                 </div>
                 <div style="display: flex; gap: 5px;">
-                    <button onclick="editarMontagem('${montagem.id}')" class="btn-editar-admin" title="Editar">✏️</button>
-                    <button onclick="excluirMontagem('${montagem.id}')" class="btn-excluir-admin" title="Excluir">🗑️</button>
+                    <button onclick="editarMontagem('${montagem.id}')" class="btn-editar-admin">✏️</button>
+                    <button onclick="excluirMontagem('${montagem.id}')" class="btn-excluir-admin">🗑️</button>
                 </div>
             </div>
         `;
@@ -552,7 +532,6 @@ function abrirModalNovaMontagem() {
     
     document.getElementById('gruposContainer').innerHTML = '';
     document.getElementById('tamanhosContainer').innerHTML = '';
-    
     document.getElementById('modalCadastroMontagem').style.display = 'flex';
 }
 
@@ -587,7 +566,6 @@ function editarMontagem(id) {
     
     renderizarTamanhosMontagem(montagem);
     renderizarGruposMontagem(montagem);
-    
     document.getElementById('modalCadastroMontagem').style.display = 'flex';
 }
 
@@ -595,10 +573,8 @@ function fecharModalCadastroMontagem() {
     document.getElementById('modalCadastroMontagem').style.display = 'none';
 }
 
-// ===== TAMANHOS =====
 function adicionarTamanho() {
     const container = document.getElementById('tamanhosContainer');
-    
     const div = document.createElement('div');
     div.className = 'montagem-admin-item';
     div.innerHTML = `
@@ -627,7 +603,6 @@ function renderizarTamanhosMontagem(montagem) {
     }
 }
 
-// ===== GRUPOS =====
 function adicionarGrupo() {
     const container = document.getElementById('gruposContainer');
     const grupoId = 'grp_' + Date.now();
@@ -637,7 +612,7 @@ function adicionarGrupo() {
     div.dataset.grupoId = grupoId;
     div.innerHTML = `
         <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-            <input type="text" placeholder="Nome do grupo (ex: Carnes)" class="input-field" style="flex: 2;" onchange="atualizarTituloGrupo(this)">
+            <input type="text" placeholder="Nome do grupo" class="input-field" style="flex: 2;" onchange="atualizarTituloGrupo(this)">
             <input type="number" placeholder="Limite" value="1" min="1" class="input-field-small" style="width: 80px;">
             <label style="font-size: 0.8rem; white-space: nowrap;">
                 <input type="checkbox" checked> Obrigatório
@@ -646,9 +621,7 @@ function adicionarGrupo() {
         </div>
         <strong class="grupo-titulo" style="font-size: 0.85rem; color: #e65100;">Novo Grupo</strong>
         <div class="itens-grupo-container" style="margin-top: 8px; padding-left: 15px;"></div>
-        <button onclick="adicionarItemGrupo(this)" style="margin-top: 8px; padding: 6px 12px; background: #e3f2fd; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
-            + Adicionar Item
-        </button>
+        <button onclick="adicionarItemGrupo(this)" style="margin-top: 8px; padding: 6px 12px; background: #e3f2fd; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">+ Adicionar Item</button>
         <hr style="margin-top: 10px; border-color: #eee;">
     `;
     container.appendChild(div);
@@ -656,14 +629,11 @@ function adicionarGrupo() {
 
 function atualizarTituloGrupo(input) {
     const titulo = input.closest('.grupo-montagem-box').querySelector('.grupo-titulo');
-    if (titulo) {
-        titulo.textContent = input.value || 'Novo Grupo';
-    }
+    if (titulo) titulo.textContent = input.value || 'Novo Grupo';
 }
 
 function adicionarItemGrupo(btn) {
     const container = btn.previousElementSibling;
-    
     const div = document.createElement('div');
     div.className = 'montagem-admin-item';
     div.style.marginBottom = '5px';
@@ -688,16 +658,12 @@ function renderizarGruposMontagem(montagem) {
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
                 <input type="text" value="${grupo.nome}" class="input-field" style="flex: 2;" onchange="atualizarTituloGrupo(this)">
                 <input type="number" value="${grupo.limite}" min="1" class="input-field-small" style="width: 80px;">
-                <label style="font-size: 0.8rem; white-space: nowrap;">
-                    <input type="checkbox" ${grupo.obrigatorio ? 'checked' : ''}> Obrigatório
-                </label>
+                <label style="font-size: 0.8rem;"><input type="checkbox" ${grupo.obrigatorio ? 'checked' : ''}> Obrigatório</label>
                 <button onclick="this.closest('.grupo-montagem-box').remove()" style="background: none; border: none; color: red; cursor: pointer; font-size: 1.2rem;">🗑️</button>
             </div>
-            <strong class="grupo-titulo" style="font-size: 0.85rem; color: #e65100;">${grupo.nome}</strong>
+            <strong class="grupo-titulo">${grupo.nome}</strong>
             <div class="itens-grupo-container" style="margin-top: 8px; padding-left: 15px;"></div>
-            <button onclick="adicionarItemGrupo(this)" style="margin-top: 8px; padding: 6px 12px; background: #e3f2fd; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">
-                + Adicionar Item
-            </button>
+            <button onclick="adicionarItemGrupo(this)" style="margin-top: 8px; padding: 6px 12px; background: #e3f2fd; border: none; border-radius: 8px; cursor: pointer; font-size: 0.8rem;">+ Adicionar Item</button>
             <hr style="margin-top: 10px; border-color: #eee;">
         `;
         
@@ -775,13 +741,7 @@ async function salvarMontagem() {
             }
         });
         
-        grupos.push({
-            id: grupoId,
-            nome: nomeGrupo,
-            limite: limite,
-            obrigatorio: obrigatorio,
-            itens: itens
-        });
+        grupos.push({ id: grupoId, nome: nomeGrupo, limite, obrigatorio, itens });
     });
     
     if (grupos.length === 0) {
@@ -791,15 +751,12 @@ async function salvarMontagem() {
     
     const montagem = {
         id: montagemEditando ? montagemEditando.id : 'mont_' + gerarId(),
-        nome: nome,
-        descricao: document.getElementById('montagemDesc').value,
-        categoria: categoria,
-        precoBase: precoBaseCentavos,
+        nome, descricao: document.getElementById('montagemDesc').value,
+        categoria, precoBase: precoBaseCentavos,
         imagem: document.getElementById('montagemImagem').value,
         disponivel: document.getElementById('montagemDisponivel').checked,
         destaque: document.getElementById('montagemDestaque').checked,
-        tamanhos: tamanhos,
-        grupos: grupos
+        tamanhos, grupos
     };
     
     if (montagemEditando) {
@@ -835,10 +792,396 @@ async function excluirMontagem(id) {
     }
 }
 
-// ===== ADMIN CONFIG =====
+// ============================================
+// ===== 🆕 ADMIN HORÁRIOS ===================
+// ============================================
+
+let horarioEditando = null;
+
+function abrirModalGerenciarHorarios() {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode gerenciar horários', 'alerta');
+        return;
+    }
+    
+    horarioEditando = null;
+    document.getElementById('editHorarioId').value = '';
+    document.getElementById('horarioNome').value = '';
+    document.getElementById('horarioInicio').value = '';
+    document.getElementById('horarioFim').value = '';
+    document.getElementById('horarioViradaDia').checked = false;
+    
+    // Limpa checkboxes de dias
+    document.querySelectorAll('#diasSemanaCheckboxes input[type="checkbox"]').forEach(cb => {
+        cb.checked = false;
+    });
+    document.getElementById('todosDias').checked = false;
+    
+    // Preenche categorias
+    carregarCheckboxesCategorias();
+    
+    // Lista horários cadastrados
+    carregarListaHorarios();
+    
+    document.getElementById('modalGerenciarHorarios').style.display = 'flex';
+}
+
+function fecharModalGerenciarHorarios() {
+    document.getElementById('modalGerenciarHorarios').style.display = 'none';
+}
+
+function carregarCheckboxesCategorias() {
+    const container = document.getElementById('categoriasHorarioCheckboxes');
+    container.innerHTML = '';
+    
+    categorias.forEach(cat => {
+        const label = document.createElement('label');
+        label.className = 'checkbox-label';
+        label.innerHTML = `
+            <input type="checkbox" value="${cat}">
+            ${getIconeCategoria(cat)} ${getNomeCategoria(cat)}
+        `;
+        container.appendChild(label);
+    });
+}
+
+function atualizarCheckboxTodos(checkbox) {
+    const todosCheckbox = document.getElementById('todosDias');
+    const todosChecked = document.querySelectorAll('#diasSemanaCheckboxes input[type="checkbox"]:not(#todosDias):checked');
+    
+    if (todosCheckbox) {
+        todosCheckbox.checked = todosChecked.length === 7;
+    }
+}
+
+function toggleTodosDias(checkbox) {
+    document.querySelectorAll('#diasSemanaCheckboxes input[type="checkbox"]:not(#todosDias)').forEach(cb => {
+        cb.checked = checkbox.checked;
+    });
+}
+
+function carregarListaHorarios() {
+    const container = document.getElementById('listaHorariosCadastrados');
+    container.innerHTML = '';
+    
+    if (horarios.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--cor-texto-claro); padding: 20px;">Nenhum horário cadastrado</p>';
+        return;
+    }
+    
+    const diasSemanaNomes = ['', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+    
+    horarios.forEach(horario => {
+        const dias = horario.diasSemana.map(d => diasSemanaNomes[d]).join(', ');
+        const categoriasLista = horario.categorias.map(c => getNomeCategoria(c)).join(', ');
+        
+        const div = document.createElement('div');
+        div.className = 'card-horario';
+        div.innerHTML = `
+            <div class="card-horario-info">
+                <div class="card-horario-titulo">🕐 ${horario.nome}</div>
+                <div class="card-horario-sub">${horario.horaInicio} às ${horario.horaFim} | ${dias}</div>
+                <div class="card-horario-sub" style="font-size: 0.7rem;">📂 ${categoriasLista || 'Nenhuma categoria'}</div>
+            </div>
+            <div class="card-horario-actions">
+                <button onclick="editarHorario('${horario.id}')" class="btn-editar-admin">✏️</button>
+                <button onclick="excluirHorario('${horario.id}')" class="btn-excluir-admin">🗑️</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function editarHorario(id) {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode editar horários', 'alerta');
+        return;
+    }
+    
+    const horario = horarios.find(h => h.id === id);
+    if (!horario) return;
+    
+    horarioEditando = horario;
+    document.getElementById('editHorarioId').value = horario.id;
+    document.getElementById('horarioNome').value = horario.nome;
+    document.getElementById('horarioInicio').value = horario.horaInicio;
+    document.getElementById('horarioFim').value = horario.horaFim;
+    document.getElementById('horarioViradaDia').checked = horario.permiteViradaDia || false;
+    
+    // Dias da semana
+    document.querySelectorAll('#diasSemanaCheckboxes input[type="checkbox"]').forEach(cb => {
+        if (cb.id === 'todosDias') {
+            cb.checked = horario.diasSemana.length === 7;
+        } else {
+            cb.checked = horario.diasSemana.includes(parseInt(cb.value));
+        }
+    });
+    
+    // Categorias
+    carregarCheckboxesCategorias();
+    document.querySelectorAll('#categoriasHorarioCheckboxes input[type="checkbox"]').forEach(cb => {
+        cb.checked = horario.categorias.includes(cb.value);
+    });
+    
+    // Scroll para o topo do modal
+    document.getElementById('modalGerenciarHorarios').scrollTop = 0;
+}
+
+async function salvarHorario() {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode salvar horários', 'alerta');
+        return;
+    }
+    
+    const nome = document.getElementById('horarioNome').value.trim();
+    const horaInicio = document.getElementById('horarioInicio').value;
+    const horaFim = document.getElementById('horarioFim').value;
+    
+    if (!nome || !horaInicio || !horaFim) {
+        mostrarToast('Preencha todos os campos', 'alerta');
+        return;
+    }
+    
+    // Dias selecionados
+    const diasSemana = [];
+    document.querySelectorAll('#diasSemanaCheckboxes input[type="checkbox"]:checked').forEach(cb => {
+        if (cb.id !== 'todosDias') {
+            diasSemana.push(parseInt(cb.value));
+        }
+    });
+    
+    if (diasSemana.length === 0) {
+        mostrarToast('Selecione pelo menos um dia', 'alerta');
+        return;
+    }
+    
+    // Categorias selecionadas
+    const categoriasSelecionadas = [];
+    document.querySelectorAll('#categoriasHorarioCheckboxes input[type="checkbox"]:checked').forEach(cb => {
+        categoriasSelecionadas.push(cb.value);
+    });
+    
+    const horario = {
+        id: horarioEditando ? horarioEditando.id : 'hor_' + gerarId(),
+        nome,
+        horaInicio,
+        horaFim,
+        permiteViradaDia: document.getElementById('horarioViradaDia').checked,
+        diasSemana,
+        categorias: categoriasSelecionadas
+    };
+    
+    if (horarioEditando) {
+        const index = horarios.findIndex(h => h.id === horarioEditando.id);
+        horarios[index] = horario;
+    } else {
+        horarios.push(horario);
+    }
+    
+    const sucesso = await salvarHorariosFirebase(horarios);
+    if (sucesso) {
+        mostrarToast('Horário salvo!', 'sucesso');
+        carregarListaHorarios();
+        carregarAdminConfig();
+        
+        // Limpa formulário
+        horarioEditando = null;
+        document.getElementById('editHorarioId').value = '';
+        document.getElementById('horarioNome').value = '';
+        document.getElementById('horarioInicio').value = '';
+        document.getElementById('horarioFim').value = '';
+        document.getElementById('horarioViradaDia').checked = false;
+        document.querySelectorAll('#diasSemanaCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('#categoriasHorarioCheckboxes input[type="checkbox"]').forEach(cb => cb.checked = false);
+    }
+}
+
+async function excluirHorario(id) {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode excluir horários', 'alerta');
+        return;
+    }
+    
+    if (confirm('Tem certeza que deseja excluir este horário?')) {
+        // Remove da loja também
+        configRestaurante.horariosLoja = configRestaurante.horariosLoja.filter(h => h !== id);
+        
+        horarios = horarios.filter(h => h.id !== id);
+        
+        await salvarHorariosFirebase(horarios);
+        await salvarConfigFirebase(configRestaurante);
+        
+        mostrarToast('Horário excluído!', 'sucesso');
+        carregarListaHorarios();
+        carregarAdminConfig();
+    }
+}
+
+// ============================================
+// ===== 🆕 ADMIN FERIADOS ===================
+// ============================================
+
+let feriadoEditando = null;
+
+function abrirModalGerenciarFeriados() {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode gerenciar feriados', 'alerta');
+        return;
+    }
+    
+    feriadoEditando = null;
+    document.getElementById('editFeriadoId').value = '';
+    document.getElementById('feriadoNome').value = '';
+    document.getElementById('feriadoData').value = '';
+    document.getElementById('feriadoRecorrente').checked = true;
+    
+    carregarListaFeriados();
+    
+    document.getElementById('modalGerenciarFeriados').style.display = 'flex';
+}
+
+function fecharModalGerenciarFeriados() {
+    document.getElementById('modalGerenciarFeriados').style.display = 'none';
+}
+
+function carregarListaFeriados() {
+    const container = document.getElementById('listaFeriadosCadastrados');
+    container.innerHTML = '';
+    
+    if (feriados.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--cor-texto-claro); padding: 20px;">Nenhum feriado cadastrado</p>';
+        return;
+    }
+    
+    feriados.forEach(feriado => {
+        const div = document.createElement('div');
+        div.className = 'card-feriado';
+        div.innerHTML = `
+            <div class="card-feriado-info">
+                <div class="card-feriado-titulo">📅 ${feriado.nome}</div>
+                <div class="card-feriado-sub">${feriado.data} ${feriado.recorrente ? '(recorrente)' : ''}</div>
+            </div>
+            <div class="card-feriado-actions">
+                <button onclick="editarFeriado('${feriado.id}')" class="btn-editar-admin">✏️</button>
+                <button onclick="excluirFeriado('${feriado.id}')" class="btn-excluir-admin">🗑️</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function editarFeriado(id) {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode editar feriados', 'alerta');
+        return;
+    }
+    
+    const feriado = feriados.find(f => f.id === id);
+    if (!feriado) return;
+    
+    feriadoEditando = feriado;
+    document.getElementById('editFeriadoId').value = feriado.id;
+    document.getElementById('feriadoNome').value = feriado.nome;
+    
+    // Formata a data
+    if (feriado.recorrente) {
+        document.getElementById('feriadoData').value = '2024-' + feriado.data;
+    } else {
+        document.getElementById('feriadoData').value = feriado.data;
+    }
+    
+    document.getElementById('feriadoRecorrente').checked = feriado.recorrente;
+}
+
+async function salvarFeriado() {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode salvar feriados', 'alerta');
+        return;
+    }
+    
+    const nome = document.getElementById('feriadoNome').value.trim();
+    const dataInput = document.getElementById('feriadoData').value;
+    const recorrente = document.getElementById('feriadoRecorrente').checked;
+    
+    if (!nome || !dataInput) {
+        mostrarToast('Preencha nome e data', 'alerta');
+        return;
+    }
+    
+    let dataFormatada;
+    if (recorrente) {
+        // Pega só MM-DD
+        const partes = dataInput.split('-');
+        dataFormatada = partes[1] + '-' + partes[2];
+    } else {
+        dataFormatada = dataInput;
+    }
+    
+    const feriado = {
+        id: feriadoEditando ? feriadoEditando.id : 'fer_' + gerarId(),
+        nome,
+        data: dataFormatada,
+        recorrente
+    };
+    
+    if (feriadoEditando) {
+        const index = feriados.findIndex(f => f.id === feriadoEditando.id);
+        feriados[index] = feriado;
+    } else {
+        feriados.push(feriado);
+    }
+    
+    const sucesso = await salvarFeriadosFirebase(feriados);
+    if (sucesso) {
+        mostrarToast('Feriado salvo!', 'sucesso');
+        carregarListaFeriados();
+        carregarAdminConfig();
+        
+        // Limpa formulário
+        feriadoEditando = null;
+        document.getElementById('editFeriadoId').value = '';
+        document.getElementById('feriadoNome').value = '';
+        document.getElementById('feriadoData').value = '';
+        document.getElementById('feriadoRecorrente').checked = true;
+        
+        // Reseta cache de feriado
+        feriadoHoje = false;
+        ultimoDiaVerificado = '';
+    }
+}
+
+async function excluirFeriado(id) {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode excluir feriados', 'alerta');
+        return;
+    }
+    
+    if (confirm('Tem certeza que deseja excluir este feriado?')) {
+        feriados = feriados.filter(f => f.id !== id);
+        const sucesso = await salvarFeriadosFirebase(feriados);
+        if (sucesso) {
+            mostrarToast('Feriado excluído!', 'sucesso');
+            carregarListaFeriados();
+            
+            // Reseta cache
+            feriadoHoje = false;
+            ultimoDiaVerificado = '';
+        }
+    }
+}
+
+// ============================================
+// ===== ADMIN CONFIG ========================
+// ============================================
+
 function carregarAdminConfig() {
-    document.getElementById('configHoraAbre').value = configRestaurante.horaAbre;
-    document.getElementById('configHoraFecha').value = configRestaurante.horaFecha;
+    // Status manual
+    document.getElementById('configStatusManual').value = configRestaurante.statusManual || 'aberto';
+    
+    // Horários da loja
+    carregarCheckboxesHorariosLoja();
+    
+    // Tipo de frete
     document.getElementById('configTipoFrete').value = configRestaurante.tipoFrete;
     
     const freteFixoInput = document.getElementById('configFreteFixo');
@@ -851,17 +1194,45 @@ function carregarAdminConfig() {
     }
 }
 
+function carregarCheckboxesHorariosLoja() {
+    const container = document.getElementById('configHorariosLoja');
+    container.innerHTML = '';
+    
+    if (horarios.length === 0) {
+        container.innerHTML = '<p style="color: var(--cor-texto-claro); font-size: 0.85rem;">Nenhum horário cadastrado</p>';
+        return;
+    }
+    
+    horarios.forEach(horario => {
+        const label = document.createElement('label');
+        label.className = 'checkbox-label';
+        label.innerHTML = `
+            <input type="checkbox" value="${horario.id}" 
+                   ${configRestaurante.horariosLoja.includes(horario.id) ? 'checked' : ''}
+                   onchange="toggleHorarioLoja('${horario.id}', this.checked)">
+            🕐 ${horario.nome} (${horario.horaInicio}-${horario.horaFim})
+        `;
+        container.appendChild(label);
+    });
+}
+
+function toggleHorarioLoja(horarioId, checked) {
+    if (checked) {
+        if (!configRestaurante.horariosLoja.includes(horarioId)) {
+            configRestaurante.horariosLoja.push(horarioId);
+        }
+    } else {
+        configRestaurante.horariosLoja = configRestaurante.horariosLoja.filter(h => h !== horarioId);
+    }
+}
+
 function toggleFreteFixo() {
     const tipo = document.getElementById('configTipoFrete').value;
     const freteFixoInput = document.getElementById('configFreteFixo');
     const freteFixoField = document.getElementById('configFreteFixoField');
     
-    if (freteFixoInput) {
-        freteFixoInput.style.display = tipo === 'fixo' ? 'inline-block' : 'none';
-    }
-    if (freteFixoField) {
-        freteFixoField.style.display = tipo === 'fixo' ? 'block' : 'none';
-    }
+    if (freteFixoInput) freteFixoInput.style.display = tipo === 'fixo' ? 'inline-block' : 'none';
+    if (freteFixoField) freteFixoField.style.display = tipo === 'fixo' ? 'block' : 'none';
 }
 
 async function salvarConfiguracoes() {
@@ -870,8 +1241,7 @@ async function salvarConfiguracoes() {
         return;
     }
     
-    configRestaurante.horaAbre = document.getElementById('configHoraAbre').value;
-    configRestaurante.horaFecha = document.getElementById('configHoraFecha').value;
+    configRestaurante.statusManual = document.getElementById('configStatusManual').value;
     configRestaurante.tipoFrete = document.getElementById('configTipoFrete').value;
     
     const freteInput = parseFloat(document.getElementById('configFreteFixo').value) || 0;
@@ -881,6 +1251,7 @@ async function salvarConfiguracoes() {
     if (sucesso) {
         mostrarToast('Configurações salvas!', 'sucesso');
         verificarHorario();
+        renderizarProdutos();
     }
 }
 
@@ -942,16 +1313,12 @@ async function salvarDestaques() {
     
     produtos.forEach(produto => {
         const checkbox = document.getElementById(`destaque_${produto.id}`);
-        if (checkbox) {
-            produto.destaque = checkbox.checked;
-        }
+        if (checkbox) produto.destaque = checkbox.checked;
     });
     
     montagens.forEach(montagem => {
         const checkbox = document.getElementById(`destaque_mont_${montagem.id}`);
-        if (checkbox) {
-            montagem.destaque = checkbox.checked;
-        }
+        if (checkbox) montagem.destaque = checkbox.checked;
     });
     
     await salvarProdutosFirebase(produtos);
@@ -963,7 +1330,7 @@ async function salvarDestaques() {
     }
 }
 
-// ===== EXPOR FUNÇÕES GLOBALMENTE =====
+// ===== EXPOR =====
 window.abrirModalLogin = abrirModalLogin;
 window.fecharModalLogin = fecharModalLogin;
 window.toggleSenha = toggleSenha;
@@ -996,3 +1363,20 @@ window.adicionarTamanho = adicionarTamanho;
 window.adicionarGrupo = adicionarGrupo;
 window.adicionarItemGrupo = adicionarItemGrupo;
 window.atualizarTituloGrupo = atualizarTituloGrupo;
+window.toggleHorarioLoja = toggleHorarioLoja;
+
+// 🆕 Horários
+window.abrirModalGerenciarHorarios = abrirModalGerenciarHorarios;
+window.fecharModalGerenciarHorarios = fecharModalGerenciarHorarios;
+window.editarHorario = editarHorario;
+window.salvarHorario = salvarHorario;
+window.excluirHorario = excluirHorario;
+window.atualizarCheckboxTodos = atualizarCheckboxTodos;
+window.toggleTodosDias = toggleTodosDias;
+
+// 🆕 Feriados
+window.abrirModalGerenciarFeriados = abrirModalGerenciarFeriados;
+window.fecharModalGerenciarFeriados = fecharModalGerenciarFeriados;
+window.editarFeriado = editarFeriado;
+window.salvarFeriado = salvarFeriado;
+window.excluirFeriado = excluirFeriado;
