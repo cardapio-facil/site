@@ -2053,51 +2053,7 @@ select:focus {
 /* ===== RESPONSIVIDADE ====================== */
 /* ============================================ */
 
-@media (max-width: 768px) {
-    .container {
-        padding: 10px;
-    }
-
-    .produtos-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 12px;
-    }
-
-    .produto-img {
-        height: 140px;
-    }
-
-    .sidebar {
-        position: static;
-        margin-top: 20px;
-    }
-
-    .modal-content {
-        padding: 20px;
-    }
-
-    .admin-form-row {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .input-field,
-    .input-field-small,
-    .select-field {
-        width: 100%;
-        min-width: 100%;
-    }
-
-    .btn-primary {
-        width: 100%;
-        justify-content: center;
-    }
-
-    #modalLogin .modal-content {
-        padding: 25px;
-        margin: 10px;
-    }
-}
+ .modal-content {
 
 @media (max-width: 600px) {
     .modal-content {
@@ -2151,10 +2107,42 @@ select:focus {
 }
 
 @media (max-width: 480px) {
+    /* 🔄 NOVO: Mantém 2 colunas e esconde descrição */
     .produtos-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
     }
 
+    .produto-img {
+        height: 100px;
+    }
+
+    .produto-nome {
+        font-size: 0.8rem;
+    }
+
+    .produto-preco {
+        font-size: 0.9rem;
+    }
+
+    .produto-desc {
+        display: none;
+    }
+
+    .badge-destaque,
+    .badge-montagem {
+        font-size: 0.6rem;
+        padding: 2px 6px;
+        top: 5px;
+    }
+
+    .btn-add {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+
+    /* Mantém o resto que já existia */
     .header {
         flex-direction: column;
         text-align: center;
