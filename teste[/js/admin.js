@@ -448,8 +448,7 @@ async function adicionarAdicional() {
     const sucesso = await salvarAdicionaisFirebase(adicionaisPorCategoria);
     if (sucesso) {
         mostrarToast('Adicional adicionado!', 'sucesso');
-        document.getElementById('nomeAdicional').value = '';
-        document.getElementById('precoAdicional').value = '';
+        // ✅ NÃO limpa nada — mantém tudo preenchido
         carregarAdminAdicionais();
     }
 }
