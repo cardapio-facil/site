@@ -2,7 +2,6 @@
 // ===== CONFIGURAÇÃO DO FIREBASE ============
 // ============================================
 
-// CONFIGURAÇÃO DO FIREBASE (substitua pelos seus dados)
 const firebaseConfig = {
     apiKey: "AIzaSyDjJG3qD1OhPJ_N-mfzH-ChMvHAez6XsGc",
     authDomain: "graus-38cce.firebaseapp.com",
@@ -13,18 +12,15 @@ const firebaseConfig = {
     appId: "1:167323638749:web:6675d3d1edec31096b7434"
 };
 
-// Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const dbRef = database.ref('restaurantes/' + RESTAURANTE_ID);
 
-// ===== FUNÇÕES DE PERSISTÊNCIA =====
-
-// Salvar Produtos
+// ===== PRODUTOS =====
 async function salvarProdutosFirebase(produtos) {
     try {
         await dbRef.child('produtos').set(produtos);
-        console.log('✅ Produtos salvos com sucesso');
+        console.log('✅ Produtos salvos');
         return true;
     } catch (error) {
         console.error('Erro ao salvar produtos:', error);
@@ -33,11 +29,11 @@ async function salvarProdutosFirebase(produtos) {
     }
 }
 
-// Salvar Categorias
+// ===== CATEGORIAS =====
 async function salvarCategoriasFirebase(categorias) {
     try {
         await dbRef.child('categorias').set(categorias);
-        console.log('✅ Categorias salvas com sucesso');
+        console.log('✅ Categorias salvas');
         return true;
     } catch (error) {
         console.error('Erro ao salvar categorias:', error);
@@ -46,11 +42,11 @@ async function salvarCategoriasFirebase(categorias) {
     }
 }
 
-// Salvar Adicionais
+// ===== ADICIONAIS =====
 async function salvarAdicionaisFirebase(adicionais) {
     try {
         await dbRef.child('adicionais').set(adicionais);
-        console.log('✅ Adicionais salvos com sucesso');
+        console.log('✅ Adicionais salvos');
         return true;
     } catch (error) {
         console.error('Erro ao salvar adicionais:', error);
@@ -59,11 +55,11 @@ async function salvarAdicionaisFirebase(adicionais) {
     }
 }
 
-// Salvar Configurações
+// ===== CONFIGURAÇÕES =====
 async function salvarConfigFirebase(config) {
     try {
         await dbRef.child('config').set(config);
-        console.log('✅ Configurações salvas com sucesso');
+        console.log('✅ Configurações salvas');
         return true;
     } catch (error) {
         console.error('Erro ao salvar configurações:', error);
@@ -72,6 +68,7 @@ async function salvarConfigFirebase(config) {
     }
 }
 
+// ===== PEDIDO (COM TRANSAÇÃO) =====
 async function salvarPedidoFirebase(pedido) {
     try {
         const hoje = new Date();
@@ -91,7 +88,7 @@ async function salvarPedidoFirebase(pedido) {
                     reject(erro);
                 } else if (committed) {
                     const numero = snapshot.val().ultimoNumero;
-                    resolve(String(numero));  // ✅ Só o número: "45"
+                    resolve(String(numero));
                 } else {
                     reject(new Error('Transação não confirmada'));
                 }
@@ -100,9 +97,6 @@ async function salvarPedidoFirebase(pedido) {
         
         pedido.numero = numeroPedido;
         
-        // ... resto da função (limparUndefined, set no Firebase)
-        
-        // Função para remover undefined recursivamente (Firebase não aceita)
         function limparUndefined(obj) {
             if (obj === null || obj === undefined) return null;
             if (Array.isArray(obj)) {
@@ -125,7 +119,7 @@ async function salvarPedidoFirebase(pedido) {
         
         console.log('📤 Salvando pedido #' + numeroPedido);
         await dbRef.child('pedidos/' + pedidoLimpo.id).set(pedidoLimpo);
-        console.log('✅ Pedido #' + numeroPedido + ' salvo com sucesso!');
+        console.log('✅ Pedido #' + numeroPedido + ' salvo!');
         
         return true;
     } catch (error) {
@@ -135,15 +129,11 @@ async function salvarPedidoFirebase(pedido) {
     }
 }
 
-// Atualizar Status do Pedido
 async function atualizarStatusPedidoFirebase(pedidoId, novoStatus, responsavel = 'sistema') {
     try {
         const pedidoRef = dbRef.child('pedidos/' + pedidoId);
-        
-        // Atualiza o status atual
         await pedidoRef.child('status').set(novoStatus);
         
-        // Adiciona ao histórico
         const novoHistorico = {
             status: novoStatus,
             em: firebase.database.ServerValue.TIMESTAMP,
@@ -151,8 +141,6 @@ async function atualizarStatusPedidoFirebase(pedidoId, novoStatus, responsavel =
         };
         
         await pedidoRef.child('statusHistorico').push(novoHistorico);
-        
-        // Atualiza timestamp
         await pedidoRef.child('atualizadoEm').set(firebase.database.ServerValue.TIMESTAMP);
         
         console.log(`✅ Status do pedido ${pedidoId} atualizado para: ${novoStatus}`);
@@ -163,11 +151,11 @@ async function atualizarStatusPedidoFirebase(pedidoId, novoStatus, responsavel =
     }
 }
 
-// Salvar visibilidade das categorias
+// ===== CATEGORIAS VISIVEIS =====
 async function salvarCategoriasVisiveisFirebase(visiveis) {
     try {
         await dbRef.child('categoriasVisiveis').set(visiveis);
-        console.log('✅ Visibilidade das categorias salva');
+        console.log('✅ Visibilidade salva');
         return true;
     } catch (error) {
         console.error('Erro ao salvar visibilidade:', error);
@@ -175,11 +163,11 @@ async function salvarCategoriasVisiveisFirebase(visiveis) {
     }
 }
 
-// Salvar Montagens
+// ===== MONTAGENS =====
 async function salvarMontagensFirebase(montagens) {
     try {
         await dbRef.child('montagens').set(montagens);
-        console.log('✅ Montagens salvas com sucesso');
+        console.log('✅ Montagens salvas');
         return true;
     } catch (error) {
         console.error('Erro ao salvar montagens:', error);
@@ -188,7 +176,33 @@ async function salvarMontagensFirebase(montagens) {
     }
 }
 
-// Carregar todos os dados do Firebase
+// ===== 🆕 HORÁRIOS =====
+async function salvarHorariosFirebase(horarios) {
+    try {
+        await dbRef.child('horarios').set(horarios);
+        console.log('✅ Horários salvos');
+        return true;
+    } catch (error) {
+        console.error('Erro ao salvar horários:', error);
+        mostrarToast('Erro ao salvar horários', 'erro');
+        return false;
+    }
+}
+
+// ===== 🆕 FERIADOS =====
+async function salvarFeriadosFirebase(feriados) {
+    try {
+        await dbRef.child('feriados').set(feriados);
+        console.log('✅ Feriados salvos');
+        return true;
+    } catch (error) {
+        console.error('Erro ao salvar feriados:', error);
+        mostrarToast('Erro ao salvar feriados', 'erro');
+        return false;
+    }
+}
+
+// ===== CARREGAR DADOS =====
 async function carregarDadosFirebase() {
     mostrarLoader(true);
     
@@ -202,10 +216,12 @@ async function carregarDadosFirebase() {
                 produtos: data.produtos ? Object.keys(data.produtos).length + ' produtos' : 'nenhum',
                 categorias: data.categorias ? data.categorias.length + ' categorias' : 'nenhuma',
                 montagens: data.montagens ? data.montagens.length + ' montagens' : 'nenhuma',
+                horarios: data.horarios ? data.horarios.length + ' horários' : 'nenhum',
+                feriados: data.feriados ? data.feriados.length + ' feriados' : 'nenhum',
                 pedidos: data.pedidos ? Object.keys(data.pedidos).length + ' pedidos' : 'nenhum'
             });
         } else {
-            console.log('📭 Nenhum dado encontrado no Firebase');
+            console.log('📭 Nenhum dado encontrado');
         }
         
         mostrarLoader(false);
@@ -218,24 +234,18 @@ async function carregarDadosFirebase() {
     }
 }
 
-// Buscar pedidos (para painel de pedidos futuro)
+// ===== BUSCAR PEDIDOS =====
 async function buscarPedidosFirebase(status = null, limite = 50) {
     try {
         let query = dbRef.child('pedidos').orderByChild('criadoEm').limitToLast(limite);
-        
         const snapshot = await query.once('value');
         const pedidos = snapshot.val();
-        
         if (!pedidos) return [];
         
         let listaPedidos = Object.values(pedidos);
-        
-        // Filtra por status se especificado
         if (status) {
             listaPedidos = listaPedidos.filter(p => p.status === status);
         }
-        
-        // Ordena por data (mais recente primeiro)
         listaPedidos.sort((a, b) => {
             const dataA = a.criadoEm || 0;
             const dataB = b.criadoEm || 0;
@@ -249,7 +259,6 @@ async function buscarPedidosFirebase(status = null, limite = 50) {
     }
 }
 
-// Buscar pedido por ID
 async function buscarPedidoPorIdFirebase(pedidoId) {
     try {
         const snapshot = await dbRef.child('pedidos/' + pedidoId).once('value');
@@ -260,7 +269,6 @@ async function buscarPedidoPorIdFirebase(pedidoId) {
     }
 }
 
-// Buscar pedidos por data
 async function buscarPedidosPorDataFirebase(dataInicio, dataFim) {
     try {
         const snapshot = await dbRef.child('pedidos')
@@ -268,7 +276,6 @@ async function buscarPedidosPorDataFirebase(dataInicio, dataFim) {
             .startAt(dataInicio)
             .endAt(dataFim)
             .once('value');
-        
         const pedidos = snapshot.val();
         return pedidos ? Object.values(pedidos) : [];
     } catch (error) {
@@ -277,7 +284,6 @@ async function buscarPedidosPorDataFirebase(dataInicio, dataFim) {
     }
 }
 
-// Ouvir pedidos em tempo real (para painel admin)
 function ouvirNovosPedidos(callback) {
     dbRef.child('pedidos')
         .orderByChild('criadoEm')
@@ -290,7 +296,6 @@ function ouvirNovosPedidos(callback) {
         });
 }
 
-// Ouvir mudanças de status
 function ouvirMudancasStatus(pedidoId, callback) {
     dbRef.child('pedidos/' + pedidoId + '/status').on('value', (snapshot) => {
         const novoStatus = snapshot.val();
@@ -298,14 +303,10 @@ function ouvirMudancasStatus(pedidoId, callback) {
     });
 }
 
-// Parar de ouvir
 function pararOuvir(caminho) {
     dbRef.child(caminho).off();
 }
 
-// ===== FUNÇÕES DE LIMPEZA E MANUTENÇÃO =====
-
-// Remover pedido
 async function removerPedidoFirebase(pedidoId) {
     try {
         await dbRef.child('pedidos/' + pedidoId).remove();
@@ -317,12 +318,10 @@ async function removerPedidoFirebase(pedidoId) {
     }
 }
 
-// Backup dos dados (exporta tudo)
 async function exportarDadosFirebase() {
     try {
         const snapshot = await dbRef.once('value');
         const dados = snapshot.val();
-        
         const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -330,7 +329,6 @@ async function exportarDadosFirebase() {
         a.download = `backup_${RESTAURANTE_ID}_${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
-        
         mostrarToast('Backup exportado com sucesso!', 'sucesso');
         return true;
     } catch (error) {
@@ -340,7 +338,7 @@ async function exportarDadosFirebase() {
     }
 }
 
-// ===== EXPOR FUNÇÕES GLOBALMENTE =====
+// ===== EXPOR =====
 window.salvarProdutosFirebase = salvarProdutosFirebase;
 window.salvarCategoriasFirebase = salvarCategoriasFirebase;
 window.salvarAdicionaisFirebase = salvarAdicionaisFirebase;
@@ -349,6 +347,8 @@ window.salvarPedidoFirebase = salvarPedidoFirebase;
 window.atualizarStatusPedidoFirebase = atualizarStatusPedidoFirebase;
 window.salvarCategoriasVisiveisFirebase = salvarCategoriasVisiveisFirebase;
 window.salvarMontagensFirebase = salvarMontagensFirebase;
+window.salvarHorariosFirebase = salvarHorariosFirebase;
+window.salvarFeriadosFirebase = salvarFeriadosFirebase;
 window.carregarDadosFirebase = carregarDadosFirebase;
 window.buscarPedidosFirebase = buscarPedidosFirebase;
 window.buscarPedidoPorIdFirebase = buscarPedidoPorIdFirebase;
