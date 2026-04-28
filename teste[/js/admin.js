@@ -151,8 +151,8 @@ function carregarAdminProdutos() {
                 <small>${produto.disponivel ? '✅ Disponível' : '❌ Indisponível'}</small>
             </div>
             <div>
-                <button onclick="editarProduto('${produto.id}')" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">✏️</button>
-                <button onclick="excluirProduto('${produto.id}')" style="background:none; border:none; cursor:pointer; color:red; font-size:1.2rem;">🗑️</button>
+                <button onclick="editarProduto('${produto.id}')" class="btn-editar-admin" title="Editar">✏️</button>
+                <button onclick="excluirProduto('${produto.id}')" class="btn-excluir-admin" title="Excluir">🗑️</button>
             </div>
         `;
         container.appendChild(div);
@@ -197,7 +197,7 @@ function editarProduto(id) {
     document.getElementById('editProdutoId').value = produto.id;
     document.getElementById('produtoNome').value = produto.nome;
     document.getElementById('produtoDesc').value = produto.descricao || '';
-    document.getElementById('produtoPreco').value = produto.preco;
+    document.getElementById('produtoPreco').value = centavosParaFloat(produto.preco);
     document.getElementById('produtoImagem').value = produto.imagem || '';
     document.getElementById('produtoDisponivel').checked = produto.disponivel;
     document.getElementById('produtoDestaque').checked = produto.destaque || false;
@@ -222,19 +222,21 @@ async function salvarProduto() {
     }
     
     const nome = document.getElementById('produtoNome').value.trim();
-    const preco = parseFloat(document.getElementById('produtoPreco').value);
+    const precoInput = parseFloat(document.getElementById('produtoPreco').value);
     const categoria = document.getElementById('produtoCategoria').value;
     
-    if (!nome || isNaN(preco)) {
+    if (!nome || isNaN(precoInput)) {
         mostrarToast('Preencha nome e preço corretamente', 'alerta');
         return;
     }
+    
+    const precoCentavos = floatParaCentavos(precoInput);
     
     const produto = {
         id: produtoEditando ? produtoEditando.id : gerarId(),
         nome: nome,
         descricao: document.getElementById('produtoDesc').value,
-        preco: preco,
+        preco: precoCentavos,
         categoria: categoria,
         imagem: document.getElementById('produtoImagem').value,
         disponivel: document.getElementById('produtoDisponivel').checked,
@@ -431,15 +433,17 @@ async function adicionarAdicional() {
     
     const categoria = document.getElementById('categoriaAdicional').value;
     const nome = document.getElementById('nomeAdicional').value.trim();
-    const preco = parseFloat(document.getElementById('precoAdicional').value) || 0;
+    const precoInput = parseFloat(document.getElementById('precoAdicional').value) || 0;
     
     if (!nome) {
         mostrarToast('Digite o nome do adicional', 'alerta');
         return;
     }
     
+    const precoCentavos = floatParaCentavos(precoInput);
+    
     if (!adicionaisPorCategoria[categoria]) adicionaisPorCategoria[categoria] = [];
-    adicionaisPorCategoria[categoria].push({ nome, preco });
+    adicionaisPorCategoria[categoria].push({ nome, preco: precoCentavos });
     
     const sucesso = await salvarAdicionaisFirebase(adicionaisPorCategoria);
     if (sucesso) {
@@ -538,7 +542,6 @@ function abrirModalNovaMontagem() {
     document.getElementById('montagemDisponivel').checked = true;
     document.getElementById('montagemDestaque').checked = false;
     
-    // Preenche select de categoria
     const selectCat = document.getElementById('montagemCategoria');
     selectCat.innerHTML = '';
     categorias.forEach(cat => {
@@ -548,7 +551,6 @@ function abrirModalNovaMontagem() {
         selectCat.appendChild(option);
     });
     
-    // Limpa grupos
     document.getElementById('gruposContainer').innerHTML = '';
     document.getElementById('tamanhosContainer').innerHTML = '';
     
@@ -569,12 +571,11 @@ function editarMontagem(id) {
     document.getElementById('editMontagemId').value = montagem.id;
     document.getElementById('montagemNome').value = montagem.nome;
     document.getElementById('montagemDesc').value = montagem.descricao || '';
-    document.getElementById('montagemPrecoBase').value = montagem.precoBase;
+    document.getElementById('montagemPrecoBase').value = centavosParaFloat(montagem.precoBase);
     document.getElementById('montagemImagem').value = montagem.imagem || '';
     document.getElementById('montagemDisponivel').checked = montagem.disponivel;
     document.getElementById('montagemDestaque').checked = montagem.destaque || false;
     
-    // Preenche select de categoria
     const selectCat = document.getElementById('montagemCategoria');
     selectCat.innerHTML = '';
     categorias.forEach(cat => {
@@ -585,10 +586,7 @@ function editarMontagem(id) {
         selectCat.appendChild(option);
     });
     
-    // Renderiza tamanhos
     renderizarTamanhosMontagem(montagem);
-    
-    // Renderiza grupos
     renderizarGruposMontagem(montagem);
     
     document.getElementById('modalCadastroMontagem').style.display = 'flex';
@@ -606,7 +604,7 @@ function adicionarTamanho() {
     div.className = 'montagem-admin-item';
     div.innerHTML = `
         <input type="text" placeholder="Nome do tamanho" class="input-field" style="flex: 2;">
-        <input type="number" placeholder="Preço adicional" step="0.01" value="0" class="input-field-small" style="flex: 1;">
+        <input type="number" placeholder="Preço adicional (R$)" step="0.01" value="0" class="input-field-small" style="flex: 1;">
         <button onclick="this.parentElement.remove()" style="background: none; border: none; color: red; cursor: pointer; font-size: 1.2rem;">🗑️</button>
     `;
     container.appendChild(div);
@@ -622,7 +620,7 @@ function renderizarTamanhosMontagem(montagem) {
             div.className = 'montagem-admin-item';
             div.innerHTML = `
                 <input type="text" value="${tamanho.nome}" class="input-field" style="flex: 2;">
-                <input type="number" value="${tamanho.preco}" step="0.01" class="input-field-small" style="flex: 1;">
+                <input type="number" value="${centavosParaFloat(tamanho.preco)}" step="0.01" class="input-field-small" style="flex: 1;">
                 <button onclick="this.parentElement.remove()" style="background: none; border: none; color: red; cursor: pointer; font-size: 1.2rem;">🗑️</button>
             `;
             container.appendChild(div);
@@ -672,7 +670,7 @@ function adicionarItemGrupo(btn) {
     div.style.marginBottom = '5px';
     div.innerHTML = `
         <input type="text" placeholder="Nome do item" class="input-field" style="flex: 2;">
-        <input type="number" placeholder="Preço" step="0.01" value="0" class="input-field-small" style="width: 100px;">
+        <input type="number" placeholder="Preço (R$)" step="0.01" value="0" class="input-field-small" style="width: 100px;">
         <label style="font-size: 0.7rem;"><input type="checkbox" checked> Ativo</label>
         <button onclick="this.parentElement.remove()" style="background: none; border: none; color: red; cursor: pointer;">✕</button>
     `;
@@ -704,7 +702,6 @@ function renderizarGruposMontagem(montagem) {
             <hr style="margin-top: 10px; border-color: #eee;">
         `;
         
-        // Renderiza itens do grupo
         const itensContainer = div.querySelector('.itens-grupo-container');
         grupo.itens.forEach(item => {
             const itemDiv = document.createElement('div');
@@ -712,7 +709,7 @@ function renderizarGruposMontagem(montagem) {
             itemDiv.style.marginBottom = '5px';
             itemDiv.innerHTML = `
                 <input type="text" value="${item.nome}" class="input-field" style="flex: 2;">
-                <input type="number" value="${item.preco}" step="0.01" class="input-field-small" style="width: 100px;">
+                <input type="number" value="${centavosParaFloat(item.preco)}" step="0.01" class="input-field-small" style="width: 100px;">
                 <label style="font-size: 0.7rem;"><input type="checkbox" ${item.disponivel !== false ? 'checked' : ''}> Ativo</label>
                 <button onclick="this.parentElement.remove()" style="background: none; border: none; color: red; cursor: pointer;">✕</button>
             `;
@@ -730,29 +727,30 @@ async function salvarMontagem() {
     }
     
     const nome = document.getElementById('montagemNome').value.trim();
-    const precoBase = parseFloat(document.getElementById('montagemPrecoBase').value);
+    const precoBaseInput = parseFloat(document.getElementById('montagemPrecoBase').value);
     const categoria = document.getElementById('montagemCategoria').value;
     
-    if (!nome || isNaN(precoBase)) {
+    if (!nome || isNaN(precoBaseInput)) {
         mostrarToast('Preencha nome e preço base', 'alerta');
         return;
     }
     
-    // Coleta tamanhos
+    const precoBaseCentavos = floatParaCentavos(precoBaseInput);
+    
     const tamanhos = [];
     document.querySelectorAll('#tamanhosContainer .montagem-admin-item').forEach(item => {
         const inputs = item.querySelectorAll('input');
         const nomeTamanho = inputs[0]?.value?.trim();
         if (nomeTamanho) {
+            const precoTamanhoInput = parseFloat(inputs[1]?.value) || 0;
             tamanhos.push({
                 id: 'tam_' + gerarId(),
                 nome: nomeTamanho,
-                preco: parseFloat(inputs[1]?.value) || 0
+                preco: floatParaCentavos(precoTamanhoInput)
             });
         }
     });
     
-    // Coleta grupos e itens
     const grupos = [];
     document.querySelectorAll('#gruposContainer .grupo-montagem-box').forEach(box => {
         const inputs = box.querySelectorAll(':scope > div:first-child input');
@@ -768,10 +766,11 @@ async function salvarMontagem() {
             const itemInputs = itemDiv.querySelectorAll('input');
             const nomeItem = itemInputs[0]?.value?.trim();
             if (nomeItem) {
+                const precoItemInput = parseFloat(itemInputs[1]?.value) || 0;
                 itens.push({
                     id: 'itm_' + gerarId(),
                     nome: nomeItem,
-                    preco: parseFloat(itemInputs[1]?.value) || 0,
+                    preco: floatParaCentavos(precoItemInput),
                     disponivel: itemInputs[2]?.checked !== false
                 });
             }
@@ -796,7 +795,7 @@ async function salvarMontagem() {
         nome: nome,
         descricao: document.getElementById('montagemDesc').value,
         categoria: categoria,
-        precoBase: precoBase,
+        precoBase: precoBaseCentavos,
         imagem: document.getElementById('montagemImagem').value,
         disponivel: document.getElementById('montagemDisponivel').checked,
         destaque: document.getElementById('montagemDestaque').checked,
@@ -842,13 +841,28 @@ function carregarAdminConfig() {
     document.getElementById('configHoraAbre').value = configRestaurante.horaAbre;
     document.getElementById('configHoraFecha').value = configRestaurante.horaFecha;
     document.getElementById('configTipoFrete').value = configRestaurante.tipoFrete;
-    document.getElementById('configFreteFixo').value = configRestaurante.freteFixo;
-    document.getElementById('configFreteFixo').style.display = configRestaurante.tipoFrete === 'fixo' ? 'inline-block' : 'none';
+    
+    const freteFixoInput = document.getElementById('configFreteFixo');
+    freteFixoInput.value = centavosParaFloat(configRestaurante.freteFixo || 0);
+    freteFixoInput.style.display = configRestaurante.tipoFrete === 'fixo' ? 'inline-block' : 'none';
+    
+    const freteFixoField = document.getElementById('configFreteFixoField');
+    if (freteFixoField) {
+        freteFixoField.style.display = configRestaurante.tipoFrete === 'fixo' ? 'block' : 'none';
+    }
 }
 
 function toggleFreteFixo() {
     const tipo = document.getElementById('configTipoFrete').value;
-    document.getElementById('configFreteFixo').style.display = tipo === 'fixo' ? 'inline-block' : 'none';
+    const freteFixoInput = document.getElementById('configFreteFixo');
+    const freteFixoField = document.getElementById('configFreteFixoField');
+    
+    if (freteFixoInput) {
+        freteFixoInput.style.display = tipo === 'fixo' ? 'inline-block' : 'none';
+    }
+    if (freteFixoField) {
+        freteFixoField.style.display = tipo === 'fixo' ? 'block' : 'none';
+    }
 }
 
 async function salvarConfiguracoes() {
@@ -860,7 +874,9 @@ async function salvarConfiguracoes() {
     configRestaurante.horaAbre = document.getElementById('configHoraAbre').value;
     configRestaurante.horaFecha = document.getElementById('configHoraFecha').value;
     configRestaurante.tipoFrete = document.getElementById('configTipoFrete').value;
-    configRestaurante.freteFixo = parseFloat(document.getElementById('configFreteFixo').value) || 0;
+    
+    const freteInput = parseFloat(document.getElementById('configFreteFixo').value) || 0;
+    configRestaurante.freteFixo = floatParaCentavos(freteInput);
     
     const sucesso = await salvarConfigFirebase(configRestaurante);
     if (sucesso) {
@@ -879,7 +895,6 @@ function abrirGerenciarDestaques() {
     const container = document.getElementById('listaProdutosDestaques');
     container.innerHTML = '';
     
-    // Produtos normais
     produtos.forEach(produto => {
         const div = document.createElement('div');
         div.style.cssText = `
@@ -896,7 +911,6 @@ function abrirGerenciarDestaques() {
         container.appendChild(div);
     });
     
-    // Montagens
     montagens.forEach(montagem => {
         const div = document.createElement('div');
         div.style.cssText = `
