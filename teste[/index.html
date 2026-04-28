@@ -486,57 +486,53 @@
         <input type="hidden" id="editHorarioId">
         
         <div class="form-group">
-    <label>Nome do horário *</label>
-    <input type="text" id="horarioNome" class="checkout-input">
-</div> placeholder="Ex: Almoço, Jantar, Madrugada...">
+            <label>Nome do horário *</label>
+            <input type="text" id="horarioNome" class="checkout-input" placeholder="Ex: Almoço, Jantar, Madrugada...">
+        </div>
         
         <div class="checkout-row">
-            <div>
-               <div class="form-group">
-    <label>Hora início *</label>
-    <input type="time" id="horarioInicio" class="checkout-input">
-</div>
-            <div>
-              <div class="form-group">
-    <label>Hora fim *</label>
-    <input type="time" id="horarioFim" class="checkout-input">
-</div>
+            <div class="form-group">
+                <label>Hora início *</label>
+                <input type="time" id="horarioInicio" class="checkout-input">
+            </div>
+            <div class="form-group">
+                <label>Hora fim *</label>
+                <input type="time" id="horarioFim" class="checkout-input">
+            </div>
         </div>
         
-       <div class="form-group">
-    <label class="checkbox-label">
-        <input type="checkbox" id="horarioViradaDia">
-        Permite virada de dia (ex: 23:00 às 01:00)
-    </label>
-</div>
-        
-       <div class="form-group">
-    <label>Dias da semana</label>
-    <div class="checkbox-group" id="diasSemanaCheckboxes"></div>
-</div>
-            <label class="checkbox-label"><input type="checkbox" value="1" onchange="atualizarCheckboxTodos(this)"> Seg</label>
-            <label class="checkbox-label"><input type="checkbox" value="2" onchange="atualizarCheckboxTodos(this)"> Ter</label>
-            <label class="checkbox-label"><input type="checkbox" value="3" onchange="atualizarCheckboxTodos(this)"> Qua</label>
-            <label class="checkbox-label"><input type="checkbox" value="4" onchange="atualizarCheckboxTodos(this)"> Qui</label>
-            <label class="checkbox-label"><input type="checkbox" value="5" onchange="atualizarCheckboxTodos(this)"> Sex</label>
-            <label class="checkbox-label"><input type="checkbox" value="6" onchange="atualizarCheckboxTodos(this)"> Sáb</label>
-            <label class="checkbox-label"><input type="checkbox" value="7" onchange="atualizarCheckboxTodos(this)"> Dom</label>
-            <label class="checkbox-label"><input type="checkbox" id="todosDias" onchange="toggleTodosDias(this)"> Todos</label>
+        <div class="form-group">
+            <label class="checkbox-label" for="horarioViradaDia">
+                <input type="checkbox" id="horarioViradaDia">
+                Permite virada de dia (ex: 23:00 às 01:00)
+            </label>
         </div>
         
-      <div class="form-group">
-    <label>Categorias que este horário atende</label>
-    <div class="checkbox-group" id="categoriasHorarioCheckboxes"></div>
-</div>
+        <div class="form-group">
+            <label>Dias da semana</label>
+            <div class="dias-semana" id="diasSemanaCheckboxes">
+                <label><input type="checkbox" value="1" onchange="atualizarCheckboxTodos(this)"><span>Seg</span></label>
+                <label><input type="checkbox" value="2" onchange="atualizarCheckboxTodos(this)"><span>Ter</span></label>
+                <label><input type="checkbox" value="3" onchange="atualizarCheckboxTodos(this)"><span>Qua</span></label>
+                <label><input type="checkbox" value="4" onchange="atualizarCheckboxTodos(this)"><span>Qui</span></label>
+                <label><input type="checkbox" value="5" onchange="atualizarCheckboxTodos(this)"><span>Sex</span></label>
+                <label><input type="checkbox" value="6" onchange="atualizarCheckboxTodos(this)"><span>Sáb</span></label>
+                <label><input type="checkbox" value="7" onchange="atualizarCheckboxTodos(this)"><span>Dom</span></label>
+                <label><input type="checkbox" id="todosDias" onchange="toggleTodosDias(this)"><span>Todos</span></label>
+            </div>
+        </div>
         
-        <button class="btn-adicionar-carrinho" onclick="salvarHorario()" style="background: #9c27b0;">
-            💾 Salvar Horário
-        </button>
+        <div class="form-group">
+            <label>Categorias que este horário atende</label>
+            <div class="checkbox-group" id="categoriasHorarioCheckboxes"></div>
+        </div>
         
-        <hr style="margin: 20px 0; border-color: var(--cor-borda);">
+        <button class="btn-primary" onclick="salvarHorario()">💾 Salvar Horário</button>
+        
+        <div class="section-divider"></div>
         
         <h4 style="margin-bottom: 15px;">📋 Horários cadastrados</h4>
-        <div id="listaHorariosCadastrados" class="admin-list"></div>
+        <div id="listaHorariosCadastrados" class="lista-cards"></div>
     </div>
 </div>
 
@@ -550,24 +546,29 @@
         
         <input type="hidden" id="editFeriadoId">
         
-        <label>Nome do feriado *</label>
-        <input type="text" id="feriadoNome" class="checkout-input" placeholder="Ex: Natal, Ano Novo...">
+        <div class="form-group">
+            <label>Nome do feriado *</label>
+            <input type="text" id="feriadoNome" class="checkout-input" placeholder="Ex: Natal, Ano Novo...">
+        </div>
         
-        <label>Data *</label>
-        <input type="date" id="feriadoData" class="checkout-input">
+        <div class="form-group">
+            <label>Data *</label>
+            <input type="date" id="feriadoData" class="checkout-input">
+        </div>
         
-        <label class="checkbox-label" style="margin-bottom: 15px;">
-            <input type="checkbox" id="feriadoRecorrente" checked> Recorrente (todo ano)
-        </label>
+        <div class="form-group">
+            <label class="checkbox-label" for="feriadoRecorrente">
+                <input type="checkbox" id="feriadoRecorrente" checked>
+                Recorrente (todo ano)
+            </label>
+        </div>
         
-        <button class="btn-adicionar-carrinho" onclick="salvarFeriado()" style="background: #e74c3c;">
-            💾 Salvar Feriado
-        </button>
+        <button class="btn-primary" onclick="salvarFeriado()" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">💾 Salvar Feriado</button>
         
-        <hr style="margin: 20px 0; border-color: var(--cor-borda);">
+        <div class="section-divider"></div>
         
         <h4 style="margin-bottom: 15px;">📋 Feriados cadastrados</h4>
-        <div id="listaFeriadosCadastrados" class="admin-list"></div>
+        <div id="listaFeriadosCadastrados" class="lista-cards"></div>
     </div>
 </div>
 
