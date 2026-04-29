@@ -211,13 +211,16 @@ function filtrarPorCategoria(categoria, tabElement = null) {
     
     renderizarProdutos();
     
-    const produtosGrid = document.getElementById('produtosGrid');
-    if (produtosGrid) {
-        produtosGrid.scrollIntoView({
-            behavior: 'smooth',
-            block: 'nearest'
-        });
-    }
+    // ✅ AGUARDA RENDERIZAR
+    setTimeout(() => {
+        const produtosGrid = document.getElementById('produtosGrid');
+        if (produtosGrid) {
+            produtosGrid.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest'
+            });
+        }
+    }, 150);
 }
 // ============================================
 // ===== RENDERIZAÇÃO DE PRODUTOS ============
@@ -434,6 +437,11 @@ function abrirModalProduto(produtoId) {
     produtoSelecionado = produtos.find(p => p.id === produtoId);
     if (!produtoSelecionado) return;
     
+    // ✅ LIMPA MONTAGEM
+    montagemSelecionada = null;
+    tamanhoSelecionado = null;
+    itensMontagemSelecionados = [];
+    
     quantidadeSelecionada = 1;
     saboresSelecionados = [];
     adicionaisSelecionados = [];
@@ -519,6 +527,15 @@ function abrirModalProduto(produtoId) {
 function fecharModalProduto() {
     document.getElementById('modalProduto').style.display = 'none';
     window.editandoCarrinhoIndex = null;
+    
+    // ✅ LIMPA TUDO
+    produtoSelecionado = null;
+    montagemSelecionada = null;
+    tamanhoSelecionado = null;
+    itensMontagemSelecionados = [];
+    saboresSelecionados = [];
+    adicionaisSelecionados = [];
+    
     const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
     if (btnAdicionar) btnAdicionar.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
 }
