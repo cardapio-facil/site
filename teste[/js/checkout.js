@@ -787,7 +787,8 @@ async function confirmarPedido() {
     const troco = pagamento === 'dinheiro' 
         ? floatParaCentavos(parseFloat(document.getElementById('checkoutTroco').value) || 0)
         : null;
-    
+    // Cole isso ANTES de: const itens = carrinho.map(item => {
+    console.log('🔍 CARRINHO COMPLETO:', JSON.stringify(carrinho, null, 2));
     const itens = carrinho.map(item => {
         const precoUnitarioCentavos = item.precoUnitario;
         const totalItemCentavos = precoUnitarioCentavos * item.quantidade;
