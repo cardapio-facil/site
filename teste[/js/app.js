@@ -880,10 +880,11 @@ function renderizarCarrinho() {
         
         let adicionaisHtml = '';
         if (item.adicionais && item.adicionais.length) {
-       adicionaisHtml = `<div class="item-adicionais">➕ ${item.adicionais.map(a => {
-    const precoExibicao = a.preco < 100 ? a.preco * 100 : a.preco;
-    return `${a.nome}${a.preco > 0 ? ` (+${formatarPreco(precoExibicao)})` : ''}`;
-}).join(', ')}</div>`;
+            adicionaisHtml = `<div class="item-adicionais">➕ ${item.adicionais.map(a => {
+                const precoExibicao = a.preco < 100 ? a.preco * 100 : a.preco;
+                return `${a.nome}${a.preco > 0 ? ` (+${formatarPreco(precoExibicao)})` : ''}`;
+            }).join(', ')}</div>`;
+        }
         
         div.innerHTML = `
             <div class="item-header">
@@ -912,7 +913,6 @@ function renderizarCarrinho() {
     
     document.getElementById('totalCarrinho').innerHTML = formatarPreco(total);
 }
-
 function alterarQuantidade(index, delta) {
     const novoQtd = carrinho[index].quantidade + delta;
     if (novoQtd >= 1) {
