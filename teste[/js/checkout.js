@@ -568,12 +568,15 @@ function buscarFretePorBairro(nomeBairro, silencioso = false) {
 // ===== ATUALIZAR TOTAL =====================
 // ============================================
 
-function atualizarTotalCheckout(frete) {
+function atualizarTotalCheckout(freteCentavos) {
     const subtotalText = document.getElementById('checkoutSubtotal').innerText;
-    const subtotal = parseFloat(subtotalText.replace('R$', '').replace(',', '.')) || 0;
-    const total = subtotal + (parseFloat(frete) || 0);
-    document.getElementById('checkoutTotal').innerHTML = formatarPreco(total);
-    document.getElementById('checkoutFreteValor').innerHTML = formatarPreco(frete || 0);
+    const subtotalReais = parseFloat(subtotalText.replace('R$', '').replace('.', '').replace(',', '.')) || 0;
+    
+    const freteReais = (parseFloat(freteCentavos) || 0) / 100;
+    const totalReais = subtotalReais + freteReais;
+    
+    document.getElementById('checkoutTotal').innerHTML = formatarPreco(Math.round(totalReais * 100));
+    document.getElementById('checkoutFreteValor').innerHTML = formatarPreco(freteCentavos);
 }
 
 // ============================================
