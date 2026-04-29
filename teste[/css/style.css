@@ -2354,8 +2354,12 @@ select:focus {
         height: 120px; 
     }
 
+     .produto-info {
+        padding: 12px 12px;          /* ⬆️ Só padding vertical */
+    }
+
     .produto-nome {
-        font-size: 0.8rem;
+        font-size: 0.95rem;
     }
 
     .produto-desc {
