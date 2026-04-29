@@ -2347,6 +2347,7 @@ select:focus {
     .produtos-grid {
         grid-template-columns: 1fr;
         gap: 8px;
+        padding: 0 20px;  /* ⬅️ Margem dos lados */
     }
 
     .produto-img {
