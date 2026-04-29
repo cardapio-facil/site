@@ -394,25 +394,6 @@ function buscarCepSilencioso() {
         .then(response => response.json())
         .then(data => {
             if (!data.erro) {
-                const cidadeConfigurada = configRestaurante.cidade || '';
-                const cidadeCep = data.localidade || '';
-                
-                if (cidadeConfigurada && cidadeCep.toLowerCase() !== cidadeConfigurada.toLowerCase()) {
-                    if (!document.getElementById('checkoutRua').value) {
-                        document.getElementById('checkoutRua').value = data.logradouro || '';
-                    }
-                    if (!document.getElementById('checkoutBairro').value) {
-                        document.getElementById('checkoutBairro').value = data.bairro || '';
-                    }
-                    if (!document.getElementById('checkoutCidade').value) {
-                        document.getElementById('checkoutCidade').value = cidadeCep;
-                    }
-                    document.getElementById('checkoutFrete').value = 'Cidade não atendida';
-                    document.getElementById('checkoutFrete').dataset.valor = '0';
-                    atualizarTotalCheckout(0);
-                    return;
-                }
-                
                 if (!document.getElementById('checkoutRua').value) {
                     document.getElementById('checkoutRua').value = data.logradouro || '';
                 }
@@ -420,11 +401,15 @@ function buscarCepSilencioso() {
                     document.getElementById('checkoutBairro').value = data.bairro || '';
                 }
                 if (!document.getElementById('checkoutCidade').value) {
-                    document.getElementById('checkoutCidade').value = cidadeCep;
+                    document.getElementById('checkoutCidade').value = data.localidade || '';
                 }
 
-                if (configRestaurante.tipoFrete !== 'fixo' && data.bairro) {
-                    buscarFretePorBairro(data.bairro, true);
+                // Se frete for fixo, aplica o valor
+                if (configRestaurante.tipoFrete === 'fixo') {
+                    const frete = configRestaurante.freteFixo || 0;
+                    document.getElementById('checkoutFrete').value = formatarPreco(frete);
+                    document.getElementById('checkoutFrete').dataset.valor = frete;
+                    atualizarTotalCheckout(frete);
                 }
             }
         })
