@@ -788,11 +788,18 @@ function adicionarAoCarrinho() {
         let precoFinal = produtoSelecionado.preco;
         
         if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
-            const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => s.preco));
+            const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => {
+                // ✅ Corrige centavos nos sabores
+                return s.preco < 100 ? s.preco * 100 : s.preco;
+            }));
             precoFinal = Math.max(precoFinal, maiorPrecoSabor);
         }
         
-        adicionaisSelecionados.forEach(adicional => { precoFinal += adicional.preco; });
+        // ✅ CORREÇÃO: Garante que adicionais estejam em centavos
+        adicionaisSelecionados.forEach(adicional => {
+            const precoAdicional = adicional.preco < 100 ? adicional.preco * 100 : adicional.preco;
+            precoFinal += precoAdicional;
+        });
         
         let nomeFinal = produtoSelecionado.nome;
         
@@ -829,7 +836,6 @@ function adicionarAoCarrinho() {
     renderizarCarrinho();
     fecharModalProduto();
 }
-
 // ============================================
 // ===== RENDERIZAÇÃO DO CARRINHO ============
 // ============================================
