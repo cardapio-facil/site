@@ -404,12 +404,16 @@ function buscarCepSilencioso() {
                     document.getElementById('checkoutCidade').value = data.localidade || '';
                 }
 
-                // Se frete for fixo, aplica o valor
+                // Frete fixo
                 if (configRestaurante.tipoFrete === 'fixo') {
                     const frete = configRestaurante.freteFixo || 0;
                     document.getElementById('checkoutFrete').value = formatarPreco(frete);
                     document.getElementById('checkoutFrete').dataset.valor = frete;
                     atualizarTotalCheckout(frete);
+                }
+                // Frete por bairro
+                else if (data.bairro) {
+                    buscarFretePorBairro(data.bairro, true);
                 }
             }
         })
