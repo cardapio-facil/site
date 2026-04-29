@@ -2345,32 +2345,24 @@ select:focus {
 
 @media (max-width: 480px) {
     .produtos-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: 1fr;
         gap: 8px;
     }
 
     .produto-img {
-        height: 100px;
+        height: 95px;
     }
 
     .produto-nome {
         font-size: 0.8rem;
     }
 
-    .produto-preco {
-        font-size: 0.9rem;
-    }
-
     .produto-desc {
         display: none;
     }
 
-    .badge-destaque,
-    .badge-montagem,
-    .selo-horario {
-        font-size: 0.6rem;
-        padding: 2px 6px;
-        top: 5px;
+    .produto-preco {
+        font-size: 0.9rem;
     }
 
     .btn-add {
@@ -2379,6 +2371,15 @@ select:focus {
         font-size: 0.9rem;
     }
 
+    /* 🔽 SELOS MENORES */
+    .badge-destaque,
+    .badge-montagem,
+    .selo-horario {
+        font-size: 0.6rem;
+        padding: 2px 6px;
+        top: 5px;
+    }
+}
     .header {
         flex-direction: column;
         text-align: center;
