@@ -789,7 +789,7 @@ async function confirmarPedido() {
         : null;
     
     const itens = carrinho.map(item => {
-        const precoUnitarioCentavos = floatParaCentavos(item.precoUnitario);
+        const precoUnitarioCentavos = item.precoUnitario;
         const totalItemCentavos = precoUnitarioCentavos * item.quantidade;
         
         const itemBase = {
@@ -886,7 +886,7 @@ async function confirmarPedido() {
     });
     
     const subtotalCentavos = itens.reduce((sum, item) => sum + item.totalItem, 0);
-    const freteCentavos = floatParaCentavos(parseFloat(document.getElementById('checkoutFrete').dataset.valor) || 0);
+    const freteCentavos = parseInt(document.getElementById('checkoutFrete').dataset.valor) || 0;
     const totalCentavos = subtotalCentavos + freteCentavos;
     
     const pedido = {
