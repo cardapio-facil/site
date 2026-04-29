@@ -432,7 +432,6 @@ function buscarCepSilencioso() {
             console.log('⚠️ Busca silenciosa de CEP falhou:', error);
         });
 }
-
 // ============================================
 // ===== DESTACAR CAMPOS PREENCHIDOS =========
 // ============================================
