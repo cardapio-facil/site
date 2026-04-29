@@ -784,44 +784,46 @@ function adicionarAoCarrinho() {
         tamanhoSelecionado = null;
         itensMontagemSelecionados = [];
     }
-    else if (produtoSelecionado) {
-        let precoFinal = produtoSelecionado.preco;
-        
-        if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
-            const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => {
-                // ✅ Corrige centavos nos sabores
-                return s.preco < 100 ? s.preco * 100 : s.preco;
-            }));
-            precoFinal = Math.max(precoFinal, maiorPrecoSabor);
+ else if (produtoSelecionado) {
+    let precoFinal = produtoSelecionado.preco;
+    
+    if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
+        const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => {
+            return s.preco < 100 ? s.preco * 100 : s.preco;
+        }));
+        precoFinal = Math.max(precoFinal, maiorPrecoSabor);
+    }
+    
+    // ✅ CORREÇÃO: Garante que adicionais estejam em centavos
+    adicionaisSelecionados.forEach(adicional => {
+        const precoAdicional = adicional.preco < 100 ? adicional.preco * 100 : adicional.preco;
+        precoFinal += precoAdicional;
+    });
+    
+    let nomeFinal = produtoSelecionado.nome;
+    
+    if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
+        if (saboresSelecionados.length === 1) {
+            nomeFinal = `${produtoSelecionado.nome} - ${saboresSelecionados[0].nome}`;
+        } else if (saboresSelecionados.length === 2) {
+            nomeFinal = `${produtoSelecionado.nome} - Meio ${saboresSelecionados[0].nome} / Meio ${saboresSelecionados[1].nome}`;
         }
-        
-        // ✅ CORREÇÃO: Garante que adicionais estejam em centavos
-        adicionaisSelecionados.forEach(adicional => {
-            const precoAdicional = adicional.preco < 100 ? adicional.preco * 100 : adicional.preco;
-            precoFinal += precoAdicional;
-        });
-        
-        let nomeFinal = produtoSelecionado.nome;
-        
-        if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
-            if (saboresSelecionados.length === 1) {
-                nomeFinal = `${produtoSelecionado.nome} - ${saboresSelecionados[0].nome}`;
-            } else if (saboresSelecionados.length === 2) {
-                nomeFinal = `${produtoSelecionado.nome} - Meio ${saboresSelecionados[0].nome} / Meio ${saboresSelecionados[1].nome}`;
-            }
-        }
-        
-        const itemCarrinho = {
-            id: produtoSelecionado.id + '-' + Date.now(),
-            produtoId: produtoSelecionado.id,
-            tipo: 'produto',
-            nome: nomeFinal,
-            precoUnitario: precoFinal,
-            quantidade: quantidadeSelecionada,
-            observacao: document.getElementById('obsItem').value,
-            adicionais: [...adicionaisSelecionados],
-            sabores: [...saboresSelecionados]
-        };
+    }
+    
+    const itemCarrinho = {
+        id: produtoSelecionado.id + '-' + Date.now(),
+        produtoId: produtoSelecionado.id,
+        tipo: 'produto',
+        nome: nomeFinal,
+        precoUnitario: precoFinal,
+        quantidade: quantidadeSelecionada,
+        observacao: document.getElementById('obsItem').value,
+        adicionais: adicionaisSelecionados.map(a => ({
+            nome: a.nome,
+            preco: a.preco < 100 ? a.preco * 100 : a.preco  // ✅ Normaliza para centavos
+        })),
+        sabores: [...saboresSelecionados]
+    };
         
         if (window.editandoCarrinhoIndex !== undefined && window.editandoCarrinhoIndex !== null) {
             carrinho[window.editandoCarrinhoIndex] = itemCarrinho;
@@ -878,8 +880,10 @@ function renderizarCarrinho() {
         
         let adicionaisHtml = '';
         if (item.adicionais && item.adicionais.length) {
-            adicionaisHtml = `<div class="item-adicionais">➕ ${item.adicionais.map(a => `${a.nome}${a.preco > 0 ? ` (+${formatarPreco(a.preco)})` : ''}`).join(', ')}</div>`;
-        }
+       adicionaisHtml = `<div class="item-adicionais">➕ ${item.adicionais.map(a => {
+    const precoExibicao = a.preco < 100 ? a.preco * 100 : a.preco;
+    return `${a.nome}${a.preco > 0 ? ` (+${formatarPreco(precoExibicao)})` : ''}`;
+}).join(', ')}</div>`;
         
         div.innerHTML = `
             <div class="item-header">
