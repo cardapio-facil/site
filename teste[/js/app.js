@@ -1,8 +1,7 @@
 // ============================================
 // ===== VARIÁVEIS GLOBAIS ===================
 // ============================================
-let cupons = [...CUPONS_PADRAO];
-let cupomAplicado = null; // 🆕 Cupom atual aplicado ao carrinho
+
 
 let produtos = [];
 let categorias = [...CATEGORIAS_PADRAO];
@@ -14,6 +13,8 @@ let montagens = [...MONTAGENS_PADRAO];
 let categoriasVisiveis = { ...CATEGORIAS_VISIVEIS_PADRAO };
 let horarios = [...HORARIOS_PADRAO];
 let feriados = [...FERIADOS_PADRAO];
+let cupons = [...CUPONS_PADRAO];
+let cupomAplicado = null; 
 
 let adminLogado = false;
 let nivelAcesso = null;
