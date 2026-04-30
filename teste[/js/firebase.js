@@ -338,7 +338,20 @@ async function exportarDadosFirebase() {
     }
 }
 
+// ===== 🆕 CUPONS =====
+async function salvarCuponsFirebase(cupons) {
+    try {
+        await dbRef.child('cupons').set(cupons);
+        console.log('✅ Cupons salvos');
+        return true;
+    } catch (error) {
+        console.error('Erro ao salvar cupons:', error);
+        mostrarToast('Erro ao salvar cupons', 'erro');
+        return false;
+    }
+}
 // ===== EXPOR =====
+window.salvarCuponsFirebase = salvarCuponsFirebase;
 window.salvarProdutosFirebase = salvarProdutosFirebase;
 window.salvarCategoriasFirebase = salvarCategoriasFirebase;
 window.salvarAdicionaisFirebase = salvarAdicionaisFirebase;
