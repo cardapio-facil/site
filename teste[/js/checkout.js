@@ -973,14 +973,6 @@ if (cupomAplicado) {
         atualizarTotalCarrinho();
     }
     
-    const numeroPedido = pedido.numero;
-    mostrarToast(`✅ Pedido #${numeroPedido} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
-    
-    carrinho = [];
-    renderizarCarrinho();
-    document.getElementById('observacaoGeral').value = '';
-    fecharModalCheckout();
-}
         const numeroPedido = pedido.numero;
         mostrarToast(`✅ Pedido #${numeroPedido} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
         
