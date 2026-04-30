@@ -49,10 +49,28 @@ function abrirCheckout() {
     carregarEnderecosLocalStorage();
     
     const total = carrinho.reduce((sum, item) => sum + (item.precoUnitario * item.quantidade), 0);
+
+// 🆕 Aplicar cupom se existir
+let totalComDesconto = total;
+if (cupomAplicado) {
+    totalComDesconto = Math.max(0, total - cupomAplicado.descontoCentavos);
     
-    document.getElementById('checkoutSubtotal').innerHTML = formatarPreco(total);
-    document.getElementById('checkoutTotal').innerHTML = formatarPreco(total);
-    document.getElementById('checkoutFreteValor').innerHTML = formatarPreco(0);
+    // Mostrar desconto no checkout
+    const descontoCheckout = document.getElementById('checkoutDesconto');
+    if (descontoCheckout) {
+        descontoCheckout.style.display = 'flex';
+        document.getElementById('checkoutDescontoValor').innerHTML = `-${formatarPreco(cupomAplicado.descontoCentavos)}`;
+    }
+} else {
+    const descontoCheckout = document.getElementById('checkoutDesconto');
+    if (descontoCheckout) {
+        descontoCheckout.style.display = 'none';
+    }
+}
+
+document.getElementById('checkoutSubtotal').innerHTML = formatarPreco(total);
+document.getElementById('checkoutTotal').innerHTML = formatarPreco(totalComDesconto);
+document.getElementById('checkoutFreteValor').innerHTML = formatarPreco(0);
     
     document.getElementById('checkoutNome').value = '';
     document.getElementById('checkoutTelefone').value = '';
@@ -877,6 +895,12 @@ async function confirmarPedido() {
     const subtotalCentavos = itens.reduce((sum, item) => sum + item.totalItem, 0);
     const freteCentavos = parseInt(document.getElementById('checkoutFrete').dataset.valor) || 0;
     const totalCentavos = subtotalCentavos + freteCentavos;
+
+    let descontoCupom = 0;
+if (cupomAplicado) {
+    descontoCupom = cupomAplicado.descontoCentavos;
+    totalCentavos = Math.max(0, totalCentavos - descontoCupom);
+}
     
     const pedido = {
         id: 'ped_' + gerarId(),
@@ -917,6 +941,15 @@ async function confirmarPedido() {
         
         itens: itens
     };
+
+    if (cupomAplicado) {
+    pedido.cupom = {
+        codigo: cupomAplicado.codigo,
+        descontoCentavos: descontoCupom,
+        valorOriginal: subtotalCentavos + freteCentavos,
+        valorComDesconto: totalCentavos
+    };
+}
     
     mostrarLoader(true);
     
