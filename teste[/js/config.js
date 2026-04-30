@@ -526,7 +526,13 @@ function mostrarLoader(show) {
     }
 }
 
+
 // ===== EXPOR =====
+window.CUPONS_PADRAO = CUPONS_PADRAO;
+window.validarCupom = validarCupom;
+window.registrarUsoCupom = registrarUsoCupom;
+window.formatarDescontoCupom = formatarDescontoCupom;
+window.parseValorDesconto = parseValorDesconto;
 window.formatarPreco = formatarPreco;
 window.parsePreco = parsePreco;
 window.centavosParaFloat = centavosParaFloat;
