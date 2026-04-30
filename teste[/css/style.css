@@ -2408,3 +2408,56 @@ select:focus {
 #produtosGrid {
     scroll-margin-top: 140px;
 }
+
+/* ============================================ */
+/* ===== 🆕 CUPONS ============================ */
+/* ============================================ */
+
+#cupomSection {
+    transition: all 0.3s ease;
+}
+
+#cupomSection:hover {
+    border-color: var(--cor-primaria);
+}
+
+#codigoCupom:focus {
+    border-color: var(--cor-primaria) !important;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 61, 0, 0.1);
+}
+
+#btnAplicarCupom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 61, 0, 0.3);
+}
+
+#descontoResumo {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cupom-info-tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: help;
+}
+
+.cupom-info-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    background: #333;
+    color: white;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    z-index: 10;
+}
