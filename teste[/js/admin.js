@@ -1171,6 +1171,194 @@ async function excluirFeriado(id) {
 }
 
 // ============================================
+// ===== 🆕 ADMIN CUPONS ======================
+// ============================================
+
+let cupomEditando = null;
+
+function abrirModalGerenciarCupons() {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode gerenciar cupons', 'alerta');
+        return;
+    }
+    
+    cupomEditando = null;
+    limparFormCupom();
+    carregarListaCupons();
+    
+    document.getElementById('modalGerenciarCupons').style.display = 'flex';
+}
+
+function fecharModalGerenciarCupons() {
+    document.getElementById('modalGerenciarCupons').style.display = 'none';
+}
+
+function limparFormCupom() {
+    document.getElementById('editCupomId').value = '';
+    document.getElementById('cupomCodigo').value = '';
+    document.getElementById('cupomTipoDesconto').value = 'percentual';
+    document.getElementById('cupomValorDesconto').value = '';
+    document.getElementById('cupomAtivo').checked = true;
+    document.getElementById('cupomTipoLimite').value = 'ilimitado';
+    document.getElementById('cupomLimiteUso').value = '50';
+    document.getElementById('cupomLimitePorUsuario').value = '1';
+    document.getElementById('cupomValorMinimo').value = '';
+    document.getElementById('cupomDataInicio').value = '';
+    document.getElementById('cupomDataExpiracao').value = '';
+}
+
+function carregarListaCupons() {
+    const container = document.getElementById('listaCuponsCadastrados');
+    container.innerHTML = '';
+    
+    if (!cupons || cupons.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--cor-texto-claro); padding: 20px;">Nenhum cupom cadastrado</p>';
+        return;
+    }
+    
+    cupons.forEach(cupom => {
+        const tipoLimite = cupom.tipoLimiteUso === 'unico' ? 'Único' : 
+                          cupom.tipoLimiteUso === 'limitado' ? `${cupom.usos}/${cupom.limiteUso}` : 'Ilimitado';
+        
+        const div = document.createElement('div');
+        div.style.cssText = `
+            padding: 15px;
+            border: 1px solid var(--cor-borda);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: ${cupom.ativo ? '#fafafa' : '#f5f5f5'};
+            opacity: ${cupom.ativo ? 1 : 0.7};
+        `;
+        div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                    <strong style="font-size: 1.1rem;">🎫 ${cupom.codigo}</strong>
+                    ${!cupom.ativo ? '<span style="color: #e53935; margin-left: 10px;">(Inativo)</span>' : ''}
+                    <div style="margin-top: 5px; font-size: 0.85rem; color: var(--cor-texto-claro);">
+                        💰 ${formatarDescontoCupom(cupom)} | 📊 ${tipoLimite}
+                        ${cupom.valorMinimoPedido ? ` | Mín: ${formatarPreco(cupom.valorMinimoPedido)}` : ''}
+                    </div>
+                    ${cupom.dataExpiracao ? `<div style="font-size: 0.8rem; color: #999;">⏰ Expira: ${cupom.dataExpiracao}</div>` : ''}
+                </div>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="editarCupom('${cupom.id}')" class="btn-editar-admin">✏️</button>
+                    <button onclick="excluirCupom('${cupom.id}')" class="btn-excluir-admin">🗑️</button>
+                </div>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function editarCupom(id) {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode editar cupons', 'alerta');
+        return;
+    }
+    
+    const cupom = cupons.find(c => c.id === id);
+    if (!cupom) return;
+    
+    cupomEditando = cupom;
+    document.getElementById('editCupomId').value = cupom.id;
+    document.getElementById('cupomCodigo').value = cupom.codigo;
+    document.getElementById('cupomTipoDesconto').value = cupom.tipoDesconto;
+    
+    if (cupom.tipoDesconto === 'percentual') {
+        document.getElementById('cupomValorDesconto').value = cupom.valorDesconto;
+    } else {
+        document.getElementById('cupomValorDesconto').value = centavosParaFloat(cupom.valorDesconto);
+    }
+    
+    document.getElementById('cupomAtivo').checked = cupom.ativo;
+    document.getElementById('cupomTipoLimite').value = cupom.tipoLimiteUso || 'ilimitado';
+    document.getElementById('cupomLimiteUso').value = cupom.limiteUso || 50;
+    document.getElementById('cupomLimitePorUsuario').value = cupom.limitePorUsuario || 1;
+    document.getElementById('cupomValorMinimo').value = cupom.valorMinimoPedido ? centavosParaFloat(cupom.valorMinimoPedido) : '';
+    document.getElementById('cupomDataInicio').value = cupom.dataInicio || '';
+    document.getElementById('cupomDataExpiracao').value = cupom.dataExpiracao || '';
+    
+    toggleCamposLimiteCupom();
+}
+
+async function salvarCupom() {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode salvar cupons', 'alerta');
+        return;
+    }
+    
+    const codigo = document.getElementById('cupomCodigo').value.trim().toUpperCase();
+    const tipoDesconto = document.getElementById('cupomTipoDesconto').value;
+    const valorDescontoStr = document.getElementById('cupomValorDesconto').value;
+    
+    if (!codigo || !valorDescontoStr) {
+        mostrarToast('Preencha código e valor', 'alerta');
+        return;
+    }
+    
+    // Verificar se código já existe (em outro cupom)
+    const cupomExistente = cupons.find(c => c.codigo === codigo && (!cupomEditando || c.id !== cupomEditando.id));
+    if (cupomExistente) {
+        mostrarToast('Código já existe', 'Já existe um cupom com este código', 'alerta');
+        return;
+    }
+    
+    const valorDesconto = parseValorDesconto(valorDescontoStr, tipoDesconto);
+    
+    const cupom = {
+        id: cupomEditando ? cupomEditando.id : 'cup_' + gerarId(),
+        codigo: codigo,
+        tipoDesconto: tipoDesconto,
+        valorDesconto: valorDesconto,
+        ativo: document.getElementById('cupomAtivo').checked,
+        tipoLimiteUso: document.getElementById('cupomTipoLimite').value,
+        limiteUso: parseInt(document.getElementById('cupomLimiteUso').value) || 50,
+        limitePorUsuario: parseInt(document.getElementById('cupomLimitePorUsuario').value) || null,
+        valorMinimoPedido: document.getElementById('cupomValorMinimo').value 
+            ? floatParaCentavos(parseFloat(document.getElementById('cupomValorMinimo').value)) 
+            : null,
+        dataInicio: document.getElementById('cupomDataInicio').value || null,
+        dataExpiracao: document.getElementById('cupomDataExpiracao').value || null,
+        usos: cupomEditando ? (cupomEditando.usos || 0) : 0,
+        historicoUso: cupomEditando ? (cupomEditando.historicoUso || []) : []
+    };
+    
+    if (cupomEditando) {
+        const index = cupons.findIndex(c => c.id === cupomEditando.id);
+        cupons[index] = cupom;
+    } else {
+        cupons.push(cupom);
+    }
+    
+    const sucesso = await salvarCuponsFirebase(cupons);
+    if (sucesso) {
+        mostrarToast('Cupom salvo!', 'sucesso');
+        limparFormCupom();
+        carregarListaCupons();
+    }
+}
+
+async function excluirCupom(id) {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode excluir cupons', 'alerta');
+        return;
+    }
+    
+    if (confirm('Tem certeza que deseja excluir este cupom?')) {
+        cupons = cupons.filter(c => c.id !== id);
+        const sucesso = await salvarCuponsFirebase(cupons);
+        if (sucesso) {
+            mostrarToast('Cupom excluído!', 'sucesso');
+            carregarListaCupons();
+        }
+    }
+}
+
+function toggleCamposLimiteCupom() {
+    const tipoLimite = document.getElementById('cupomTipoLimite').value;
+    document.getElementById('campoLimiteUso').style.display = tipoLimite === 'limitado' ? 'block' : 'none';
+}
+// ============================================
 // ===== ADMIN CONFIG ========================
 // ============================================
 
@@ -1380,3 +1568,11 @@ window.fecharModalGerenciarFeriados = fecharModalGerenciarFeriados;
 window.editarFeriado = editarFeriado;
 window.salvarFeriado = salvarFeriado;
 window.excluirFeriado = excluirFeriado;
+
+// 🆕 Cupons
+window.abrirModalGerenciarCupons = abrirModalGerenciarCupons;
+window.fecharModalGerenciarCupons = fecharModalGerenciarCupons;
+window.editarCupom = editarCupom;
+window.salvarCupom = salvarCupom;
+window.excluirCupom = excluirCupom;
+window.toggleCamposLimiteCupom = toggleCamposLimiteCupom;
