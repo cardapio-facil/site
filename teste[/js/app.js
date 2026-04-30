@@ -1,9 +1,12 @@
 // ============================================
 // ===== VARIÁVEIS GLOBAIS ===================
 // ============================================
+let cupons = [...CUPONS_PADRAO];
+let cupomAplicado = null; // 🆕 Cupom atual aplicado ao carrinho
 
 let produtos = [];
 let categorias = [...CATEGORIAS_PADRAO];
+
 let adicionaisPorCategoria = {};
 let carrinho = [];
 let configRestaurante = { ...CONFIG_PADRAO };
@@ -27,6 +30,7 @@ let montagemSelecionada = null;
 let tamanhoSelecionado = null;
 let itensMontagemSelecionados = [];
 
+
 // ============================================
 // ===== INICIALIZAÇÃO =======================
 // ============================================
@@ -46,6 +50,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (data.montagens) montagens = data.montagens;
     if (data.horarios) horarios = data.horarios;
     if (data.feriados) feriados = data.feriados;
+    if (data.cupons) cupons = data.cupons;
     
     if (produtos.length === 0) criarProdutosExemplo();
     if (montagens.length === 0) {
@@ -911,7 +916,7 @@ function renderizarCarrinho() {
         container.appendChild(div);
     });
     
-    document.getElementById('totalCarrinho').innerHTML = formatarPreco(total);
+    atualizarTotalCarrinho();
 }
 function alterarQuantidade(index, delta) {
     const novoQtd = carrinho[index].quantidade + delta;
@@ -1144,6 +1149,88 @@ function initMobileFixes() {
 window.addEventListener('load', initMobileFixes);
 window.addEventListener('resize', debounce(initMobileFixes, 200));
 document.addEventListener('DOMContentLoaded', () => { setTimeout(initMobileFixes, 500); });
+
+// ============================================
+// ===== 🆕 FUNÇÕES DE CUPOM =================
+// ============================================
+
+function aplicarCupom() {
+    const codigo = document.getElementById('codigoCupom').value.trim();
+    
+    if (!codigo) {
+        mostrarToast('Digite um código', 'Informe o código do cupom', 'alerta');
+        return;
+    }
+    
+    // Calcula subtotal atual
+    const subtotalCentavos = carrinho.reduce((sum, item) => 
+        sum + (item.precoUnitario * item.quantidade), 0);
+    
+    if (subtotalCentavos === 0) {
+        mostrarToast('Carrinho vazio', 'Adicione itens ao carrinho primeiro', 'alerta');
+        return;
+    }
+    
+    // Valida o cupom
+    const resultado = validarCupom(codigo, subtotalCentavos);
+    
+    const cupomInfo = document.getElementById('cupomInfo');
+    
+    if (!resultado.valido) {
+        cupomInfo.innerHTML = `<p style="color: #e53935;">❌ ${resultado.mensagem}</p>`;
+        mostrarToast('Cupom inválido', resultado.mensagem, 'erro');
+        cupomAplicado = null;
+        atualizarResumoCupom();
+        return;
+    }
+    
+    // Cupom válido!
+    cupomAplicado = {
+        codigo: codigo.toUpperCase(),
+        descontoCentavos: resultado.descontoCentavos,
+        cupom: resultado.cupom
+    };
+    
+    cupomInfo.innerHTML = `<p style="color: #2e7d32;">✅ ${resultado.mensagem}</p>`;
+    mostrarToast('Cupom aplicado!', resultado.mensagem, 'sucesso');
+    
+    atualizarResumoCupom();
+    atualizarTotalCarrinho();
+}
+
+function removerCupom() {
+    cupomAplicado = null;
+    document.getElementById('codigoCupom').value = '';
+    document.getElementById('cupomInfo').innerHTML = '';
+    atualizarResumoCupom();
+    atualizarTotalCarrinho();
+    mostrarToast('Cupom removido', 'O desconto foi removido do carrinho', 'info');
+}
+
+function atualizarResumoCupom() {
+    const descontoResumo = document.getElementById('descontoResumo');
+    const valorDesconto = document.getElementById('valorDesconto');
+    
+    if (cupomAplicado) {
+        descontoResumo.style.display = 'block';
+        valorDesconto.textContent = `-${formatarPreco(cupomAplicado.descontoCentavos)}`;
+    } else {
+        descontoResumo.style.display = 'none';
+    }
+}
+
+function atualizarTotalCarrinho() {
+    const subtotalCentavos = carrinho.reduce((sum, item) => 
+        sum + (item.precoUnitario * item.quantidade), 0);
+    
+    let totalFinal = subtotalCentavos;
+    
+    if (cupomAplicado) {
+        totalFinal = Math.max(0, subtotalCentavos - cupomAplicado.descontoCentavos);
+    }
+    
+    document.getElementById('totalCarrinho').innerHTML = formatarPreco(totalFinal);
+}
 
 // ===== EXPOR =====
 window.toggleTema = toggleTema;
