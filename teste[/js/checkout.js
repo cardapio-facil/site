@@ -959,7 +959,28 @@ if (cupomAplicado) {
         if (tipoEntrega === 'entrega') {
             salvarEndereco();
         }
-        
+
+        // 🆕 Registrar uso do cupom
+    if (cupomAplicado) {
+        registrarUsoCupom(
+            cupomAplicado.codigo,
+            nome,
+            cupomAplicado.descontoCentavos,
+            pedido.id
+        );
+        cupomAplicado = null;
+        atualizarResumoCupom();
+        atualizarTotalCarrinho();
+    }
+    
+    const numeroPedido = pedido.numero;
+    mostrarToast(`✅ Pedido #${numeroPedido} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
+    
+    carrinho = [];
+    renderizarCarrinho();
+    document.getElementById('observacaoGeral').value = '';
+    fecharModalCheckout();
+}
         const numeroPedido = pedido.numero;
         mostrarToast(`✅ Pedido #${numeroPedido} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
         
