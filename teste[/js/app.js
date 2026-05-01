@@ -916,8 +916,9 @@ function renderizarCarrinho() {
         `;
         container.appendChild(div);
     });
-    
+   
     atualizarTotalCarrinho();
+    atualizarCarrinhoMobileBar();
 }
 function alterarQuantidade(index, delta) {
     const novoQtd = carrinho[index].quantidade + delta;
@@ -1233,6 +1234,111 @@ function atualizarTotalCarrinho() {
     document.getElementById('totalCarrinho').innerHTML = formatarPreco(totalFinal);
 }
 
+// ============================================
+// 🆕 CARRINHO MOBILE
+// ============================================
+
+function calcularTotalCarrinho() {
+    let total = carrinho.reduce(
+        (sum, item) => sum + (item.precoUnitario * item.quantidade),
+        0
+    );
+
+    if (cupomAplicado) {
+        total = Math.max(0, total - cupomAplicado.descontoCentavos);
+    }
+
+    return total;
+}
+
+function abrirCarrinhoDrawer() {
+    if (carrinho.length === 0) {
+        mostrarToast('Carrinho vazio', 'Adicione itens primeiro', 'info');
+        return;
+    }
+
+    const overlay = document.getElementById('carrinhoDrawerOverlay');
+    const drawer = document.getElementById('carrinhoDrawer');
+    const body = document.getElementById('carrinhoDrawerBody');
+
+    body.innerHTML = '';
+
+    carrinho.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'carrinho-item';
+
+        el.innerHTML = `
+            <div>
+                <strong>${item.quantidade}x ${item.nome}</strong>
+            </div>
+            <span class="preco">
+                ${formatarPreco(item.precoUnitario * item.quantidade)}
+            </span>
+        `;
+
+        body.appendChild(el);
+    });
+
+    // Cupom
+    if (cupomAplicado) {
+        const cupomEl = document.createElement('div');
+        cupomEl.className = 'carrinho-cupom';
+
+        cupomEl.innerHTML = `
+            <span>🎫 Desconto</span>
+            <strong>-${formatarPreco(cupomAplicado.descontoCentavos)}</strong>
+        `;
+
+        body.appendChild(cupomEl);
+    }
+
+    // Total
+    const totalEl = document.createElement('div');
+    totalEl.className = 'carrinho-total';
+
+    totalEl.innerHTML = `
+        <span>TOTAL</span>
+        <strong>${formatarPreco(calcularTotalCarrinho())}</strong>
+    `;
+
+    body.appendChild(totalEl);
+
+    overlay.classList.add('aberto');
+    drawer.classList.add('aberto');
+    document.body.style.overflow = 'hidden';
+}
+
+function fecharCarrinhoDrawer() {
+    document.getElementById('carrinhoDrawerOverlay').classList.remove('aberto');
+    document.getElementById('carrinhoDrawer').classList.remove('aberto');
+    document.body.style.overflow = '';
+}
+
+function atualizarCarrinhoMobileBar() {
+    const bar = document.getElementById('carrinhoMobileBar');
+    if (!bar) return;
+
+    if (window.innerWidth > 900) {
+        bar.style.display = 'none';
+        return;
+    }
+
+    const qtd = carrinho.reduce((sum, item) => sum + item.quantidade, 0);
+    const total = calcularTotalCarrinho();
+
+    document.getElementById('carrinhoMobileQtd').textContent =
+        `${qtd} ${qtd === 1 ? 'item' : 'itens'}`;
+
+    document.getElementById('carrinhoMobileTotal').textContent =
+        formatarPreco(total);
+
+    bar.style.display = qtd > 0 ? 'block' : 'none';
+}
+
+
+
+
+
 // ===== EXPOR =====
 window.toggleTema = toggleTema;
 window.abrirModalProduto = abrirModalProduto;
@@ -1257,3 +1363,6 @@ window.aplicarCupom = aplicarCupom;
 window.removerCupom = removerCupom;
 window.atualizarResumoCupom = atualizarResumoCupom;
 window.atualizarTotalCarrinho = atualizarTotalCarrinho;
+window.abrirCarrinhoDrawer = abrirCarrinhoDrawer;
+window.fecharCarrinhoDrawer = fecharCarrinhoDrawer;
+window.atualizarCarrinhoMobileBar = atualizarCarrinhoMobileBar;
