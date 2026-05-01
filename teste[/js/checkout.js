@@ -579,7 +579,12 @@ function atualizarTotalCheckout(freteCentavos) {
     const subtotalReais = parseFloat(subtotalText.replace('R$', '').replace('.', '').replace(',', '.')) || 0;
     
     const freteReais = (parseFloat(freteCentavos) || 0) / 100;
-    const totalReais = subtotalReais + freteReais;
+    let totalReais = subtotalReais + freteReais;
+    
+    // 🆕 Aplicar desconto do cupom
+    if (cupomAplicado) {
+        totalReais = Math.max(0, totalReais - (cupomAplicado.descontoCentavos / 100));
+    }
     
     document.getElementById('checkoutTotal').innerHTML = formatarPreco(Math.round(totalReais * 100));
     document.getElementById('checkoutFreteValor').innerHTML = formatarPreco(freteCentavos);
@@ -894,7 +899,7 @@ async function confirmarPedido() {
     
     const subtotalCentavos = itens.reduce((sum, item) => sum + item.totalItem, 0);
     const freteCentavos = parseInt(document.getElementById('checkoutFrete').dataset.valor) || 0;
-    const totalCentavos = subtotalCentavos + freteCentavos;
+    let totalCentavos = subtotalCentavos + freteCentavos;  // ✅ let
 
     let descontoCupom = 0;
 if (cupomAplicado) {
@@ -930,6 +935,7 @@ if (cupomAplicado) {
         
         subtotal: subtotalCentavos,
         frete: freteCentavos,
+        desconto: descontoCupom, 
         total: totalCentavos,
         
         observacaoGeral: document.getElementById('observacaoGeral')?.value || '',
