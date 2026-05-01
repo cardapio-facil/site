@@ -697,6 +697,37 @@
         <div id="listaCuponsCadastrados" class="lista-cards"></div>
     </div>
 </div>
+
+    <!-- ========== 🆕 CARRINHO MOBILE ========== -->
+<div id="carrinhoMobileBar" class="carrinho-mobile-bar">
+    <div class="carrinho-mobile-info" onclick="abrirCarrinhoDrawer()">
+        <span class="carrinho-mobile-icone">🛒</span>
+
+        <div class="carrinho-mobile-textos">
+            <span id="carrinhoMobileQtd" class="carrinho-mobile-qtd">0 itens</span>
+            <span id="carrinhoMobileTotal" class="carrinho-mobile-total">R$ 0,00</span>
+        </div>
+    </div>
+</div>
+
+<!-- Overlay -->
+<div id="carrinhoDrawerOverlay" class="carrinho-drawer-overlay" onclick="fecharCarrinhoDrawer()"></div>
+
+<!-- Drawer -->
+<div id="carrinhoDrawer" class="carrinho-drawer">
+    <header class="carrinho-drawer-header">
+        <h3>🛒 Seu Carrinho</h3>
+        <button class="close-modal" onclick="fecharCarrinhoDrawer()">&times;</button>
+    </header>
+
+    <main id="carrinhoDrawerBody" class="carrinho-drawer-body"></main>
+
+    <footer class="carrinho-drawer-footer">
+        <button class="btn-finalizar" onclick="fecharCarrinhoDrawer(); abrirCheckout()">
+             FINALIZAR PEDIDO
+        </button>
+    </footer>
+</div>
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
 
