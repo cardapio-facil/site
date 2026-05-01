@@ -1253,3 +1253,7 @@ window.selecionarTamanho = selecionarTamanho;
 window.toggleItemMontagem = toggleItemMontagem;
 window.atualizarPrecoMontagem = atualizarPrecoMontagem;
 window.verificarHorario = verificarHorario;
+window.aplicarCupom = aplicarCupom;
+window.removerCupom = removerCupom;
+window.atualizarResumoCupom = atualizarResumoCupom;
+window.atualizarTotalCarrinho = atualizarTotalCarrinho;
