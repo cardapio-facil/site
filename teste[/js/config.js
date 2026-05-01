@@ -526,6 +526,123 @@ function mostrarLoader(show) {
     }
 }
 
+// ============================================
+// ===== 🆕 SISTEMA DE CUPONS ================
+// ============================================
+
+const CUPONS_PADRAO = [];
+
+function validarCupom(codigo, subtotalCentavos, userId = null) {
+    const cupom = cupons.find(c => c.codigo === codigo.toUpperCase().trim());
+    
+    if (!cupom) {
+        return { valido: false, erro: 'Cupom não encontrado', mensagem: 'Este cupom não existe. Verifique o código e tente novamente.' };
+    }
+    
+    if (!cupom.ativo) {
+        return { valido: false, erro: 'Cupom inativo', mensagem: 'Este cupom não está mais disponível.' };
+    }
+    
+    if (cupom.dataInicio) {
+        const agora = new Date();
+        const dataInicio = new Date(cupom.dataInicio);
+        if (agora < dataInicio) {
+            return { valido: false, erro: 'Cupom ainda não válido', mensagem: `Este cupom será válido a partir de ${dataInicio.toLocaleDateString('pt-BR')}.` };
+        }
+    }
+    
+    if (cupom.dataExpiracao) {
+        const agora = new Date();
+        const dataExpiracao = new Date(cupom.dataExpiracao);
+        dataExpiracao.setHours(23, 59, 59, 999);
+        if (agora > dataExpiracao) {
+            return { valido: false, erro: 'Cupom expirado', mensagem: 'Este cupom já expirou.' };
+        }
+    }
+    
+    if (cupom.tipoLimiteUso === 'unico' && cupom.usos >= 1) {
+        return { valido: false, erro: 'Cupom já utilizado', mensagem: 'Este cupom já foi utilizado e é de uso único.' };
+    }
+    
+    if (cupom.tipoLimiteUso === 'limitado' && cupom.usos >= cupom.limiteUso) {
+        return { valido: false, erro: 'Limite de usos atingido', mensagem: `Este cupom já foi utilizado ${cupom.limiteUso} vez(es) e atingiu o limite.` };
+    }
+    
+    if (cupom.limitePorUsuario && userId) {
+        const usosDoUsuario = cupom.historicoUso ? cupom.historicoUso.filter(h => h.userId === userId).length : 0;
+        if (usosDoUsuario >= cupom.limitePorUsuario) {
+            return { valido: false, erro: 'Limite por usuário atingido', mensagem: `Você já utilizou este cupom ${cupom.limitePorUsuario} vez(es).` };
+        }
+    }
+    
+    if (cupom.valorMinimoPedido && subtotalCentavos < cupom.valorMinimoPedido) {
+        return { valido: false, erro: 'Valor mínimo não atingido', mensagem: `Pedido mínimo para este cupom: ${formatarPreco(cupom.valorMinimoPedido)}.` };
+    }
+    
+    let descontoCentavos = 0;
+    
+    if (cupom.tipoDesconto === 'percentual') {
+        const percentual = Math.min(cupom.valorDesconto, 100);
+        descontoCentavos = Math.floor(subtotalCentavos * percentual / 100);
+    } else if (cupom.tipoDesconto === 'fixo') {
+        descontoCentavos = cupom.valorDesconto;
+    }
+    
+    if (descontoCentavos > subtotalCentavos) {
+        descontoCentavos = subtotalCentavos;
+    }
+    
+    const totalComDesconto = Math.max(0, subtotalCentavos - descontoCentavos);
+    
+    return {
+        valido: true, cupom: cupom, descontoCentavos: descontoCentavos,
+        subtotalOriginal: subtotalCentavos, subtotalComDesconto: totalComDesconto,
+        mensagem: `Cupom aplicado! Desconto de ${formatarPreco(descontoCentavos)}.`
+    };
+}
+
+function registrarUsoCupom(codigo, userId = null, descontoCentavos = 0, pedidoId = null) {
+    const cupom = cupons.find(c => c.codigo === codigo.toUpperCase().trim());
+    if (!cupom) return false;
+    
+    cupom.usos = (cupom.usos || 0) + 1;
+    if (!cupom.historicoUso) cupom.historicoUso = [];
+    
+    cupom.historicoUso.push({
+        userId: userId || 'anonimo',
+        data: new Date().toISOString(),
+        descontoCentavos: descontoCentavos,
+        pedidoId: pedidoId
+    });
+    
+    salvarCuponsFirebase(cupons);
+    return true;
+}
+
+function formatarDescontoCupom(cupom) {
+    if (cupom.tipoDesconto === 'percentual') {
+        return `${cupom.valorDesconto}%`;
+    } else {
+        return formatarPreco(cupom.valorDesconto);
+    }
+}
+
+function parseValorDesconto(valorStr, tipo) {
+    if (!valorStr) return 0;
+    
+    let valor = valorStr.toString().replace(/R\$/gi, '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.').trim();
+    const isPercentual = valor.includes('%');
+    valor = valor.replace('%', '');
+    
+    const valorFloat = parseFloat(valor);
+    if (isNaN(valorFloat)) return 0;
+    
+    if (tipo === 'percentual') {
+        return Math.min(100, Math.max(0, Math.round(valorFloat)));
+    } else {
+        return floatParaCentavos(valorFloat);
+    }
+}
 
 // ===== EXPOR =====
 window.CUPONS_PADRAO = CUPONS_PADRAO;
