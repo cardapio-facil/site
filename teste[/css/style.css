@@ -2824,3 +2824,22 @@ select:focus {
         visibility: visible !important;
     }
 }
+
+.sidebar h2,
+    .sidebar .item-nome,
+    .sidebar .item-preco,
+    .sidebar .total-carrinho,
+    .sidebar label,
+    .sidebar .carrinho-mobile-qtd,
+    .sidebar .carrinho-mobile-total {
+        color: var(--cor-texto);
+    }
+
+    .sidebar .carrinho-vazio,
+    .sidebar .item-adicionais,
+    .sidebar .item-obs,
+    .sidebar .produto-desc-modal {
+        color: var(--cor-texto-claro);
+    }
+
+}
