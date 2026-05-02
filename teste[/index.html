@@ -59,7 +59,10 @@
     <!-- LADO DIREITO: CARRINHO -->
     <div class="sidebar">
         <h2><i class="fas fa-shopping-cart"></i> Seu Pedido</h2>
-        <button class="fechar-sidebar-mobile" onclick="fecharCarrinhoMobile()" style="display:none;">✕ Fechar</button>
+        <button class="fechar-sidebar-mobile" onclick="fecharCarrinhoMobile()">
+    <span></span>
+    <span></span>
+</button>
         <div id="carrinhoContainer"></div>
 
         
@@ -700,12 +703,20 @@
     </div>
 </div>
 
-  <!-- 🆕 Barra flutuante do carrinho (mobile) -->
+<!-- 🛒 Barra flutuante do carrinho (mobile) -->
 <div id="carrinhoMobileBar" class="carrinho-mobile-bar" onclick="abrirCarrinhoMobile()">
-    <span class="carrinho-mobile-icone">🛒</span>
-    <span id="carrinhoMobileQtd" class="carrinho-mobile-qtd">0 itens</span>
-    <span id="carrinhoMobileTotal" class="carrinho-mobile-total">R$ 0,00</span>
+    <div class="carrinho-mobile-content">
+        <span class="carrinho-mobile-icone">🛒</span>
+        
+        <div class="carrinho-mobile-info">
+            <span id="carrinhoMobileQtd" class="carrinho-mobile-qtd">0 itens</span>
+            <span id="carrinhoMobileTotal" class="carrinho-mobile-total">R$ 0,00</span>
+        </div>
+    </div>
 </div>
+
+<!-- Overlay -->
+<div id="carrinhoMobileOverlay" class="carrinho-mobile-overlay" onclick="fecharCarrinhoMobile()"></div>
     
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
