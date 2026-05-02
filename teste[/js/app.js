@@ -1235,29 +1235,43 @@ function atualizarTotalCarrinho() {
 }
 
 // ============================================
-// 🆕 CARRINHO MOBILE
+// 🆕 CARRINHO MOBILE (DRAWER)
 // ============================================
 
-// Abre o carrinho no mobile
 function abrirCarrinhoMobile() {
     if (carrinho.length === 0) {
         mostrarToast('Carrinho vazio', 'Adicione itens primeiro', 'info');
         return;
     }
 
+    const overlay = document.getElementById('carrinhoMobileOverlay');
     const sidebar = document.querySelector('.sidebar');
+
+    overlay.classList.add('aberto');
     sidebar.classList.add('aberto');
+
     document.body.style.overflow = 'hidden';
+
+    // 🔥 animação suave de entrada
+    sidebar.classList.add('animando');
+    setTimeout(() => sidebar.classList.remove('animando'), 300);
 }
 
-// Fecha o carrinho no mobile
 function fecharCarrinhoMobile() {
+    const overlay = document.getElementById('carrinhoMobileOverlay');
     const sidebar = document.querySelector('.sidebar');
+
+    overlay.classList.remove('aberto');
     sidebar.classList.remove('aberto');
+
     document.body.style.overflow = '';
 }
 
-// Atualiza a barra inferior do carrinho
+
+// ============================================
+// 🔄 ATUALIZAÇÃO DA BARRA
+// ============================================
+
 function atualizarCarrinhoMobileBar() {
     const qtd = carrinho.reduce((total, item) => total + item.quantidade, 0);
 
@@ -1270,18 +1284,39 @@ function atualizarCarrinhoMobileBar() {
         total = Math.max(0, total - cupomAplicado.descontoCentavos);
     }
 
-    document.getElementById('carrinhoMobileQtd').textContent =
-        `${qtd} ${qtd === 1 ? 'item' : 'itens'}`;
-
-    document.getElementById('carrinhoMobileTotal').textContent =
-        formatarPreco(total);
-
+    const elQtd = document.getElementById('carrinhoMobileQtd');
+    const elTotal = document.getElementById('carrinhoMobileTotal');
     const barra = document.getElementById('carrinhoMobileBar');
-    if (barra) {
-        barra.style.display = qtd > 0 ? 'flex' : 'none';
-    }
-}
 
+    if (!elQtd || !elTotal || !barra) return;
+
+    // 🔥 Atualização com transição suave
+    elQtd.style.opacity = 0;
+    elTotal.style.opacity = 0;
+
+    setTimeout(() => {
+        elQtd.textContent = `${qtd} ${qtd === 1 ? 'item' : 'itens'}`;
+        elTotal.textContent = formatarPreco(total);
+
+        elQtd.style.opacity = 1;
+        elTotal.style.opacity = 1;
+    }, 120);
+
+    // 🔥 Mostrar / esconder com animação
+    if (qtd > 0) {
+        barra.style.display = 'flex';
+        barra.classList.add('show');
+    } else {
+        barra.classList.remove('show');
+
+        setTimeout(() => {
+            barra.style.display = 'none';
+        }, 200);
+    }
+
+    // 🔥 Feedback visual (pulse)
+    animarCarrinho();
+}
 
 // ===== EXPOR =====
 window.toggleTema = toggleTema;
