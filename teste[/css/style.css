@@ -2478,8 +2478,6 @@ select:focus {
     background: var(--cor-card);
     color: var(--cor-texto);
     backdrop-filter: blur(12px);
-
-    color: #fff;
     overflow: hidden;
 
     box-shadow: 
@@ -2776,20 +2774,19 @@ select:focus {
     }
 
 
-    /* ===== BARRA MOBILE ===== */
+       /* ===== BARRA MOBILE ===== */
     .carrinho-mobile-bar {
         position: fixed !important;
         bottom: 18px !important;
         left: 16px !important;
         right: 16px !important;
-
         z-index: 997 !important;
+    }
 
+    .carrinho-mobile-bar.show {
         display: flex !important;
-
-        transition:
-            transform 0.3s ease,
-            opacity 0.3s ease;
+        opacity: 1 !important;
+        transform: translateY(0) !important;
     }
 
     /* 🔥 ESCONDE QUANDO ABRE O DRAWER */
@@ -2825,21 +2822,4 @@ select:focus {
     }
 }
 
-.sidebar h2,
-    .sidebar .item-nome,
-    .sidebar .item-preco,
-    .sidebar .total-carrinho,
-    .sidebar label,
-    .sidebar .carrinho-mobile-qtd,
-    .sidebar .carrinho-mobile-total {
-        color: var(--cor-texto);
-    }
 
-    .sidebar .carrinho-vazio,
-    .sidebar .item-adicionais,
-    .sidebar .item-obs,
-    .sidebar .produto-desc-modal {
-        color: var(--cor-texto-claro);
-    }
-
-}
