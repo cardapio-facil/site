@@ -1283,48 +1283,34 @@ function fecharCarrinhoMobile() {
 
 
 function atualizarCarrinhoMobileBar() {
-    const qtd = carrinho.reduce((total, item) => total + item.quantidade, 0);
+    const barra = document.getElementById('carrinhoMobileBar');
+    const elQtd = document.getElementById('carrinhoMobileQtd');
+    const elTotal = document.getElementById('carrinhoMobileTotal');
 
-    let total = carrinho.reduce(
-        (soma, item) => soma + (item.precoUnitario * item.quantidade),
-        0
-    );
+    if (!barra || !elQtd || !elTotal) return;
+
+    // ⬇️ SÓ NO MOBILE
+    const isMobile = window.innerWidth <= 900;
+    if (!isMobile) {
+        barra.classList.remove('show');
+        return;
+    }
+
+    const qtd = carrinho.reduce((total, item) => total + item.quantidade, 0);
+    let total = carrinho.reduce((soma, item) => soma + (item.precoUnitario * item.quantidade), 0);
 
     if (cupomAplicado) {
         total = Math.max(0, total - cupomAplicado.descontoCentavos);
     }
 
-    const elQtd = document.getElementById('carrinhoMobileQtd');
-    const elTotal = document.getElementById('carrinhoMobileTotal');
-    const barra = document.getElementById('carrinhoMobileBar');
-
-    if (!elQtd || !elTotal || !barra) return;
-
-    // ⬇️ SÓ APARECE NO MOBILE (largura <= 900px)
-    const isMobile = window.innerWidth <= 900;
-
-    if (!isMobile) {
-        barra.style.display = 'none';
-        barra.classList.remove('show');
-        return;
-    }
-
-    // Atualizar textos
     elQtd.textContent = `${qtd} ${qtd === 1 ? 'item' : 'itens'}`;
     elTotal.textContent = formatarPreco(total);
 
-    // Mostrar ou esconder
+    // Mostrar ou esconder baseado nos itens
     if (qtd > 0) {
-        barra.style.display = 'flex';
-        barra.offsetHeight;
         barra.classList.add('show');
     } else {
         barra.classList.remove('show');
-        setTimeout(() => {
-            if (carrinho.length === 0) {
-                barra.style.display = 'none';
-            }
-        }, 300);
     }
 }
 
