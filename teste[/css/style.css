@@ -2462,95 +2462,203 @@ select:focus {
     z-index: 10;
 }
 
-/* ============================================ */
-/* 🆕 CARRINHO MOBILE */
-/* ============================================ */
-
+/* =========================
+   BASE
+========================= */
 .carrinho-mobile-bar {
-    display: none;
+    position: fixed;
+    bottom: 18px;
+    left: 16px;
+    right: 16px;
+    z-index: 999;
+
+    border-radius: 16px;
+    padding: 14px 16px;
+
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(12px);
+
+    color: #fff;
+    overflow: hidden;
+
+    box-shadow: 
+        0 10px 30px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+
+    cursor: pointer;
+
+    transform: translateY(100px);
+    opacity: 0;
+
+    animation: slideUp 0.5s ease forwards;
 }
 
-/* ============================================ */
-/* MOBILE */
-/* ============================================ */
-@media (max-width: 900px) {
-
-    /* Sidebar ocupa tela inteira */
-    .sidebar {
-        display: none;
-        position: fixed;
-        inset: 0;
-        z-index: 1002;
-
-        width: 100% !important;
-        max-height: 100vh;
-
-        border-radius: 0;
-        overflow-y: auto;
-        padding-bottom: 100px;
+/* =========================
+   ENTRADA
+========================= */
+@keyframes slideUp {
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
+}
 
-    .sidebar.aberto {
-        display: block;
+/* =========================
+   HOVER / CLICK FEEDBACK
+========================= */
+.carrinho-mobile-bar:active {
+    transform: scale(0.98);
+}
+
+/* =========================
+   LAYOUT
+========================= */
+.carrinho-mobile-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.carrinho-mobile-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.carrinho-mobile-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =========================
+   TEXTO
+========================= */
+.carrinho-mobile-icone {
+    font-size: 20px;
+}
+
+.carrinho-mobile-qtd {
+    font-size: 13px;
+    opacity: 0.75;
+}
+
+.carrinho-mobile-total {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+}
+
+.carrinho-mobile-arrow {
+    font-size: 20px;
+    opacity: 0.6;
+}
+
+/* =========================
+   EFEITO DE BRILHO
+========================= */
+.carrinho-mobile-glow {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.12),
+        transparent
+    );
+
+    animation: brilho 3s infinite;
+}
+
+@keyframes brilho {
+    0% { left: -100%; }
+    100% { left: 120%; }
+}
+
+/* =========================
+   OVERLAY
+========================= */
+.carrinho-mobile-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 998;
+
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(6px);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: all 0.3s ease;
+}
+
+.carrinho-mobile-overlay.ativo {
+    opacity: 1;
+    visibility: visible;
+}
+
+.pulse {
+    animation: pulseAnim 0.3s ease;
+}
+
+@keyframes pulseAnim {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.fechar-sidebar-mobile span {
+    position: absolute;
+    width: 14px;
+    height: 2px;
+    background: white;
+    border-radius: 2px;
+}
+
+.fechar-sidebar-mobile span:first-child {
+    transform: rotate(45deg);
+}
+
+.fechar-sidebar-mobile span:last-child {
+    transform: rotate(-45deg);
+}
+
+/* Entrada do drawer */
+.sidebar.animando {
+    animation: slideDrawer 0.3s ease;
+}
+
+@keyframes slideDrawer {
+    from {
+        transform: translateY(30px);
+        opacity: 0;
     }
-
-    /* Botão de fechar */
-    .fechar-sidebar-mobile {
-        display: block;
-        float: right;
-
-        background: none;
-        border: none;
-
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: var(--cor-texto);
+    to {
+        transform: translateY(0);
+        opacity: 1;
     }
+}
 
-    /* Barra inferior do carrinho */
-    .carrinho-mobile-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
+/* Fade texto */
+#carrinhoMobileQtd,
+#carrinhoMobileTotal {
+    transition: opacity 0.2s ease;
+}
 
-        z-index: 1001;
+/* Mostrar barra suave */
+.carrinho-mobile-bar {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.25s ease;
+}
 
-        display: flex;
-        align-items: center;
-        gap: 12px;
-
-        padding: 10px 15px;
-        padding-bottom: max(10px, env(safe-area-inset-bottom));
-
-        background: linear-gradient(
-            135deg,
-            var(--cor-primaria),
-            var(--cor-secundaria)
-        );
-
-        color: #fff;
-        cursor: pointer;
-
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .carrinho-mobile-icone {
-        font-size: 1.3rem;
-    }
-
-    .carrinho-mobile-qtd {
-        flex: 1;
-        font-weight: 500;
-    }
-
-    .carrinho-mobile-total {
-        font-weight: 800;
-        font-size: 1.1rem;
-    }
-
-    /* Evita sobreposição com a barra */
-    #produtosGrid {
-        padding-bottom: 90px;
-    }
+.carrinho-mobile-bar.show {
+    opacity: 1;
+    transform: translateY(0);
 }
