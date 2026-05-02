@@ -2774,52 +2774,78 @@ select:focus {
     }
 
 
-       /* ===== BARRA MOBILE ===== */
-    .carrinho-mobile-bar {
-        position: fixed !important;
-        bottom: 18px !important;
-        left: 16px !important;
-        right: 16px !important;
-        z-index: 997 !important;
-    }
+/* =========================
+   BASE - BARRA MOBILE
+========================= */
+.carrinho-mobile-bar {
+    position: fixed;
+    bottom: 18px;
+    left: 16px;
+    right: 16px;
+    z-index: 997;
 
-    .carrinho-mobile-bar.show {
-        display: flex !important;
-        opacity: 1 !important;
-        transform: translateY(0) !important;
-    }
+    border-radius: 16px;
+    padding: 14px 16px;
 
-    /* 🔥 ESCONDE QUANDO ABRE O DRAWER */
-    .sidebar.aberto ~ .carrinho-mobile-bar {
+    background: var(--cor-card);
+    color: var(--cor-texto);
+    backdrop-filter: blur(12px);
+    overflow: hidden;
+
+    box-shadow: 
+        0 10px 30px rgba(0,0,0,0.35),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+
+    cursor: pointer;
+
+    /* ⬇️ COMEÇA INVISÍVEL */
+    display: none;
+    opacity: 0;
+    transform: translateY(100px);
+    
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* =========================
+   VISÍVEL (APÓS 1º ITEM)
+========================= */
+.carrinho-mobile-bar.show {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0);
+    animation: slideUpMobile 0.4s ease forwards;
+}
+
+@keyframes slideUpMobile {
+    from {
         opacity: 0;
-        transform: translateY(20px);
-        pointer-events: none;
+        transform: translateY(30px);
     }
-
-    .carrinho-mobile-bar.show,
-    .carrinho-mobile-bar[style*="display: flex"] {
-        opacity: 1 !important;
-        transform: translateY(0) !important;
-    }
-
-
-    /* ===== OVERLAY ===== */
-    .carrinho-mobile-overlay {
-        display: block !important;
-
-        background: rgba(0,0,0,0.55);
-        backdrop-filter: blur(6px);
-
-        opacity: 0;
-        visibility: hidden;
-
-        transition: all 0.3s ease;
-    }
-
-    .carrinho-mobile-overlay.aberto {
-        opacity: 1 !important;
-        visibility: visible !important;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
+/* =========================
+   OVERLAY
+========================= */
+.carrinho-mobile-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 998;
+
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+
+    opacity: 0;
+    visibility: hidden;
+
+    transition: all 0.3s ease;
+}
+
+.carrinho-mobile-overlay.aberto {
+    opacity: 1;
+    visibility: visible;
+}
 
