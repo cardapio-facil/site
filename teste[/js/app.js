@@ -64,17 +64,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     renderizarTodasCategorias();
     renderizarProdutos();
-    // ✅ ADICIONE AQUI
     setTimeout(() => {
-        atualizarCarrinhoMobileBar();
-        // Forçar barra visível inicialmente
-        const barra = document.getElementById('carrinhoMobileBar');
-        if (barra) {
-            barra.style.display = 'flex';
-            barra.offsetHeight;
-            barra.classList.add('show');
-        }
-    }, 500);
+    atualizarCarrinhoMobileBar();
+}, 500);
     renderizarCarrinho();
     verificarHorario();
     setupAtalhoSecreto();
