@@ -1352,4 +1352,7 @@ window.verificarHorario = verificarHorario;
 window.aplicarCupom = aplicarCupom;
 window.removerCupom = removerCupom;
 window.atualizarResumoCupom = atualizarResumoCupom;
-atualizarCarrinhoMobileBar();
+window.abrirCarrinhoMobile = abrirCarrinhoMobile;
+window.fecharCarrinhoMobile = fecharCarrinhoMobile;
+window.atualizarCarrinhoMobileBar = atualizarCarrinhoMobileBar;
+
