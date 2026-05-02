@@ -64,6 +64,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     renderizarTodasCategorias();
     renderizarProdutos();
+    // ✅ ADICIONE AQUI
+    setTimeout(() => {
+        atualizarCarrinhoMobileBar();
+        // Forçar barra visível inicialmente
+        const barra = document.getElementById('carrinhoMobileBar');
+        if (barra) {
+            barra.style.display = 'flex';
+            barra.offsetHeight;
+            barra.classList.add('show');
+        }
+    }, 500);
     renderizarCarrinho();
     verificarHorario();
     setupAtalhoSecreto();
@@ -1279,10 +1290,6 @@ function fecharCarrinhoMobile() {
 }
 
 
-// ============================================
-// 🔄 ATUALIZAÇÃO DA BARRA
-// ============================================
-
 function atualizarCarrinhoMobileBar() {
     const qtd = carrinho.reduce((total, item) => total + item.quantidade, 0);
 
@@ -1301,32 +1308,24 @@ function atualizarCarrinhoMobileBar() {
 
     if (!elQtd || !elTotal || !barra) return;
 
-    // 🔥 Atualização com transição suave
-    elQtd.style.opacity = 0;
-    elTotal.style.opacity = 0;
+    // Atualizar textos
+    elQtd.textContent = `${qtd} ${qtd === 1 ? 'item' : 'itens'}`;
+    elTotal.textContent = formatarPreco(total);
 
-    setTimeout(() => {
-        elQtd.textContent = `${qtd} ${qtd === 1 ? 'item' : 'itens'}`;
-        elTotal.textContent = formatarPreco(total);
-
-        elQtd.style.opacity = 1;
-        elTotal.style.opacity = 1;
-    }, 120);
-
-    // 🔥 Mostrar / esconder com animação
+    // Mostrar ou esconder
     if (qtd > 0) {
         barra.style.display = 'flex';
+        // Forçar reflow para animação
+        barra.offsetHeight;
         barra.classList.add('show');
     } else {
         barra.classList.remove('show');
-
         setTimeout(() => {
-            barra.style.display = 'none';
-        }, 200);
+            if (carrinho.length === 0) {
+                barra.style.display = 'none';
+            }
+        }, 300);
     }
-
-    // 🔥 Feedback visual (pulse)
-    animarCarrinho();
 }
 
 // ===== EXPOR =====
