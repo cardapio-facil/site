@@ -2462,207 +2462,6 @@ select:focus {
     z-index: 10;
 }
 
-/* =========================
-   BASE
-========================= */
-.carrinho-mobile-bar {
-    position: fixed;
-    bottom: 18px;
-    left: 16px;
-    right: 16px;
-    z-index: 999;
-
-    border-radius: 16px;
-    padding: 14px 16px;
-
-    background: var(--cor-card);
-    color: var(--cor-texto);
-    backdrop-filter: blur(12px);
-    overflow: hidden;
-
-    box-shadow: 
-        0 10px 30px rgba(0,0,0,0.35),
-        inset 0 1px 0 rgba(255,255,255,0.05);
-
-    cursor: pointer;
-
-    transform: translateY(100px);
-    opacity: 0;
-
-    animation: slideUp 0.5s ease forwards;
-}
-
-/* =========================
-   ENTRADA
-========================= */
-@keyframes slideUp {
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-/* =========================
-   HOVER / CLICK FEEDBACK
-========================= */
-.carrinho-mobile-bar:active {
-    transform: scale(0.98);
-}
-
-/* =========================
-   LAYOUT
-========================= */
-.carrinho-mobile-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-}
-
-.carrinho-mobile-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.carrinho-mobile-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-left: auto;
-}
-
-/* =========================
-   TEXTO
-========================= */
-.carrinho-mobile-icone {
-    font-size: 20px;
-}
-
-.carrinho-mobile-qtd {
-    font-size: 13px;
-    opacity: 0.75;
-}
-
-.carrinho-mobile-total {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-}
-
-.carrinho-mobile-arrow {
-    font-size: 20px;
-    opacity: 0.6;
-}
-
-/* =========================
-   EFEITO DE BRILHO
-========================= */
-.carrinho-mobile-glow {
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 60%;
-    height: 100%;
-
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255,255,255,0.12),
-        transparent
-    );
-
-    animation: brilho 3s infinite;
-}
-
-@keyframes brilho {
-    0% { left: -100%; }
-    100% { left: 120%; }
-}
-
-/* =========================
-   OVERLAY
-========================= */
-.carrinho-mobile-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 998;
-
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(6px);
-
-    opacity: 0;
-    visibility: hidden;
-
-    transition: all 0.3s ease;
-}
-
-.carrinho-mobile-overlay.ativo {
-    opacity: 1;
-    visibility: visible;
-}
-
-.pulse {
-    animation: pulseAnim 0.3s ease;
-}
-
-@keyframes pulseAnim {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-.fechar-sidebar-mobile span {
-    position: absolute;
-    width: 14px;
-    height: 2px;
-    background: white;
-    border-radius: 2px;
-}
-
-.fechar-sidebar-mobile span:first-child {
-    transform: rotate(45deg);
-}
-
-.fechar-sidebar-mobile span:last-child {
-    transform: rotate(-45deg);
-}
-
-/* Entrada do drawer */
-.sidebar.animando {
-    animation: slideDrawer 0.3s ease;
-}
-
-@keyframes slideDrawer {
-    from {
-        transform: translateY(30px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
-
-/* Fade texto */
-#carrinhoMobileQtd,
-#carrinhoMobileTotal {
-    transition: opacity 0.2s ease;
-}
-
-/* Mostrar barra suave */
-.carrinho-mobile-bar {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: all 0.25s ease;
-}
-
-.carrinho-mobile-bar.show {
-    opacity: 1;
-    transform: translateY(0);
-}
-
 /* ===== DRAWER MOBILE DO CARRINHO ===== */
 @media (max-width: 900px) {
 
@@ -2674,25 +2473,25 @@ select:focus {
         top: auto !important;
         z-index: 999 !important;
 
-        max-height: 75vh;
+        max-height: 78vh;
         overflow-y: auto;
 
         border-radius: 22px 22px 0 0 !important;
 
         background: var(--cor-card);
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
 
         box-shadow:
-            0 -12px 40px rgba(0,0,0,0.45),
-            inset 0 1px 0 rgba(255,255,255,0.05);
+            0 -16px 50px rgba(0,0,0,0.5),
+            inset 0 1px 0 rgba(255,255,255,0.06);
 
-        /* 🔥 MAIS SUAVE */
         transform: translateY(110%);
         opacity: 0;
         visibility: hidden;
 
         transition:
-            transform 0.4s cubic-bezier(.22,.8,.25,1),
+            transform 0.45s cubic-bezier(.22,.8,.25,1),
             opacity 0.25s ease,
             visibility 0.25s;
 
@@ -2705,13 +2504,13 @@ select:focus {
         visibility: visible !important;
     }
 
-    /* 🔥 BARRINHA DE ARRASTE (UX DE APP) */
+    /* 🔥 Barra de arraste (UX de app) */
     .sidebar::before {
         content: "";
-        width: 40px;
+        width: 42px;
         height: 4px;
         border-radius: 4px;
-        background: rgba(255,255,255,0.3);
+        background: rgba(255,255,255,0.25);
 
         position: absolute;
         top: 8px;
@@ -2719,21 +2518,20 @@ select:focus {
         transform: translateX(-50%);
     }
 
-
     /* ===== BOTÃO FECHAR ===== */
     .fechar-sidebar-mobile {
         display: flex !important;
         align-items: center;
         justify-content: center;
 
-        width: 36px;
-        height: 36px;
+        width: 38px;
+        height: 38px;
 
         border: none;
         border-radius: 50%;
 
         background: rgba(255,255,255,0.08);
-        backdrop-filter: blur(6px);
+        backdrop-filter: blur(8px);
 
         position: absolute;
         top: 14px;
@@ -2745,17 +2543,17 @@ select:focus {
         transition: all 0.25s ease;
 
         box-shadow:
-            0 4px 12px rgba(0,0,0,0.3),
+            0 6px 16px rgba(0,0,0,0.35),
             inset 0 1px 0 rgba(255,255,255,0.05);
     }
 
     .fechar-sidebar-mobile:hover {
         transform: rotate(90deg);
-        background: rgba(255,255,255,0.15);
+        background: rgba(255,255,255,0.18);
     }
 
     .fechar-sidebar-mobile:active {
-        transform: scale(0.9);
+        transform: scale(0.88);
     }
 
     .fechar-sidebar-mobile span {
@@ -2774,79 +2572,157 @@ select:focus {
         transform: rotate(-45deg);
     }
 
+    /* ===== BARRA MOBILE ===== */
+    .carrinho-mobile-bar {
+        position: fixed;
+        bottom: 18px;
+        left: 16px;
+        right: 16px;
 
-/* =========================
-   BASE - BARRA MOBILE
-========================= */
-.carrinho-mobile-bar {
-    position: fixed;
-    bottom: 18px;
-    left: 16px;
-    right: 16px;
-    z-index: 997;
+        z-index: 997;
 
-    border-radius: 16px;
-    padding: 14px 16px;
+        border-radius: 18px;
+        padding: 14px 16px;
 
-    background: var(--cor-card);
-    color: var(--cor-texto);
-    backdrop-filter: blur(12px);
-    overflow: hidden;
+        background: var(--cor-card);
+        color: var(--cor-texto);
 
-    box-shadow: 
-        0 10px 30px rgba(0,0,0,0.35),
-        inset 0 1px 0 rgba(255,255,255,0.05);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
 
-    cursor: pointer;
+        overflow: hidden;
 
-    /* ⬇️ COMEÇA INVISÍVEL */
-    display: none;
-    opacity: 0;
-    transform: translateY(100px);
-    
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
+        box-shadow:
+            0 12px 35px rgba(0,0,0,0.4),
+            0 3px 8px rgba(0,0,0,0.2),
+            inset 0 1px 0 rgba(255,255,255,0.06);
 
-/* =========================
-   VISÍVEL (APÓS 1º ITEM)
-========================= */
-.carrinho-mobile-bar.show {
-    display: flex;
-    opacity: 1;
-    transform: translateY(0);
-    animation: slideUpMobile 0.4s ease forwards;
-}
+        cursor: pointer;
 
-@keyframes slideUpMobile {
-    from {
+        display: none;
         opacity: 0;
-        transform: translateY(30px);
+        transform: translateY(80px) scale(0.98);
+
+        transition:
+            transform 0.35s cubic-bezier(.22,.8,.25,1),
+            opacity 0.3s ease;
     }
-    to {
+
+    .carrinho-mobile-bar.show {
+        display: flex;
         opacity: 1;
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
+
+        animation: slideUpMobile 0.45s cubic-bezier(.22,.8,.25,1);
+    }
+
+    @keyframes slideUpMobile {
+        from {
+            opacity: 0;
+            transform: translateY(40px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    /* 🔥 comportamento profissional */
+    .sidebar.aberto ~ .carrinho-mobile-bar {
+        opacity: 0;
+        transform: translateY(20px);
+        pointer-events: none;
+    }
+
+    /* ===== CONTEÚDO ===== */
+    .carrinho-mobile-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        position: relative;
+        z-index: 2;
+    }
+
+    .carrinho-mobile-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .carrinho-mobile-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-left: auto;
+    }
+
+    .carrinho-mobile-icone {
+        font-size: 19px;
+    }
+
+    .carrinho-mobile-qtd {
+        font-size: 13px;
+        opacity: 0.75;
+    }
+
+    .carrinho-mobile-total {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.4px;
+    }
+
+    .carrinho-mobile-arrow {
+        font-size: 18px;
+        opacity: 0.6;
+        transition: transform 0.25s ease;
+    }
+
+    /* 🔥 microinteração */
+    .carrinho-mobile-bar:active .carrinho-mobile-arrow {
+        transform: translateX(5px);
+    }
+
+    /* ===== GLOW MAIS PREMIUM ===== */
+    .carrinho-mobile-glow {
+        position: absolute;
+        top: 0;
+        left: -120%;
+        width: 70%;
+        height: 100%;
+
+        background: linear-gradient(
+            120deg,
+            transparent,
+            rgba(255,255,255,0.08),
+            transparent
+        );
+
+        animation: brilho 3.5s ease-in-out infinite;
+    }
+
+    @keyframes brilho {
+        0% { left: -120%; }
+        100% { left: 130%; }
+    }
+
+    /* ===== OVERLAY ===== */
+    .carrinho-mobile-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 998;
+
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(8px);
+
+        opacity: 0;
+        visibility: hidden;
+
+        transition: all 0.3s ease;
+    }
+
+    .carrinho-mobile-overlay.aberto {
+        opacity: 1;
+        visibility: visible;
     }
 }
-
-/* =========================
-   OVERLAY
-========================= */
-.carrinho-mobile-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 998;
-
-    background: rgba(0,0,0,0.55);
-    backdrop-filter: blur(6px);
-
-    opacity: 0;
-    visibility: hidden;
-
-    transition: all 0.3s ease;
-}
-
-.carrinho-mobile-overlay.aberto {
-    opacity: 1;
-    visibility: visible;
-}
-
