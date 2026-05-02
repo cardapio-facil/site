@@ -67,7 +67,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderizarCarrinho();
     verificarHorario();
     setupAtalhoSecreto();
-    
+
+    let isMobile = window.innerWidth <= 900;
+    window.addEventListener('resize', () => {
+        const agoraMobile = window.innerWidth <= 900;
+        if (agoraMobile !== isMobile) {
+            isMobile = agoraMobile;
+            if (isMobile) {
+                fecharCarrinhoMobile();
+            }
+        }
+    });
+    window.addEventListener('orientationchange', fecharCarrinhoMobile);
     setInterval(verificarHorario, 60000);
 });
 
