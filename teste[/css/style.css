@@ -2475,7 +2475,8 @@ select:focus {
     border-radius: 16px;
     padding: 14px 16px;
 
-    background: rgba(20, 20, 20, 0.85);
+    background: var(--cor-card);
+    color: var(--cor-texto);
     backdrop-filter: blur(12px);
 
     color: #fff;
@@ -2679,7 +2680,7 @@ select:focus {
 
         border-radius: 22px 22px 0 0 !important;
 
-        background: rgba(20,20,20,0.95);
+        background: var(--cor-card);
         backdrop-filter: blur(12px);
 
         box-shadow:
