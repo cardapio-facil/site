@@ -704,13 +704,16 @@
 </div>
 
 <!-- 🛒 Barra flutuante do carrinho (mobile) -->
-<div id="carrinhoMobileBar" class="carrinho-mobile-bar" onclick="abrirCarrinhoMobile()">
+<div id="carrinhoMobileBar" class="carrinho-mobile-bar show" onclick="abrirCarrinhoMobile()" style="display: flex;">
+    <div class="carrinho-mobile-glow"></div>
     <div class="carrinho-mobile-content">
-        <span class="carrinho-mobile-icone">🛒</span>
-        
-        <div class="carrinho-mobile-info">
+        <div class="carrinho-mobile-left">
+            <span class="carrinho-mobile-icone">🛒</span>
             <span id="carrinhoMobileQtd" class="carrinho-mobile-qtd">0 itens</span>
+        </div>
+        <div class="carrinho-mobile-right">
             <span id="carrinhoMobileTotal" class="carrinho-mobile-total">R$ 0,00</span>
+            <span class="carrinho-mobile-arrow">›</span>
         </div>
     </div>
 </div>
