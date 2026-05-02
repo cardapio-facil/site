@@ -1300,6 +1300,15 @@ function atualizarCarrinhoMobileBar() {
 
     if (!elQtd || !elTotal || !barra) return;
 
+    // ⬇️ SÓ APARECE NO MOBILE (largura <= 900px)
+    const isMobile = window.innerWidth <= 900;
+
+    if (!isMobile) {
+        barra.style.display = 'none';
+        barra.classList.remove('show');
+        return;
+    }
+
     // Atualizar textos
     elQtd.textContent = `${qtd} ${qtd === 1 ? 'item' : 'itens'}`;
     elTotal.textContent = formatarPreco(total);
@@ -1307,7 +1316,6 @@ function atualizarCarrinhoMobileBar() {
     // Mostrar ou esconder
     if (qtd > 0) {
         barra.style.display = 'flex';
-        // Forçar reflow para animação
         barra.offsetHeight;
         barra.classList.add('show');
     } else {
