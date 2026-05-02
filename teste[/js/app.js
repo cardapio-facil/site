@@ -908,7 +908,7 @@ function renderizarCarrinho() {
                     <button class="quantidade-btn" onclick="alterarQuantidade(${idx}, 1)">+</button>
                 </div>
                 <div class="item-actions">
-                    ${item.tipo === 'produto' ? `<button class="btn-editar-item" onclick="editarItemCarrinho(${idx})"><i class="fas fa-edit"></i></button>` : ''}
+                    <button class="btn-editar-item" onclick="editarItemCarrinho(${idx})"><i class="fas fa-edit"></i></button>
                     <button class="btn-duplicar-item" onclick="duplicarItemCarrinho(${idx})"><i class="fas fa-copy"></i></button>
                     <button class="btn-remover-item" onclick="removerItemCarrinho(${idx})"><i class="fas fa-trash"></i></button>
                 </div>
