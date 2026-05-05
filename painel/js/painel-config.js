@@ -22,28 +22,28 @@ const CONFIG_PAINEL = {
 
     intervaloCronometro: 10,
 
-    mensagens: {
-        preparando: {
-            ativo: true,
-            prefixo: '{NOME_RESTAURANTE} - Seu pedido #{NUMERO} esta sendo preparado!\n\n'
-        },
-        saiu_entrega: {
-            ativo: true,
-            prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} saiu para entrega!\n\n'
-        },
-        confirmado: {
-            ativo: false,
-            prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} confirmado!\n\n'
-        },
-        entregue: {
-            ativo: false,
-            prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} entregue!\n\n'
-        },
-        cancelado: {
-            ativo: false,
-            prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} cancelado.\n\n'
-        }
+  mensagens: {
+    preparando: {
+        ativo: true,
+        prefixo: '{NOME_RESTAURANTE} - Seu pedido #{NUMERO} esta sendo preparado!\n\n'
     },
+    saiu_entrega: {          // ← alterado de saiuEntrega para saiu_entrega
+        ativo: true,
+        prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} saiu para entrega!\n\n'
+    },
+    confirmado: {
+        ativo: false,
+        prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} confirmado!\n\n'
+    },
+    entregue: {
+        ativo: false,
+        prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} entregue!\n\n'
+    },
+    cancelado: {
+        ativo: false,
+        prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} cancelado.\n\n'
+    }
+},
 
     tempoEstimado: '60-120 min',
 
