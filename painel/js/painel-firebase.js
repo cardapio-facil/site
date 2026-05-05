@@ -1,157 +1,90 @@
 // ============================================
-// ===== CONFIGURAÇÕES DO PAINEL ==============
+// ===== CONEXÃO FIREBASE DO PAINEL ===========
 // ============================================
 
-const CONFIG_PAINEL = {
-    // Identificação (mesmo ID do site de delivery)
-    restauranteId: RESTAURANTE_ID || 'deliverypro',
-    nomeRestaurante: NOME_RESTAURANTE || 'Delivery Pro',
-    
-    // Logo padrão (fallback)
-    logoUrl: LOGO_PADRAO || 'https://png.pngtree.com/png-clipart/20200727/original/pngtree-pin-food-delivery-map-location-delivery-logo-concept-png-image_5137624.jpg',
-    
-    // Firebase (mesma config do site - será sobrescrita pelo firebase.js)
-    firebase: {
-        apiKey: "AIzaSyDjJG3qD1OhPJ_N-mfzH-ChMvHAez6XsGc",
-        authDomain: "graus-38cce.firebaseapp.com",
-        databaseURL: "https://graus-38cce-default-rtdb.firebaseio.com",
-        projectId: "graus-38cce",
-        storageBucket: "graus-38cce.firebasestorage.app",
-        messagingSenderId: "167323638749",
-        appId: "1:167323638749:web:6675d3d1edec31096b7434"
-    },
-    
-    // 🔐 Senhas padrão (serão sincronizadas com Firebase config.senhaMaster / config.senhaView)
-    senhaMasterPadrao: '123',
-    senhaViewPadrao: 'view123',
-    
-    // 🕐 Intervalo do cronômetro (em minutos)
-    intervaloCronometro: 10,
-    
-    // 📲 Configuração de mensagens WhatsApp
-    mensagens: {
-        preparando: {
-            ativo: true,
-            prefixo: '{NOME_RESTAURANTE} - Seu pedido #{NUMERO} esta sendo preparado!\n\n'
-        },
-        saiuEntrega: {
-            ativo: true,
-            prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} saiu para entrega!\n\n'
-        },
-        confirmado: {
-            ativo: false,
-            prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} confirmado!\n\n'
-        },
-        entregue: {
-            ativo: false,
-            prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} entregue!\n\n'
-        },
-        cancelado: {
-            ativo: false,
-            prefixo: '{NOME_RESTAURANTE} - Pedido #{NUMERO} cancelado.\n\n'
+firebase.initializeApp(CONFIG_PAINEL.firebase);
+const database = firebase.database();
+const dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
+
+// ===== CARREGAR DADOS INICIAIS =====
+async function carregarDadosPainel() {
+    try {
+        console.log('📥 Carregando dados do Firebase...');
+        const snapshot = await dbRef.once('value');
+        const data = snapshot.val() || {};
+
+        if (data.config) {
+            if (data.config.nomeRestaurante) CONFIG_PAINEL.nomeRestaurante = data.config.nomeRestaurante;
+            if (data.config.logoUrl) CONFIG_PAINEL.logoUrl = data.config.logoUrl;
+            if (data.config.senhaMaster) CONFIG_PAINEL.senhaMasterPadrao = data.config.senhaMaster;
+            if (data.config.senhaView) CONFIG_PAINEL.senhaViewPadrao = data.config.senhaView;
+            if (data.config.mensagens) CONFIG_PAINEL.mensagens = { ...CONFIG_PAINEL.mensagens, ...data.config.mensagens };
+            if (data.config.tempoEstimado) CONFIG_PAINEL.tempoEstimado = data.config.tempoEstimado;
         }
-    },
-    
-    // ⏰ Tempo estimado de preparo (aparece na mensagem)
-    tempoEstimado: '60-120 min',
-    
-    // 🔄 Fluxo de status
-    fluxoStatus: ['novo', 'confirmado', 'preparando', 'saiu_entrega', 'entregue'],
-    
-    // 🎨 Cores dos status
-    coresStatus: {
-        novo: '#4CAF50',
-        confirmado: '#2196F3',
-        preparando: '#FFC107',
-        saiu_entrega: '#FF9800',
-        entregue: '#9C27B0',
-        cancelado: '#dc3545'
+
+        console.log('✅ Dados carregados:', {
+            nome: CONFIG_PAINEL.nomeRestaurante,
+            pedidos: data.pedidos ? Object.keys(data.pedidos).length + ' pedidos' : 'nenhum'
+        });
+
+        return data;
+    } catch (error) {
+        console.error('❌ Erro ao carregar dados:', error);
+        return {};
     }
-};
-
-// ============================================
-// ===== FUNÇÕES AUXILIARES ==================
-// ============================================
-
-function formatarPrecoPainel(centavos) {
-    if (centavos === null || centavos === undefined) return 'R$ 0,00';
-    return new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-    }).format(centavos / 100);
 }
 
-function formatarDataHora(timestamp) {
-    if (!timestamp) return '---';
-    const data = new Date(timestamp);
-    return data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+function ouvirPedidosPainel(callback) {
+    dbRef.child('pedidos').on('value', (snapshot) => {
+        const pedidos = snapshot.val();
+        if (pedidos) {
+            const lista = Object.values(pedidos);
+            lista.sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+            callback(lista);
+        } else {
+            callback([]);
+        }
+    });
 }
 
-function formatarHora(timestamp) {
-    if (!timestamp) return '---';
-    const data = new Date(timestamp);
-    return data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+async function atualizarStatusPedidoPainel(pedidoId, novoStatus) {
+    try {
+        const ref = dbRef.child('pedidos/' + pedidoId);
+        await ref.child('status').set(novoStatus);
+        await ref.child('statusHistorico').push({
+            status: novoStatus,
+            em: firebase.database.ServerValue.TIMESTAMP,
+            por: 'painel'
+        });
+        await ref.child('atualizadoEm').set(firebase.database.ServerValue.TIMESTAMP);
+        if (novoStatus === 'preparando') await ref.child('inicioPreparo').set(firebase.database.ServerValue.TIMESTAMP);
+        if (novoStatus === 'saiu_entrega') await ref.child('saidaEntrega').set(firebase.database.ServerValue.TIMESTAMP);
+        console.log(`✅ Status do pedido ${pedidoId} atualizado para: ${novoStatus}`);
+        return true;
+    } catch (error) {
+        console.error('❌ Erro ao atualizar status:', error);
+        return false;
+    }
 }
 
-function formatarData(timestamp) {
-    if (!timestamp) return '---';
-    const data = new Date(timestamp);
-    return data.toLocaleDateString('pt-BR');
+async function buscarPedidoPainel(pedidoId) {
+    try {
+        const snap = await dbRef.child('pedidos/' + pedidoId).once('value');
+        return snap.val() || null;
+    } catch (error) {
+        console.error('Erro ao buscar pedido:', error);
+        return null;
+    }
 }
 
-function formatarTempoPreparo(minutos) {
-    if (minutos < 1) return 'menos de 1 min';
-    if (minutos < 10) return 'menos de 10 min';
-    if (minutos < 60) return `${minutos} min`;
-    const horas = Math.floor(minutos / 60);
-    const mins = minutos % 60;
-    if (mins === 0) return `${horas}h`;
-    return `${horas}h ${mins}min`;
+function pararOuvirPedidos() {
+    dbRef.child('pedidos').off('value');
 }
 
-function getStatusLabel(status) {
-    const labels = {
-        'novo': 'Novo',
-        'confirmado': 'Confirmado',
-        'preparando': 'Preparando',
-        'saiu_entrega': 'Saiu para Entrega',
-        'entregue': 'Entregue',
-        'cancelado': 'Cancelado'
-    };
-    return labels[status] || status;
-}
-
-function getBadgeClass(status) {
-    const classes = {
-        'novo': 'badge-novo',
-        'confirmado': 'badge-confirmado',
-        'preparando': 'badge-preparando',
-        'saiu_entrega': 'badge-saiu',
-        'entregue': 'badge-entregue',
-        'cancelado': 'badge-cancelado'
-    };
-    return classes[status] || '';
-}
-
-function getStatusClass(status) {
-    const classes = {
-        'novo': 'novo',
-        'confirmado': 'confirmado',
-        'preparando': 'preparando',
-        'saiu_entrega': 'saiu',
-        'entregue': 'entregue',
-        'cancelado': 'cancelado'
-    };
-    return classes[status] || '';
-}
-
-// ===== EXPOR =====
-window.CONFIG_PAINEL = CONFIG_PAINEL;
-window.formatarPrecoPainel = formatarPrecoPainel;
-window.formatarDataHora = formatarDataHora;
-window.formatarHora = formatarHora;
-window.formatarData = formatarData;
-window.formatarTempoPreparo = formatarTempoPreparo;
-window.getStatusLabel = getStatusLabel;
-window.getBadgeClass = getBadgeClass;
-window.getStatusClass = getStatusClass;
+window.dbRef = dbRef;
+window.database = database;
+window.carregarDadosPainel = carregarDadosPainel;
+window.ouvirPedidosPainel = ouvirPedidosPainel;
+window.atualizarStatusPedidoPainel = atualizarStatusPedidoPainel;
+window.buscarPedidoPainel = buscarPedidoPainel;
+window.pararOuvirPedidos = pararOuvirPedidos;
