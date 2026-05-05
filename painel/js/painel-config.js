@@ -47,7 +47,7 @@ const CONFIG_PAINEL = {
 
     tempoEstimado: '60-120 min',
 
-    fluxoStatus: ['novo', 'confirmado', 'preparando', 'saiu_entrega', 'entregue'],
+   fluxoStatus: ['novo', 'preparando', 'saiu_entrega', 'entregue'],
 
     coresStatus: {
         novo: '#4CAF50',
