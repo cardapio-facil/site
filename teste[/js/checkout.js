@@ -733,12 +733,7 @@ function carregarDadosCliente() {
     }
 }
 
-// ============================================
-// ===== CONFIRMAR PEDIDO ====================
-// ============================================
-
 async function confirmarPedido() {
-    // 🆕 Verificação final de horário
     const statusLoja = verificarStatusLoja();
     if (!statusLoja.aberto) {
         mostrarToast('Restaurante fechado!', 'Não é possível finalizar o pedido no momento.', 'erro');
@@ -787,10 +782,7 @@ async function confirmarPedido() {
             bairro: bairro,
             cidade: document.getElementById('checkoutCidade').value,
             complemento: document.getElementById('checkoutComplemento').value,
-            geo: {
-                lat: null,
-                lng: null
-            }
+            geo: { lat: null, lng: null }
         };
     }
     
@@ -798,12 +790,12 @@ async function confirmarPedido() {
     const troco = pagamento === 'dinheiro' 
         ? floatParaCentavos(parseFloat(document.getElementById('checkoutTroco').value) || 0)
         : null;
-    // Cole isso ANTES de: const itens = carrinho.map(item => {
+
     console.log('🔍 CARRINHO COMPLETO:', JSON.stringify(carrinho, null, 2));
+
     const itens = carrinho.map(item => {
         const precoUnitarioCentavos = item.precoUnitario;
         const totalItemCentavos = precoUnitarioCentavos * item.quantidade;
-        
         const itemBase = {
             itemId: item.id,
             tipo: item.tipo || 'produto',
@@ -821,17 +813,14 @@ async function confirmarPedido() {
                     itemId: i.itemId
                 })) || []
             };
-            
             itemBase.snapshot = {
                 nome: item.nome,
                 categoria: montagens.find(m => m.id === item.produtoId)?.categoria || '',
-                precoBase: floatParaCentavos(
-                    montagens.find(m => m.id === item.produtoId)?.precoBase || 0
-                ),
+                precoBase: montagens.find(m => m.id === item.produtoId)?.precoBase || 0,
                 tamanho: item.montagemDetalhes?.tamanho ? {
                     id: item.montagemDetalhes.tamanho.id,
                     nome: item.montagemDetalhes.tamanho.nome,
-                    preco: floatParaCentavos(item.montagemDetalhes.tamanho.preco || 0)
+                    preco: item.montagemDetalhes.tamanho.preco || 0    // ← SEM floatParaCentavos
                 } : null,
                 grupos: montagens.find(m => m.id === item.produtoId)?.grupos?.map(grupo => {
                     const itensDoGrupo = item.montagemDetalhes?.itens
@@ -841,153 +830,110 @@ async function confirmarPedido() {
                             return {
                                 id: i.itemId,
                                 nome: itemOriginal?.nome || i.nome,
-                                preco: floatParaCentavos(itemOriginal?.preco || i.preco || 0)
+                                preco: itemOriginal?.preco || i.preco || 0   // ← SEM floatParaCentavos
                             };
                         }) || [];
-                    
-                    return {
-                        nome: grupo.nome,
-                        itens: itensDoGrupo
-                    };
+                    return { nome: grupo.nome, itens: itensDoGrupo };
                 }).filter(g => g.itens.length > 0) || [],
                 observacao: item.observacao || ''
             };
         } else if (item.sabores && item.sabores.length > 0) {
             const produtoBase = produtos.find(p => p.id === item.produtoId);
-            
             itemBase.refs = {
                 produtoId: item.produtoId,
                 saboresIds: item.sabores.map(s => s.id)
             };
-            
             itemBase.snapshot = {
                 nome: item.nome,
                 categoria: produtoBase?.categoria || 'pizza',
-                precoBase: floatParaCentavos(produtoBase?.preco || 0),
+                precoBase: produtoBase?.preco || 0,
                 sabores: item.sabores.map(s => ({
                     id: s.id,
                     nome: s.nome,
-                    preco: floatParaCentavos(s.preco)
+                    preco: s.preco   // ← SEM floatParaCentavos
                 })),
                 adicionais: item.adicionais?.map(a => ({
                     nome: a.nome,
-                    preco: floatParaCentavos(a.preco)
+                    preco: a.preco   // ← SEM floatParaCentavos
                 })) || [],
                 observacao: item.observacao || ''
             };
         } else {
             const produtoBase = produtos.find(p => p.id === item.produtoId);
-            
-            itemBase.refs = {
-                produtoId: item.produtoId
-            };
-            
+            itemBase.refs = { produtoId: item.produtoId };
             itemBase.snapshot = {
                 nome: item.nome,
                 categoria: produtoBase?.categoria || '',
-                precoBase: floatParaCentavos(produtoBase?.preco || 0),
+                precoBase: produtoBase?.preco || 0,
                 adicionais: item.adicionais?.map(a => ({
                     nome: a.nome,
-                    preco: floatParaCentavos(a.preco)
+                    preco: a.preco   // ← SEM floatParaCentavos
                 })) || [],
                 observacao: item.observacao || ''
             };
         }
-        
         return itemBase;
     });
     
     const subtotalCentavos = itens.reduce((sum, item) => sum + item.totalItem, 0);
     const freteCentavos = parseInt(document.getElementById('checkoutFrete').dataset.valor) || 0;
-    let totalCentavos = subtotalCentavos + freteCentavos;  // ✅ let
+    let totalCentavos = subtotalCentavos + freteCentavos;
 
     let descontoCupom = 0;
-if (cupomAplicado) {
-    descontoCupom = cupomAplicado.descontoCentavos;
-    totalCentavos = Math.max(0, totalCentavos - descontoCupom);
-}
+    if (cupomAplicado) {
+        descontoCupom = cupomAplicado.descontoCentavos;
+        totalCentavos = Math.max(0, totalCentavos - descontoCupom);
+    }
     
     const pedido = {
         id: 'ped_' + gerarId(),
         numero: null,
         criadoEm: firebase.database.ServerValue.TIMESTAMP,
         atualizadoEm: firebase.database.ServerValue.TIMESTAMP,
-        
         status: 'novo',
         statusHistorico: [{
             status: 'novo',
             em: firebase.database.ServerValue.TIMESTAMP,
             por: 'sistema'
         }],
-        
-        cliente: {
-            nome: nome,
-            telefone: telefone
-        },
-        
-        tipoEntrega: tipoEntrega,
-        endereco: endereco,
-        
-        pagamento: {
-            tipo: pagamento,
-            trocoPara: troco
-        },
-        
+        cliente: { nome, telefone },
+        tipoEntrega,
+        endereco,
+        pagamento: { tipo: pagamento, trocoPara: troco },
         subtotal: subtotalCentavos,
         frete: freteCentavos,
-        desconto: descontoCupom, 
+        desconto: descontoCupom,
         total: totalCentavos,
-        
         observacaoGeral: document.getElementById('observacaoGeral')?.value || '',
-        
-        meta: {
-            origem: 'web',
-            versao: '2.0.0'
-        },
-        
-        itens: itens
+        meta: { origem: 'web', versao: '2.0.0' },
+        itens
     };
 
     if (cupomAplicado) {
-    pedido.cupom = {
-        codigo: cupomAplicado.codigo,
-        descontoCentavos: descontoCupom,
-        valorOriginal: subtotalCentavos + freteCentavos,
-        valorComDesconto: totalCentavos
-    };
-}
-    
-    mostrarLoader(true);
-    
-    const sucesso = await salvarPedidoFirebase(pedido);
-    
-    if (sucesso) {
-        if (tipoEntrega === 'entrega') {
-            salvarEndereco();
-        }
-
-        // 🆕 Registrar uso do cupom
-    if (cupomAplicado) {
-        registrarUsoCupom(
-            cupomAplicado.codigo,
-            nome,
-            cupomAplicado.descontoCentavos,
-            pedido.id
-        );
-        cupomAplicado = null;
-        atualizarResumoCupom();
-        atualizarTotalCarrinho();
+        pedido.cupom = {
+            codigo: cupomAplicado.codigo,
+            descontoCentavos: descontoCupom,
+            valorOriginal: subtotalCentavos + freteCentavos,
+            valorComDesconto: totalCentavos
+        };
     }
     
-        const numeroPedido = pedido.numero;
-        mostrarToast(`✅ Pedido #${numeroPedido} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
-        
+    mostrarLoader(true);
+    const sucesso = await salvarPedidoFirebase(pedido);
+    if (sucesso) {
+        if (tipoEntrega === 'entrega') salvarEndereco();
+        if (cupomAplicado) {
+            registrarUsoCupom(cupomAplicado.codigo, nome, cupomAplicado.descontoCentavos, pedido.id);
+            cupomAplicado = null;
+            atualizarResumoCupom();
+            atualizarTotalCarrinho();
+        }
+        mostrarToast(`✅ Pedido #${pedido.numero} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
         carrinho = [];
         renderizarCarrinho();
         document.getElementById('observacaoGeral').value = '';
         fecharModalCheckout();
     }
-    
     mostrarLoader(false);
 }
 
