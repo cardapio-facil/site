@@ -738,7 +738,7 @@ function carregarDadosCliente() {
 // ============================================
 
 async function confirmarPedido() {
-    // 🆕 Verificação final de horário
+    // Verificação final de horário
     const statusLoja = verificarStatusLoja();
     if (!statusLoja.aberto) {
         mostrarToast('Restaurante fechado!', 'Não é possível finalizar o pedido no momento.', 'erro');
@@ -798,8 +798,9 @@ async function confirmarPedido() {
     const troco = pagamento === 'dinheiro' 
         ? floatParaCentavos(parseFloat(document.getElementById('checkoutTroco').value) || 0)
         : null;
-    // Cole isso ANTES de: const itens = carrinho.map(item => {
+
     console.log('🔍 CARRINHO COMPLETO:', JSON.stringify(carrinho, null, 2));
+
     const itens = carrinho.map(item => {
         const precoUnitarioCentavos = item.precoUnitario;
         const totalItemCentavos = precoUnitarioCentavos * item.quantidade;
@@ -825,13 +826,13 @@ async function confirmarPedido() {
             itemBase.snapshot = {
                 nome: item.nome,
                 categoria: montagens.find(m => m.id === item.produtoId)?.categoria || '',
-                precoBase: floatParaCentavos(
-                    montagens.find(m => m.id === item.produtoId)?.precoBase || 0
-                ),
+                // precoBase já está em centavos
+                precoBase: montagens.find(m => m.id === item.produtoId)?.precoBase || 0,
+                // tamanho.preco já está em centavos
                 tamanho: item.montagemDetalhes?.tamanho ? {
                     id: item.montagemDetalhes.tamanho.id,
                     nome: item.montagemDetalhes.tamanho.nome,
-                    preco: floatParaCentavos(item.montagemDetalhes.tamanho.preco || 0)
+                    preco: item.montagemDetalhes.tamanho.preco || 0
                 } : null,
                 grupos: montagens.find(m => m.id === item.produtoId)?.grupos?.map(grupo => {
                     const itensDoGrupo = item.montagemDetalhes?.itens
@@ -841,7 +842,8 @@ async function confirmarPedido() {
                             return {
                                 id: i.itemId,
                                 nome: itemOriginal?.nome || i.nome,
-                                preco: floatParaCentavos(itemOriginal?.preco || i.preco || 0)
+                                // preco já está em centavos
+                                preco: itemOriginal?.preco || i.preco || 0
                             };
                         }) || [];
                     
@@ -863,15 +865,18 @@ async function confirmarPedido() {
             itemBase.snapshot = {
                 nome: item.nome,
                 categoria: produtoBase?.categoria || 'pizza',
-                precoBase: floatParaCentavos(produtoBase?.preco || 0),
+                // precoBase já está em centavos
+                precoBase: produtoBase?.preco || 0,
                 sabores: item.sabores.map(s => ({
                     id: s.id,
                     nome: s.nome,
-                    preco: floatParaCentavos(s.preco)
+                    // s.preco já está em centavos
+                    preco: s.preco
                 })),
                 adicionais: item.adicionais?.map(a => ({
                     nome: a.nome,
-                    preco: floatParaCentavos(a.preco)
+                    // a.preco já foi normalizado em centavos
+                    preco: a.preco
                 })) || [],
                 observacao: item.observacao || ''
             };
@@ -885,10 +890,12 @@ async function confirmarPedido() {
             itemBase.snapshot = {
                 nome: item.nome,
                 categoria: produtoBase?.categoria || '',
-                precoBase: floatParaCentavos(produtoBase?.preco || 0),
+                // precoBase já está em centavos
+                precoBase: produtoBase?.preco || 0,
                 adicionais: item.adicionais?.map(a => ({
                     nome: a.nome,
-                    preco: floatParaCentavos(a.preco)
+                    // a.preco já foi normalizado em centavos
+                    preco: a.preco
                 })) || [],
                 observacao: item.observacao || ''
             };
@@ -899,13 +906,13 @@ async function confirmarPedido() {
     
     const subtotalCentavos = itens.reduce((sum, item) => sum + item.totalItem, 0);
     const freteCentavos = parseInt(document.getElementById('checkoutFrete').dataset.valor) || 0;
-    let totalCentavos = subtotalCentavos + freteCentavos;  // ✅ let
+    let totalCentavos = subtotalCentavos + freteCentavos;
 
     let descontoCupom = 0;
-if (cupomAplicado) {
-    descontoCupom = cupomAplicado.descontoCentavos;
-    totalCentavos = Math.max(0, totalCentavos - descontoCupom);
-}
+    if (cupomAplicado) {
+        descontoCupom = cupomAplicado.descontoCentavos;
+        totalCentavos = Math.max(0, totalCentavos - descontoCupom);
+    }
     
     const pedido = {
         id: 'ped_' + gerarId(),
@@ -949,13 +956,13 @@ if (cupomAplicado) {
     };
 
     if (cupomAplicado) {
-    pedido.cupom = {
-        codigo: cupomAplicado.codigo,
-        descontoCentavos: descontoCupom,
-        valorOriginal: subtotalCentavos + freteCentavos,
-        valorComDesconto: totalCentavos
-    };
-}
+        pedido.cupom = {
+            codigo: cupomAplicado.codigo,
+            descontoCentavos: descontoCupom,
+            valorOriginal: subtotalCentavos + freteCentavos,
+            valorComDesconto: totalCentavos
+        };
+    }
     
     mostrarLoader(true);
     
@@ -966,18 +973,17 @@ if (cupomAplicado) {
             salvarEndereco();
         }
 
-        // 🆕 Registrar uso do cupom
-    if (cupomAplicado) {
-        registrarUsoCupom(
-            cupomAplicado.codigo,
-            nome,
-            cupomAplicado.descontoCentavos,
-            pedido.id
-        );
-        cupomAplicado = null;
-        atualizarResumoCupom();
-        atualizarTotalCarrinho();
-    }
+        if (cupomAplicado) {
+            registrarUsoCupom(
+                cupomAplicado.codigo,
+                nome,
+                cupomAplicado.descontoCentavos,
+                pedido.id
+            );
+            cupomAplicado = null;
+            atualizarResumoCupom();
+            atualizarTotalCarrinho();
+        }
     
         const numeroPedido = pedido.numero;
         mostrarToast(`✅ Pedido #${numeroPedido} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
@@ -990,7 +996,6 @@ if (cupomAplicado) {
     
     mostrarLoader(false);
 }
-
 // ===== EXPOR =====
 window.abrirCheckout = abrirCheckout;
 window.fecharModalCheckout = fecharModalCheckout;
