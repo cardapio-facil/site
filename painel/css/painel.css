@@ -938,3 +938,27 @@ body {
 .btn-wpp-cancelar:hover {
     background: #444;
 }
+
+/* ===== BOTÃO CANCELAR (CIRCULAR VERMELHO) ===== */
+.btn-cancelar-card {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    background: rgba(220, 53, 69, 0.15);
+    border: 1px solid #dc3545;
+    color: #dc3545;
+    flex-shrink: 0;
+}
+
+.btn-cancelar-card:hover {
+    background: #dc3545;
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+    transform: scale(1.1);
+}
