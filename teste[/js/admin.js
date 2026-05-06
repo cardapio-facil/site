@@ -34,17 +34,23 @@ function toggleSenha() {
     input.type = input.type === 'password' ? 'text' : 'password';
 }
 
-function verificarLogin() {
+async function verificarLogin() {
     const senha = document.getElementById('senhaAdmin').value;
     
-    if (senha === SENHA_MASTER) {
+    // Buscar senhas do Firebase
+    const snap = await database.ref(`restaurantes/${RESTAURANTE_ID}/config`).once('value');
+    const config = snap.val() || {};
+    const senhaMaster = config.senhaMaster || SENHA_MASTER;
+    const senhaView = config.senhaView || SENHA_VIEW;
+    
+    if (senha === senhaMaster) {
         adminLogado = true;
         nivelAcesso = 'master';
         fecharModalLogin();
         mostrarToast('Bem-vindo, Master!', 'sucesso');
         atualizarInterfaceAdmin();
         abrirModalAdmin();
-    } else if (senha === SENHA_VIEW) {
+    } else if (senha === senhaView) {
         adminLogado = true;
         nivelAcesso = 'view';
         fecharModalLogin();
