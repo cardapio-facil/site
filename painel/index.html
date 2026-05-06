@@ -113,6 +113,41 @@
     </div>
 </div>
 
+    <!-- ========== MODAL DE BAIRROS ========== -->
+<div class="modal-overlay" id="modalBairrosOverlay" onclick="fecharModalBairros(event)">
+    <div class="modal-content" style="max-width: 700px;" onclick="event.stopPropagation()">
+        
+        <!-- Cabeçalho -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid rgba(128,0,32,0.3); padding-bottom:15px;">
+            <h2 style="color:#800020; margin:0; font-size:1.3rem;">
+                <i class="fa-solid fa-map-location-dot"></i> Gerenciar Bairros
+            </h2>
+            <button onclick="fecharModalBairros()" 
+                    style="background:none; border:none; color:#888; font-size:1.3rem; cursor:pointer; transition:all 0.3s;"
+                    onmouseover="this.style.color='#800020'; this.style.transform='rotate(90deg)'"
+                    onmouseout="this.style.color='#888'; this.style.transform='rotate(0deg)'">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- Informação da cidade -->
+        <div style="background:rgba(128,0,32,0.1); border-left:3px solid #800020; padding:10px 15px; border-radius:8px; margin-bottom:20px;">
+            <span style="color:#aaa; font-size:0.85rem;">
+                <i class="fa-solid fa-city"></i> Cidade configurada:
+            </span>
+            <strong style="color:#fff; margin-left:5px;" id="cidadeAtualBairros">Carregando...</strong>
+        </div>
+
+        <!-- Conteúdo dos bairros -->
+        <div id="bairrosContainer" style="max-height: 55vh; overflow-y: auto; padding-right: 5px;">
+            <p style="text-align:center; color:#999; padding:30px;">
+                <i class="fa-solid fa-spinner fa-spin"></i> Carregando bairros...
+            </p>
+        </div>
+
+    </div>
+</div>
+
 <!-- Scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
