@@ -6,6 +6,61 @@ firebase.initializeApp(CONFIG_PAINEL.firebase);
 const database = firebase.database();
 const dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
 
+// ===== ESTADO =====
+let carregamentoInicial = true;
+let pedidosCache = {};
+let pedidosNotificados = {};
+let listenerNovos = null;
+let listenerUpdates = null;
+let listenerRemovidos = null;
+let reconnectTimer = null;
+let autoReloadTimer = null;
+let limpezaNotificadosTimer = null;
+let renderTimeout = null;
+let ultimaNotificacao = 0;
+const LIMITE_PEDIDOS = 200;
+const THROTTLE_NOTIFICACAO = 2000;
+
+// ===== INDICADOR DE CONEXÃO =====
+function atualizarIndicadorConexao(status) {
+    const el = document.getElementById('statusConexao');
+    if (!el) return;
+    
+    if (status === 'online') {
+        el.innerHTML = '🟢 Online';
+        el.style.color = '#4CAF50';
+    } else if (status === 'reconnecting') {
+        el.innerHTML = '🟡 Reconectando...';
+        el.style.color = '#FFC107';
+    } else {
+        el.innerHTML = '🔴 Offline';
+        el.style.color = '#f44336';
+    }
+}
+
+database.ref('.info/connected').on('value', (snap) => {
+    if (snap.val() === true) {
+        atualizarIndicadorConexao('online');
+        if (reconnectTimer) {
+            clearTimeout(reconnectTimer);
+            reconnectTimer = null;
+        }
+    } else {
+        atualizarIndicadorConexao('offline');
+        reconnectTimer = setTimeout(() => {
+            atualizarIndicadorConexao('reconnecting');
+        }, 3000);
+    }
+});
+
+// ===== DETECTAR ABA SUSPENSA =====
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        console.log('👁️ Aba voltou a ficar visível');
+        atualizarIndicadorConexao('online');
+    }
+});
+
 // ===== CARREGAR DADOS INICIAIS =====
 async function carregarDadosPainel() {
     try {
@@ -22,11 +77,7 @@ async function carregarDadosPainel() {
             if (data.config.tempoEstimado) CONFIG_PAINEL.tempoEstimado = data.config.tempoEstimado;
         }
 
-        console.log('✅ Dados carregados:', {
-            nome: CONFIG_PAINEL.nomeRestaurante,
-            pedidos: data.pedidos ? Object.keys(data.pedidos).length + ' pedidos' : 'nenhum'
-        });
-
+        console.log('✅ Dados carregados');
         return data;
     } catch (error) {
         console.error('❌ Erro ao carregar dados:', error);
@@ -34,19 +85,135 @@ async function carregarDadosPainel() {
     }
 }
 
-function ouvirPedidosPainel(callback) {
-    dbRef.child('pedidos').on('value', (snapshot) => {
-        const pedidos = snapshot.val();
-        if (pedidos) {
-            const lista = Object.values(pedidos);
-            lista.sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
-            callback(lista);
-        } else {
-            callback([]);
-        }
-    });
+// ===== DEBOUNCE PARA RENDERIZAÇÃO =====
+function debounceRender(callback) {
+    if (renderTimeout) clearTimeout(renderTimeout);
+    renderTimeout = setTimeout(() => {
+        const lista = Object.values(pedidosCache)
+            .filter(p => p)
+            .sort((a, b) => (b.criadoEm || 0) - (a.criadoEm || 0));
+        callback(lista);
+    }, 100);
 }
 
+// ===== OUVIR PEDIDOS EM TEMPO REAL (VERSÃO FINAL) =====
+function ouvirPedidosPainel(callback) {
+    pararOuvirPedidos();
+
+    pedidosCache = {};
+    pedidosNotificados = {};
+    carregamentoInicial = true;
+
+    console.log('👂 Iniciando listeners profissionais...');
+
+    const doisDiasAtras = Date.now() - (2 * 24 * 60 * 60 * 1000);
+
+    const query = dbRef.child('pedidos')
+        .orderByChild('criadoEm')
+        .startAt(doisDiasAtras)
+        .limitToLast(LIMITE_PEDIDOS);
+
+    query.once('value', (snap) => {
+        const totalInicial = snap.numChildren();
+        let carregados = 0;
+
+        console.log(`📦 ${totalInicial} pedidos (últimos 2 dias, máx ${LIMITE_PEDIDOS})`);
+
+        listenerNovos = query.on('child_added', (snapshot) => {
+            const pedido = snapshot.val();
+            const id = snapshot.key;
+
+            carregados++;
+            pedidosCache[id] = pedido;
+
+            if (!carregamentoInicial && pedido && pedido.status === 'novo') {
+                if (!pedidosNotificados[id]) {
+                    console.log('🆕 NOVO PEDIDO:', pedido.numero || id);
+                    pedidosNotificados[id] = true;
+                    tocarSomNovoPedido();
+                    notificarComThrottle(pedido);
+                }
+            }
+
+            if (carregados >= totalInicial) {
+                carregamentoInicial = false;
+                console.log('✅ Carga inicial concluída.');
+            }
+
+            debounceRender(callback);
+        });
+
+        listenerUpdates = query.on('child_changed', (snapshot) => {
+            const pedido = snapshot.val();
+            const id = snapshot.key;
+            pedidosCache[id] = pedido;
+            debounceRender(callback);
+        });
+
+        listenerRemovidos = query.on('child_removed', (snapshot) => {
+            const id = snapshot.key;
+            delete pedidosCache[id];
+            delete pedidosNotificados[id];
+            debounceRender(callback);
+        });
+    });
+
+    // Limpeza automática do cache de notificados
+    if (limpezaNotificadosTimer) clearInterval(limpezaNotificadosTimer);
+    limpezaNotificadosTimer = setInterval(() => {
+        const antes = Object.keys(pedidosNotificados).length;
+        pedidosNotificados = {};
+        console.log(`🧹 Cache limpo: ${antes} itens`);
+    }, 60 * 60 * 1000);
+}
+
+// ===== NOTIFICAÇÃO COM THROTTLE =====
+function notificarComThrottle(pedido) {
+    const agora = Date.now();
+    
+    if (agora - ultimaNotificacao < THROTTLE_NOTIFICACAO) return;
+    
+    ultimaNotificacao = agora;
+    
+    if (Notification.permission === 'granted') {
+        new Notification('Novo Pedido!', {
+            body: `#${pedido.numero || '---'} - ${pedido.cliente?.nome || 'Cliente'}`,
+            icon: CONFIG_PAINEL.logoUrl,
+            tag: 'novo-pedido'
+        });
+    }
+}
+
+// ===== SOM PARA NOVO PEDIDO =====
+let audioNovoPedido = null;
+
+function tocarSomNovoPedido() {
+    try {
+        if (!audioNovoPedido) {
+            audioNovoPedido = new Audio('img/som.mp3');
+            audioNovoPedido.loop = false;
+        }
+        audioNovoPedido.currentTime = 0;
+        audioNovoPedido.play().catch(e => console.log('🔇 Som bloqueado'));
+    } catch (e) {
+        console.log('🔇 Erro ao tocar som:', e);
+    }
+}
+
+function pararSomNovoPedido() {
+    if (audioNovoPedido) {
+        audioNovoPedido.pause();
+        audioNovoPedido.currentTime = 0;
+    }
+}
+
+function solicitarPermissaoNotificacao() {
+    if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+}
+
+// ===== ATUALIZAR STATUS =====
 async function atualizarStatusPedidoPainel(pedidoId, novoStatus) {
     try {
         const ref = dbRef.child('pedidos/' + pedidoId);
@@ -59,28 +226,42 @@ async function atualizarStatusPedidoPainel(pedidoId, novoStatus) {
         await ref.child('atualizadoEm').set(firebase.database.ServerValue.TIMESTAMP);
         if (novoStatus === 'preparando') await ref.child('inicioPreparo').set(firebase.database.ServerValue.TIMESTAMP);
         if (novoStatus === 'saiu_entrega') await ref.child('saidaEntrega').set(firebase.database.ServerValue.TIMESTAMP);
-        console.log(`✅ Status do pedido ${pedidoId} atualizado para: ${novoStatus}`);
         return true;
     } catch (error) {
-        console.error('❌ Erro ao atualizar status:', error);
         return false;
     }
 }
 
+// ===== BUSCAR PEDIDO POR ID =====
 async function buscarPedidoPainel(pedidoId) {
     try {
         const snap = await dbRef.child('pedidos/' + pedidoId).once('value');
         return snap.val() || null;
     } catch (error) {
-        console.error('Erro ao buscar pedido:', error);
         return null;
     }
 }
 
+// ===== PARAR DE OUVIR =====
 function pararOuvirPedidos() {
-    dbRef.child('pedidos').off('value');
+    const query = dbRef.child('pedidos').orderByChild('criadoEm').startAt(Date.now() - (2 * 24 * 60 * 60 * 1000)).limitToLast(LIMITE_PEDIDOS);
+    if (listenerNovos) { query.off('child_added', listenerNovos); listenerNovos = null; }
+    if (listenerUpdates) { query.off('child_changed', listenerUpdates); listenerUpdates = null; }
+    if (listenerRemovidos) { query.off('child_removed', listenerRemovidos); listenerRemovidos = null; }
+    if (renderTimeout) { clearTimeout(renderTimeout); renderTimeout = null; }
+    if (limpezaNotificadosTimer) { clearInterval(limpezaNotificadosTimer); limpezaNotificadosTimer = null; }
 }
 
+// ===== AUTO RELOAD =====
+function iniciarAutoReload() {
+    const TEMPO_RELOAD = 30 * 60 * 1000;
+    if (autoReloadTimer) clearInterval(autoReloadTimer);
+    autoReloadTimer = setInterval(() => {
+        window.location.reload();
+    }, TEMPO_RELOAD);
+}
+
+// ===== EXPOR =====
 window.dbRef = dbRef;
 window.database = database;
 window.carregarDadosPainel = carregarDadosPainel;
@@ -88,3 +269,7 @@ window.ouvirPedidosPainel = ouvirPedidosPainel;
 window.atualizarStatusPedidoPainel = atualizarStatusPedidoPainel;
 window.buscarPedidoPainel = buscarPedidoPainel;
 window.pararOuvirPedidos = pararOuvirPedidos;
+window.iniciarAutoReload = iniciarAutoReload;
+window.solicitarPermissaoNotificacao = solicitarPermissaoNotificacao;
+window.tocarSomNovoPedido = tocarSomNovoPedido;
+window.pararSomNovoPedido = pararSomNovoPedido;
