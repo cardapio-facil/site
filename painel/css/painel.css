@@ -444,13 +444,9 @@ body {
 }
 
 .pedido-total {
-    position: absolute;
-    bottom: 12px;
-    left: 12px;
     font-size: 1.4rem;
     font-weight: 700;
     color: var(--border-color);
-    z-index: 4;
 }
 
 .cronometro-card {
@@ -460,49 +456,20 @@ body {
     font-weight: 600;
 }
 
-/* BOTÃO IMPRIMIR */
-.btn-imprimir-card {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s;
-    z-index: 5;
-    font-size: 1rem;
-    background: rgba(255, 152, 0, 0.15);
-    border: 1px solid #FF9800;
-    color: #FF9800;
-}
-
-.btn-imprimir-card:hover {
-    background: #FF9800;
-    color: #fff;
-    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
-    transform: scale(1.1);
-}
 .btn-whatsapp-card {
-    position: absolute;
-    bottom: 12px;
-    right: 54px;
     width: 36px;
     height: 36px;
     border-radius: 50%;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: all 0.3s;
-    z-index: 5;
     font-size: 1rem;
     background: rgba(37, 211, 102, 0.15);
     border: 1px solid #25D366;
     color: #25D366;
+    flex-shrink: 0;
 }
 
 .btn-whatsapp-card:hover {
@@ -512,7 +479,29 @@ body {
     transform: scale(1.1);
 }
 
+/* Botão Impressora circular */
+.btn-imprimir-card {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    background: rgba(255, 152, 0, 0.15);
+    border: 1px solid #FF9800;
+    color: #FF9800;
+    flex-shrink: 0;
+}
 
+.btn-imprimir-card:hover {
+    background: #FF9800;
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+    transform: scale(1.1);
+}
 /* ===== MODAL DETALHES ===== */
 .modal-overlay {
     position: fixed;
