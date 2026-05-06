@@ -213,6 +213,8 @@ function criarCardPedido(pedido) {
     // Conteúdo central
     const conteudo = document.createElement('div');
     conteudo.className = 'card-conteudo';
+    conteudo.style.display = 'flex';
+    conteudo.style.flexDirection = 'column';
 
     const itensCount = pedido.itens ? pedido.itens.length : 0;
     const tipoEntregaTexto = pedido.tipoEntrega === 'entrega' ? 'Entrega' : 'Retirada';
@@ -220,7 +222,7 @@ function criarCardPedido(pedido) {
         ? `${pedido.endereco.rua || ''}, ${pedido.endereco.numero || ''} - ${pedido.endereco.bairro || ''}`
         : 'Retirada no local';
 
-    // Informações do card
+    // Informações do card (sem o valor total, que vai no rodapé)
     conteudo.innerHTML = `
         <div class="card-header">
             <span class="pedido-numero">#${pedido.numero || '---'}</span>
@@ -240,17 +242,24 @@ function criarCardPedido(pedido) {
             <i class="fas fa-map-marker-alt"></i> ${enderecoTexto}
         </div>
         ${pedido.status === 'preparando' ? `<div class="cronometro-card" id="cron-${pedido.id}"></div>` : ''}
-        <div class="pedido-total">${formatarPrecoPainel(pedido.total)}</div>
     `;
-    card.appendChild(conteudo);
 
-    // Seta direita (avançar status)
-    if (idx >= 0 && idx < CONFIG_PAINEL.fluxoStatus.length - 1 && pedido.status !== 'cancelado') {
-        const setaDir = criarSeta('direita', CONFIG_PAINEL.fluxoStatus[idx + 1], pedido.id);
-        card.appendChild(setaDir);
-    }
+    // ---- Rodapé com valor e botões ----
+    const footer = document.createElement('div');
+    footer.style.cssText = 'display:flex; justify-content:space-between; align-items:flex-end; margin-top:auto; padding-top:10px;';
 
-    // Botão WhatsApp manual (exceto quando já é automático)
+    // Valor total
+    const totalEl = document.createElement('div');
+    totalEl.className = 'pedido-total';
+    totalEl.textContent = formatarPrecoPainel(pedido.total);
+    footer.appendChild(totalEl);
+
+    // Botões
+    const btnsDiv = document.createElement('div');
+    btnsDiv.style.display = 'flex';
+    btnsDiv.style.gap = '8px';
+
+    // WhatsApp manual (exceto quando já é automático)
     const podeEnviarWpp = nivelAcesso !== null && pedido.cliente?.telefone;
     if (podeEnviarWpp && !['preparando', 'saiu_entrega'].includes(pedido.status)) {
         const btnWpp = document.createElement('button');
@@ -260,7 +269,7 @@ function criarCardPedido(pedido) {
             e.stopPropagation();
             enviarWhatsAppManual(pedido);
         };
-        card.appendChild(btnWpp);
+        btnsDiv.appendChild(btnWpp);
     }
 
     // Botão imprimir
@@ -271,7 +280,18 @@ function criarCardPedido(pedido) {
         e.stopPropagation();
         imprimirPedidoPainel(pedido);
     };
-    card.appendChild(btnImp);
+    btnsDiv.appendChild(btnImp);
+
+    footer.appendChild(btnsDiv);
+    conteudo.appendChild(footer);
+
+    card.appendChild(conteudo);
+
+    // Seta direita (avançar status)
+    if (idx >= 0 && idx < CONFIG_PAINEL.fluxoStatus.length - 1 && pedido.status !== 'cancelado') {
+        const setaDir = criarSeta('direita', CONFIG_PAINEL.fluxoStatus[idx + 1], pedido.id);
+        card.appendChild(setaDir);
+    }
 
     // Evento de clique no card para abrir detalhes
     card.addEventListener('click', (e) => {
