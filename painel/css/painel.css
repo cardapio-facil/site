@@ -444,11 +444,13 @@ body {
 }
 
 .pedido-total {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
     font-size: 1.4rem;
-    color: var(--border-color);
     font-weight: 700;
-    text-align: right;
-    margin-top: 8px;
+    color: var(--border-color);
+    z-index: 4;
 }
 
 .cronometro-card {
