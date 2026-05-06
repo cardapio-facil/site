@@ -515,11 +515,11 @@ function imprimirPedidoPainel(pedido) {
                 itensHtml += `<div class="item-obs">Obs: ${item.snapshot.observacao}</div>`;
             }
             
-            // Detalhes de montagem (com fonte maior)
+            // Detalhes de montagem
             if (item.tipo === 'montagem' && item.snapshot) {
-                itensHtml += `<div style="font-size:20px; margin-left:15px; margin-top:8px;">`;
+                itensHtml += `<div style="font-size:22px; margin-left:15px; margin-top:8px; font-weight:bold;">`;
                 if (item.snapshot.tamanho) {
-                    itensHtml += `<div style="margin:4px 0;"><strong>Tamanho:</strong> ${item.snapshot.tamanho.nome}</div>`;
+                    itensHtml += `<div style="margin:5px 0;">Tamanho: ${item.snapshot.tamanho.nome}</div>`;
                 }
                 if (item.snapshot.grupos) {
                     item.snapshot.grupos.forEach(g => {
@@ -527,7 +527,7 @@ function imprimirPedidoPainel(pedido) {
                             const itensTexto = g.itens.map(i => {
                                 return i.nome + (i.preco > 0 ? ' (+' + formatarPrecoPainel(i.preco) + ')' : '');
                             }).join(', ');
-                            itensHtml += `<div style="margin:4px 0;"><strong>${g.nome}:</strong> ${itensTexto}</div>`;
+                            itensHtml += `<div style="margin:5px 0;">${g.nome}: ${itensTexto}</div>`;
                         }
                     });
                 }
@@ -536,8 +536,8 @@ function imprimirPedidoPainel(pedido) {
             
             // Sabores da pizza (formato com /)
             if (item.sabores && item.sabores.length > 0) {
-                const saboresTexto = item.sabores.map(s => s.nome).join(' meia ');
-                itensHtml += `<div style="font-size:18px; margin-left:15px;">Sabores: ${saboresTexto}</div>`;
+                const saboresTexto = item.sabores.map(s => s.nome).join(' / ');
+                itensHtml += `<div style="font-size:22px; margin-left:15px; font-weight:bold;">Sabores: ${saboresTexto}</div>`;
             }
             
             // Adicionais
@@ -545,7 +545,7 @@ function imprimirPedidoPainel(pedido) {
                 const adicionaisTexto = item.adicionais.map(a => {
                     return a.nome + (a.preco > 0 ? ' (+' + formatarPrecoPainel(a.preco) + ')' : '');
                 }).join(', ');
-                itensHtml += `<div style="font-size:18px; margin-left:15px;">Adicionais: ${adicionaisTexto}</div>`;
+                itensHtml += `<div style="font-size:22px; margin-left:15px; font-weight:bold;">Adicionais: ${adicionaisTexto}</div>`;
             }
             
             // Espaçamento entre itens
@@ -562,37 +562,37 @@ function imprimirPedidoPainel(pedido) {
     // Complemento
     let complementoHtml = '';
     if (pedido.endereco?.complemento) {
-        complementoHtml = `<div class="info-cliente"><strong>Complemento:</strong> ${pedido.endereco.complemento}</div>`;
+        complementoHtml = `<div class="info-cliente">Complemento: ${pedido.endereco.complemento}</div>`;
     }
 
     // Referência
     let referenciaHtml = '';
     if (pedido.endereco?.referencia) {
-        referenciaHtml = `<div class="info-cliente"><strong>Referência:</strong> ${pedido.endereco.referencia}</div>`;
+        referenciaHtml = `<div class="info-cliente">Referencia: ${pedido.endereco.referencia}</div>`;
     }
 
     // Observação geral
     let obsGeralHtml = '';
     if (pedido.observacaoGeral) {
-        obsGeralHtml = `<div class="item-obs" style="font-size:17px;">Obs geral: ${pedido.observacaoGeral}</div>`;
+        obsGeralHtml = `<div class="item-obs" style="font-size:20px;">Obs geral: ${pedido.observacaoGeral}</div>`;
     }
 
     // Cupom
     let cupomHtml = '';
     if (pedido.cupom) {
-        cupomHtml = `<div class="info-cliente"><strong>Cupom:</strong> ${pedido.cupom.codigo} (-${formatarPrecoPainel(pedido.cupom.descontoCentavos)})</div>`;
+        cupomHtml = `<div class="info-cliente">Cupom: ${pedido.cupom.codigo} (-${formatarPrecoPainel(pedido.cupom.descontoCentavos)})</div>`;
     }
 
     // Troco
     let trocoHtml = '';
     if (pedido.pagamento?.trocoPara) {
-        trocoHtml = `<div class="info-cliente"><strong>Troco para:</strong> ${formatarPrecoPainel(pedido.pagamento.trocoPara)}</div>`;
+        trocoHtml = `<div class="info-cliente">Troco para: ${formatarPrecoPainel(pedido.pagamento.trocoPara)}</div>`;
     }
 
     // Frete
     let freteHtml = '';
     if (pedido.frete && pedido.frete > 0) {
-        freteHtml = `<div class="info-cliente"><strong>Frete:</strong> ${formatarPrecoPainel(pedido.frete)}</div>`;
+        freteHtml = `<div class="info-cliente">Frete: ${formatarPrecoPainel(pedido.frete)}</div>`;
     }
 
     win.document.write(`
@@ -600,13 +600,14 @@ function imprimirPedidoPainel(pedido) {
         <head>
             <title>Pedido #${pedido.numero || '---'}</title>
             <style>
+                * { font-weight: bold; }
                 body {
                     font-family: 'Courier New', monospace;
-                    font-size: 20px;
+                    font-size: 21px;
                     width: 80mm;
                     margin: 0 auto;
                     padding: 10px;
-                    line-height: 1.4;
+                    line-height: 1.5;
                     background: white;
                 }
                 .header {
@@ -621,12 +622,12 @@ function imprimirPedidoPainel(pedido) {
                     color: #800020;
                 }
                 h2 {
-                    font-size: 17px;
+                    font-size: 18px;
                     color: #800020;
                 }
                 .info-cliente {
                     margin: 8px 0;
-                    font-size: 18px;
+                    font-size: 21px;
                 }
                 .linha {
                     border-top: 1px dashed #800020;
@@ -634,16 +635,14 @@ function imprimirPedidoPainel(pedido) {
                 }
                 .item-linha {
                     margin: 8px 0;
-                    font-size: 20px;
+                    font-size: 21px;
                     display: flex;
                     justify-content: space-between;
                 }
                 .item-linha span:first-child {
-                    font-weight: bold;
                     text-align: left;
                 }
                 .item-linha span:last-child {
-                    font-weight: bold;
                     text-align: right;
                 }
                 .item-obs {
@@ -651,12 +650,11 @@ function imprimirPedidoPainel(pedido) {
                     padding: 5px;
                     background: #f0f0f0;
                     border-left: 4px solid #ffc107;
-                    font-size: 16px;
+                    font-size: 18px;
                     font-style: italic;
                 }
                 .total-geral {
-                    font-size: 22px;
-                    font-weight: bold;
+                    font-size: 24px;
                     text-align: right;
                     border-top: 3px solid #800020;
                     border-bottom: 3px solid #800020;
@@ -666,15 +664,14 @@ function imprimirPedidoPainel(pedido) {
                 }
                 .telefone {
                     text-align: center;
-                    font-weight: bold;
-                    font-size: 20px;
+                    font-size: 22px;
                     margin: 20px 0;
                     color: #800020;
                 }
                 .footer {
                     text-align: center;
                     margin-top: 20px;
-                    font-size: 16px;
+                    font-size: 18px;
                     border-top: 1px dashed #800020;
                     padding-top: 12px;
                 }
@@ -687,9 +684,9 @@ function imprimirPedidoPainel(pedido) {
                 <p style="font-size:14px;">${new Date().toLocaleString('pt-BR')}</p>
             </div>
             
-            <div class="info-cliente"><strong>Cliente:</strong> ${pedido.cliente?.nome || '---'}</div>
-            <div class="info-cliente"><strong>Fone:</strong> ${pedido.cliente?.telefone || '---'}</div>
-            <div class="info-cliente"><strong>Endereco:</strong> ${enderecoCompleto}</div>
+            <div class="info-cliente">Cliente: ${pedido.cliente?.nome || '---'}</div>
+            <div class="info-cliente">Fone: ${pedido.cliente?.telefone || '---'}</div>
+            <div class="info-cliente">Endereco: ${enderecoCompleto}</div>
             ${complementoHtml}
             ${referenciaHtml}
             ${obsGeralHtml}
@@ -698,7 +695,7 @@ function imprimirPedidoPainel(pedido) {
             
             <div style="margin:10px 0;">${itensHtml}</div>
             
-            <div class="info-cliente"><strong>Pagamento:</strong> ${pedido.pagamento?.tipo || '---'}</div>
+            <div class="info-cliente">Pagamento: ${pedido.pagamento?.tipo || '---'}</div>
             ${trocoHtml}
             ${cupomHtml}
             ${freteHtml}
