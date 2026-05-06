@@ -802,10 +802,25 @@ function abrirLinkWhatsApp(telefone, mensagem) {
 // ===== PLACEHOLDERS =========================
 // ============================================
 
-function abrirBairro() {
-    alert('Funcionalidade "Bairros" será implementada em breve.');
+async function abrirModalBairros() {
+    const cidadeKey = getCidadeKey();
+    const container = document.getElementById('bairrosContainer');
+    
+    // Mostra loading
+    container.innerHTML = `
+        <p style="text-align:center; color:#999; padding:30px;">
+            <i class="fa-solid fa-spinner fa-spin"></i> Carregando bairros...
+        </p>
+    `;
+    
+    // Atualiza nome da cidade no cabeçalho
+    document.getElementById('cidadeAtualBairros').textContent = CONFIG_PAINEL.cidade;
+    
+    document.getElementById('modalBairrosOverlay').classList.add('active');
+    
+    const { bairros, atendimento } = await carregarBairrosPainel();
+    renderizarBairrosPainel(container, bairros, atendimento, cidadeKey);
 }
-
 function abrirRelatorio() {
     if (typeof abrirModalRelatorio === 'function') {
         abrirModalRelatorio();
