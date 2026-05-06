@@ -508,17 +508,18 @@ function imprimirPedidoPainel(pedido) {
             const preco = formatarPrecoPainel(item.totalItem || item.precoUnitario * item.quantidade);
             
             // Nome do item com quantidade e preço
-            itensHtml += `<div style="margin-bottom:5px;"><strong>${item.quantidade}x ${nome} - ${preco}</strong></div>`;
+            itensHtml += `<div class="item-linha"><span>${item.quantidade}x ${nome}</span><span>${preco}</span></div>`;
             
-            // 🆕 Observação do item (vai logo após o nome, antes dos detalhes)
+            // Observação do item (logo após o nome)
             if (item.snapshot?.observacao) {
-                itensHtml += `<div style="font-size:12px; margin-left:10px; margin-bottom:3px; font-style:italic;">Obs: ${item.snapshot.observacao}</div>`;
+                itensHtml += `<div class="item-obs">Obs: ${item.snapshot.observacao}</div>`;
             }
             
-            // Detalhes de montagem
+            // Detalhes de montagem (com fonte maior)
             if (item.tipo === 'montagem' && item.snapshot) {
+                itensHtml += `<div style="font-size:20px; margin-left:15px; margin-top:8px;">`;
                 if (item.snapshot.tamanho) {
-                    itensHtml += `<div style="font-size:12px; margin-left:10px;">Tamanho: ${item.snapshot.tamanho.nome}</div>`;
+                    itensHtml += `<div style="margin:4px 0;"><strong>Tamanho:</strong> ${item.snapshot.tamanho.nome}</div>`;
                 }
                 if (item.snapshot.grupos) {
                     item.snapshot.grupos.forEach(g => {
@@ -526,16 +527,17 @@ function imprimirPedidoPainel(pedido) {
                             const itensTexto = g.itens.map(i => {
                                 return i.nome + (i.preco > 0 ? ' (+' + formatarPrecoPainel(i.preco) + ')' : '');
                             }).join(', ');
-                            itensHtml += `<div style="font-size:12px; margin-left:10px;">${g.nome}: ${itensTexto}</div>`;
+                            itensHtml += `<div style="margin:4px 0;"><strong>${g.nome}:</strong> ${itensTexto}</div>`;
                         }
                     });
                 }
+                itensHtml += `</div>`;
             }
             
             // Sabores da pizza (formato com /)
             if (item.sabores && item.sabores.length > 0) {
                 const saboresTexto = item.sabores.map(s => s.nome).join(' / ');
-                itensHtml += `<div style="font-size:12px; margin-left:10px;">Sabores: ${saboresTexto}</div>`;
+                itensHtml += `<div style="font-size:18px; margin-left:15px;">Sabores: ${saboresTexto}</div>`;
             }
             
             // Adicionais
@@ -543,53 +545,54 @@ function imprimirPedidoPainel(pedido) {
                 const adicionaisTexto = item.adicionais.map(a => {
                     return a.nome + (a.preco > 0 ? ' (+' + formatarPrecoPainel(a.preco) + ')' : '');
                 }).join(', ');
-                itensHtml += `<div style="font-size:12px; margin-left:10px;">Adicionais: ${adicionaisTexto}</div>`;
+                itensHtml += `<div style="font-size:18px; margin-left:15px;">Adicionais: ${adicionaisTexto}</div>`;
             }
             
-            itensHtml += `<br>`;
+            // Espaçamento entre itens
+            itensHtml += `<div style="margin-bottom:15px;"></div>`;
         });
     }
 
-    // Monta endereço completo
+    // Endereço completo
     let enderecoCompleto = 'Retirada no local';
     if (pedido.tipoEntrega === 'entrega' && pedido.endereco) {
         enderecoCompleto = `${pedido.endereco.rua || ''}, ${pedido.endereco.numero || ''} - ${pedido.endereco.bairro || ''}, ${pedido.endereco.cidade || ''}`;
     }
 
-    // Observação geral (topo, abaixo do endereço)
-    let obsGeralHtml = '';
-    if (pedido.observacaoGeral) {
-        obsGeralHtml = `<div class="info"><strong>Obs geral:</strong> ${pedido.observacaoGeral}</div>`;
-    }
-
     // Complemento
     let complementoHtml = '';
     if (pedido.endereco?.complemento) {
-        complementoHtml = `<div class="info"><strong>Complemento:</strong> ${pedido.endereco.complemento}</div>`;
+        complementoHtml = `<div class="info-cliente"><strong>Complemento:</strong> ${pedido.endereco.complemento}</div>`;
     }
 
     // Referência
     let referenciaHtml = '';
     if (pedido.endereco?.referencia) {
-        referenciaHtml = `<div class="info"><strong>Referência:</strong> ${pedido.endereco.referencia}</div>`;
+        referenciaHtml = `<div class="info-cliente"><strong>Referência:</strong> ${pedido.endereco.referencia}</div>`;
+    }
+
+    // Observação geral
+    let obsGeralHtml = '';
+    if (pedido.observacaoGeral) {
+        obsGeralHtml = `<div class="item-obs" style="font-size:17px;">Obs geral: ${pedido.observacaoGeral}</div>`;
     }
 
     // Cupom
     let cupomHtml = '';
     if (pedido.cupom) {
-        cupomHtml = `<div class="info"><strong>Cupom:</strong> ${pedido.cupom.codigo} (-${formatarPrecoPainel(pedido.cupom.descontoCentavos)})</div>`;
+        cupomHtml = `<div class="info-cliente"><strong>Cupom:</strong> ${pedido.cupom.codigo} (-${formatarPrecoPainel(pedido.cupom.descontoCentavos)})</div>`;
     }
 
     // Troco
     let trocoHtml = '';
     if (pedido.pagamento?.trocoPara) {
-        trocoHtml = `<div class="info"><strong>Troco para:</strong> ${formatarPrecoPainel(pedido.pagamento.trocoPara)}</div>`;
+        trocoHtml = `<div class="info-cliente"><strong>Troco para:</strong> ${formatarPrecoPainel(pedido.pagamento.trocoPara)}</div>`;
     }
 
     // Frete
     let freteHtml = '';
     if (pedido.frete && pedido.frete > 0) {
-        freteHtml = `<div class="info"><strong>Frete:</strong> ${formatarPrecoPainel(pedido.frete)}</div>`;
+        freteHtml = `<div class="info-cliente"><strong>Frete:</strong> ${formatarPrecoPainel(pedido.frete)}</div>`;
     }
 
     win.document.write(`
@@ -599,42 +602,81 @@ function imprimirPedidoPainel(pedido) {
             <style>
                 body {
                     font-family: 'Courier New', monospace;
-                    font-size: 14px;
+                    font-size: 20px;
                     width: 80mm;
                     margin: 0 auto;
                     padding: 10px;
+                    line-height: 1.4;
+                    background: white;
                 }
                 .header {
                     text-align: center;
-                    margin-bottom: 15px;
-                    border-bottom: 1px dashed #000;
+                    margin-bottom: 20px;
+                    border-bottom: 1px dashed #800020;
                     padding-bottom: 10px;
                 }
                 h1 {
-                    font-size: 18px;
+                    font-size: 20px;
                     margin: 0;
-                }
-                h2 {
-                    font-size: 14px;
                     color: #800020;
                 }
-                .info {
-                    margin: 5px 0;
-                    font-size: 14px;
+                h2 {
+                    font-size: 17px;
+                    color: #800020;
                 }
-                .total {
-                    font-weight: bold;
+                .info-cliente {
+                    margin: 8px 0;
                     font-size: 18px;
-                    text-align: right;
-                    border-top: 2px solid #000;
-                    border-bottom: 2px solid #000;
-                    padding: 10px 0;
-                    margin: 15px 0;
                 }
-                hr {
-                    border: none;
-                    border-top: 1px dashed #ccc;
+                .linha {
+                    border-top: 1px dashed #800020;
                     margin: 10px 0;
+                }
+                .item-linha {
+                    margin: 8px 0;
+                    font-size: 20px;
+                    display: flex;
+                    justify-content: space-between;
+                }
+                .item-linha span:first-child {
+                    font-weight: bold;
+                    text-align: left;
+                }
+                .item-linha span:last-child {
+                    font-weight: bold;
+                    text-align: right;
+                }
+                .item-obs {
+                    margin: 8px 0;
+                    padding: 5px;
+                    background: #f0f0f0;
+                    border-left: 4px solid #ffc107;
+                    font-size: 16px;
+                    font-style: italic;
+                }
+                .total-geral {
+                    font-size: 22px;
+                    font-weight: bold;
+                    text-align: right;
+                    border-top: 3px solid #800020;
+                    border-bottom: 3px solid #800020;
+                    padding: 12px 0;
+                    margin: 20px 0;
+                    background: #f5f5f5;
+                }
+                .telefone {
+                    text-align: center;
+                    font-weight: bold;
+                    font-size: 20px;
+                    margin: 20px 0;
+                    color: #800020;
+                }
+                .footer {
+                    text-align: center;
+                    margin-top: 20px;
+                    font-size: 16px;
+                    border-top: 1px dashed #800020;
+                    padding-top: 12px;
                 }
             </style>
         </head>
@@ -642,26 +684,31 @@ function imprimirPedidoPainel(pedido) {
             <div class="header">
                 <h1>${CONFIG_PAINEL.nomeRestaurante}</h1>
                 <h2>PEDIDO #${pedido.numero || '---'}</h2>
-                <p style="font-size:12px;">${new Date().toLocaleString('pt-BR')}</p>
+                <p style="font-size:14px;">${new Date().toLocaleString('pt-BR')}</p>
             </div>
             
-            <div class="info"><strong>Cliente:</strong> ${pedido.cliente?.nome || '---'}</div>
-            <div class="info"><strong>Fone:</strong> ${pedido.cliente?.telefone || '---'}</div>
-            <div class="info"><strong>Endereco:</strong> ${enderecoCompleto}</div>
+            <div class="info-cliente"><strong>Cliente:</strong> ${pedido.cliente?.nome || '---'}</div>
+            <div class="info-cliente"><strong>Fone:</strong> ${pedido.cliente?.telefone || '---'}</div>
+            <div class="info-cliente"><strong>Endereco:</strong> ${enderecoCompleto}</div>
             ${complementoHtml}
             ${referenciaHtml}
             ${obsGeralHtml}
             
-            <hr>
+            <div class="linha"></div>
+            
             <div style="margin:10px 0;">${itensHtml}</div>
             
-            <div class="info"><strong>Pagamento:</strong> ${pedido.pagamento?.tipo || '---'}</div>
+            <div class="info-cliente"><strong>Pagamento:</strong> ${pedido.pagamento?.tipo || '---'}</div>
             ${trocoHtml}
             ${cupomHtml}
             ${freteHtml}
             
-            <div class="total">TOTAL: ${formatarPrecoPainel(pedido.total)}</div>
-            <div style="text-align:center; margin-top:20px; font-size:14px;">Obrigado pela preferencia!</div>
+            <div class="total-geral">TOTAL: ${formatarPrecoPainel(pedido.total)}</div>
+            
+            <div class="telefone">${pedido.cliente?.telefone || '---'}</div>
+            
+            <div class="footer">Obrigado pela preferencia!</div>
+            
             <script>window.onload=function(){window.print();setTimeout(()=>window.close(),1000);}<\/script>
         </body>
         </html>
