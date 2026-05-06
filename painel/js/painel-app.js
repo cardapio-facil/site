@@ -837,6 +837,17 @@ function abrirConfigMensagens() {
     }
 }
 
+// ===== FUNÇÃO DO MENU LATERAL =====
+function abrirBairro() {
+    abrirModalBairros();
+}
+
+// ===== FECHAR MODAL DE BAIRROS =====
+function fecharModalBairros(event) {
+    if (event && event.target !== document.getElementById('modalBairrosOverlay')) return;
+    document.getElementById('modalBairrosOverlay').classList.remove('active');
+}
+
 // ===== EXPOR =====
 window.toggleSidebar = toggleSidebar;
 window.filtrarPorStatus = filtrarPorStatus;
