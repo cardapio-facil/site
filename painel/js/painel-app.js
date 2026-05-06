@@ -255,7 +255,7 @@ function criarCardPedido(pedido) {
     if (podeEnviarWpp && !['preparando', 'saiu_entrega'].includes(pedido.status)) {
         const btnWpp = document.createElement('button');
         btnWpp.className = 'btn-whatsapp-card';
-        btnWpp.innerHTML = '<i class="fab fa-whatsapp"></i> WHATS';
+        btnWpp.innerHTML = '<i class="fab fa-whatsapp"></i>;
         btnWpp.onclick = (e) => {
             e.stopPropagation();
             enviarWhatsAppManual(pedido);
@@ -266,7 +266,7 @@ function criarCardPedido(pedido) {
     // Botão imprimir
     const btnImp = document.createElement('button');
     btnImp.className = 'btn-imprimir-card';
-    btnImp.innerHTML = '<i class="fas fa-print"></i> IMPRIMIR';
+    btnImp.innerHTML = '<i class="fas fa-print"></i>;
     btnImp.onclick = (e) => {
         e.stopPropagation();
         imprimirPedidoPainel(pedido);
