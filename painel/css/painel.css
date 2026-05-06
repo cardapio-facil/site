@@ -465,27 +465,27 @@ body {
     position: absolute;
     bottom: 12px;
     right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 5;
+    font-size: 1rem;
     background: rgba(255, 152, 0, 0.15);
     border: 1px solid #FF9800;
     color: #FF9800;
-    padding: 6px 14px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    font-weight: 600;
-    transition: all 0.3s;
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    gap: 4px;
 }
 
 .btn-imprimir-card:hover {
     background: #FF9800;
     color: #fff;
     box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);
+    transform: scale(1.1);
 }
-
 .btn-whatsapp-card {
     position: absolute;
     bottom: 12px;
@@ -512,11 +512,6 @@ body {
     transform: scale(1.1);
 }
 
-.btn-whatsapp-card:hover {
-    background: #25D366;
-    color: #fff;
-    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
-}
 
 /* ===== MODAL DETALHES ===== */
 .modal-overlay {
