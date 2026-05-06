@@ -64,9 +64,9 @@ async function verificarSenha() {
     // Primeiro carrega dados do Firebase para obter senhas atualizadas
     await carregarDadosPainel();
 
-    if (senha === CONFIG_PAINEL.senhaMasterPadrao) {
+  if (senha === String(CONFIG_PAINEL.senhaMasterPadrao)) {
         nivelAcesso = 'master';
-    } else if (senha === CONFIG_PAINEL.senhaViewPadrao) {
+    } else if (senha === String(CONFIG_PAINEL.senhaViewPadrao)) {
         nivelAcesso = 'view';
     } else {
         alert('Senha incorreta!');
