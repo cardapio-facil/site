@@ -145,20 +145,6 @@ function configurarSidebar() {
     });
 }
 
-    // Apenas master vê configuração de mensagens
-    if (nivelAcesso === 'master') {
-        itens.push({ classe: 'config', icone: 'fas fa-envelope', texto: 'Mensagens', onclick: 'abrirConfigMensagens()' });
-    }
-
-    itens.forEach(item => {
-        const div = document.createElement('div');
-        div.className = `sidebar-item ${item.classe}`;
-        div.setAttribute('onclick', item.onclick);
-        div.innerHTML = `<i class="${item.icone}"></i> ${item.texto}`;
-        menu.appendChild(div);
-    });
-}
-
 // ============================================
 // ===== SIDEBAR TOGGLE =======================
 // ============================================
