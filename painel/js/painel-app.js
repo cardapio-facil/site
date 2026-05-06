@@ -122,14 +122,28 @@ async function inicializarPainel() {
 
 function configurarSidebar() {
     const menu = document.querySelector('.sidebar-menu');
-    // Remove itens existentes (se houver duplicação)
     menu.innerHTML = '';
 
+    // Itens que todos logados veem (WhatsApp, por exemplo)
     const itens = [
         { classe: 'wpp', icone: 'fab fa-whatsapp', texto: 'WhatsApp', onclick: 'abrirWhatsApp()' },
-        { classe: 'entregador', icone: 'fas fa-chart-bar', texto: 'Relatórios', onclick: 'abrirRelatorio()' },
-        { classe: 'delivery', icone: 'fas fa-map-marker-alt', texto: 'Bairros', onclick: 'abrirBairro()' },
     ];
+
+    // Apenas master vê relatórios, bairros e mensagens
+    if (nivelAcesso === 'master') {
+        itens.push({ classe: 'entregador', icone: 'fas fa-chart-bar', texto: 'Relatórios', onclick: 'abrirRelatorio()' });
+        itens.push({ classe: 'delivery', icone: 'fas fa-map-marker-alt', texto: 'Bairros', onclick: 'abrirBairro()' });
+        itens.push({ classe: 'config', icone: 'fas fa-envelope', texto: 'Mensagens', onclick: 'abrirConfigMensagens()' });
+    }
+
+    itens.forEach(item => {
+        const div = document.createElement('div');
+        div.className = `sidebar-item ${item.classe}`;
+        div.setAttribute('onclick', item.onclick);
+        div.innerHTML = `<i class="${item.icone}"></i> ${item.texto}`;
+        menu.appendChild(div);
+    });
+}
 
     // Apenas master vê configuração de mensagens
     if (nivelAcesso === 'master') {
@@ -251,7 +265,7 @@ function criarCardPedido(pedido) {
     }
 
     // Botão WhatsApp manual (exceto quando já é automático)
-    const podeEnviarWpp = nivelAcesso === 'master' && pedido.cliente?.telefone;
+    const podeEnviarWpp = nivelAcesso !== null && pedido.cliente?.telefone;
     if (podeEnviarWpp && !['preparando', 'saiu_entrega'].includes(pedido.status)) {
         const btnWpp = document.createElement('button');
         btnWpp.className = 'btn-whatsapp-card';
@@ -301,11 +315,7 @@ function criarSeta(direcao, proximoStatus, pedidoId) {
 // ============================================
 
 async function mudarStatusPedido(pedidoId, novoStatus) {
-    if (nivelAcesso !== 'master') {
-        alert('Acesso restrito. Apenas Master pode alterar status.');
-        return;
-    }
-
+   
     const pedido = pedidosAtuais.find(p => p.id === pedidoId);
     if (!pedido) return;
 
