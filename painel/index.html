@@ -184,6 +184,27 @@
     </div>
 </div>
 
+    <!-- ========== MODAL CONFIRMAR CANCELAMENTO ========== -->
+<div class="modal-overlay" id="modalConfirmarCancelamento" onclick="fecharModalCancelamento(event)">
+    <div class="modal-content" style="max-width: 400px;" onclick="event.stopPropagation()">
+        <div style="text-align:center;">
+            <i class="fas fa-exclamation-triangle" style="color:#dc3545; font-size:48px; margin-bottom:15px;"></i>
+            <h3 style="color:#fff; margin-bottom:10px;">Confirmar Cancelamento</h3>
+            <p style="color:#ccc; margin-bottom:25px;">Tem certeza que deseja cancelar este pedido?</p>
+            <div style="display:flex; gap:10px;">
+                <button id="btnConfirmarCancelar" 
+                        style="flex:1; background:#dc3545; border:none; padding:12px; border-radius:8px; color:#fff; font-weight:600; cursor:pointer;">
+                    SIM, CANCELAR
+                </button>
+                <button onclick="fecharModalCancelamento()" 
+                        style="flex:1; background:#333; border:none; padding:12px; border-radius:8px; color:#fff; font-weight:600; cursor:pointer;">
+                    NÃO
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
