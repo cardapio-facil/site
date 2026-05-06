@@ -720,9 +720,57 @@ function imprimirPedidoPainel(pedido) {
 // ===== WHATSAPP =============================
 // ============================================
 
+// ============================================
+// ===== WHATSAPP CARDÁPIO ====================
+// ============================================
+
 function abrirWhatsApp() {
-    window.open('https://web.whatsapp.com/', '_blank');
+    document.getElementById('modalWhatsAppCardapio').classList.add('active');
+    const input = document.getElementById('wppNumeroCardapio');
+    input.value = '31';
+    setTimeout(() => input.focus(), 100);
 }
+
+function fecharModalWhatsAppCardapio(event) {
+    if (event && event.target !== document.getElementById('modalWhatsAppCardapio')) return;
+    document.getElementById('modalWhatsAppCardapio').classList.remove('active');
+}
+
+function enviarWhatsAppCardapio() {
+    let numero = document.getElementById('wppNumeroCardapio').value;
+    numero = numero.replace(/\D/g, '');
+    
+    if (!numero || numero.length < 10) {
+        alert('Digite um número válido!');
+        return;
+    }
+    
+    if (!numero.startsWith('55')) {
+        numero = '55' + numero;
+    }
+    
+    const nomeRestaurante = CONFIG_PAINEL.nomeRestaurante;
+    const mensagem = `Oi! Aqui é do ${nomeRestaurante}. Obrigado pela preferência!
+
+Como falamos na ligação, é só acessar o link abaixo para ver o cardápio e fazer seu pedido rapidinho:
+
+https://cardapio-facil.github.io/site/teste
+
+Você escolhe com calma e já envia direto pra gente. Se precisar de ajuda, estou por aqui.`;
+
+    window.open(`https://wa.me/${numero}?text=${encodeURIComponent(mensagem)}`, '_blank');
+    fecharModalWhatsAppCardapio();
+}
+
+// Tecla ESC
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('modalWhatsAppCardapio');
+        if (modal && modal.classList.contains('active')) {
+            fecharModalWhatsAppCardapio();
+        }
+    }
+});
 
 function enviarWhatsAppPreparando(pedido) {
     const mensagem = construirMensagemCompleta(pedido, 'preparando');
@@ -862,3 +910,5 @@ window.verificarSenha = verificarSenha;
 window.abrirModalBairros = abrirModalBairros;
 window.fecharModalBairros = fecharModalBairros;
 window.abrirBairro = abrirBairro;
+window.fecharModalWhatsAppCardapio = fecharModalWhatsAppCardapio;
+window.enviarWhatsAppCardapio = enviarWhatsAppCardapio;
