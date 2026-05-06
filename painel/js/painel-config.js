@@ -286,7 +286,7 @@ async function salvarBairrosPainel(cidadeKey) {
                     cidade: item.cidade,
                     bairro: item.bairro,
                     ativo: true,
-                    frete: item.frete
+                    frete: item.frete * 100  // ← CONVERTE REAIS PARA CENTAVOS
                 };
             } else {
                 updates[`atendimento/${chave}`] = null;
