@@ -826,3 +826,115 @@ body {
         padding: 4px 10px;
     }
 }
+
+/* ===== MODAL WHATSAPP CARDÁPIO ===== */
+.modal-wpp-filtro {
+    background: linear-gradient(135deg, #1a1a1a, #0f0f0f);
+    border: 2px solid #25D366;
+    border-radius: 20px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    animation: modalIn 0.3s ease;
+}
+
+.wpp-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid rgba(37, 211, 102, 0.3);
+    padding-bottom: 15px;
+}
+
+.wpp-header i {
+    font-size: 32px;
+    color: #25D366;
+}
+
+.wpp-header h3 {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.wpp-input-group {
+    margin-bottom: 20px;
+}
+
+.wpp-input-group label {
+    display: block;
+    color: #25D366;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.wpp-input-group input {
+    width: 100%;
+    padding: 15px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid #333;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+.wpp-input-group input:focus {
+    outline: none;
+    border-color: #25D366;
+    background: rgba(37, 211, 102, 0.1);
+}
+
+.wpp-input-group small {
+    display: block;
+    color: #888;
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+.wpp-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+}
+
+.btn-wpp-enviar {
+    flex: 2;
+    background: #25D366;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-wpp-enviar:hover {
+    background: #128C7E;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+}
+
+.btn-wpp-cancelar {
+    flex: 1;
+    background: #333;
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-wpp-cancelar:hover {
+    background: #444;
+}
