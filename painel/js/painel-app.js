@@ -6,6 +6,7 @@ let pedidosAtuais = [];
 let filtroStatus = 'novo';
 let nivelAcesso = null; // 'master' ou 'view'
 let cronometroInterval = null;
+let pedidoParaCancelar = null;
 let ouvindoPedidos = false;
 
 // ============================================
@@ -259,6 +260,17 @@ function criarCardPedido(pedido) {
     const btnsDiv = document.createElement('div');
     btnsDiv.style.display = 'flex';
     btnsDiv.style.gap = '8px';
+
+        if (pedido.status !== 'cancelado') {
+        const btnCancelar = document.createElement('button');
+        btnCancelar.className = 'btn-cancelar-card';
+        btnCancelar.innerHTML = '<i class="fas fa-times"></i>';
+        btnCancelar.onclick = (e) => {
+            e.stopPropagation();
+            abrirModalCancelamento(pedido.id);
+        };
+        btnsDiv.appendChild(btnCancelar);
+    }
 
     const podeEnviarWpp = nivelAcesso !== null && pedido.cliente?.telefone;
     if (podeEnviarWpp && !['preparando', 'saiu_entrega'].includes(pedido.status)) {
@@ -896,6 +908,32 @@ function fecharModalBairros(event) {
     document.getElementById('modalBairrosOverlay').classList.remove('active');
 }
 
+// ============================================
+// ===== MODAL DE CANCELAMENTO ================
+// ============================================
+
+function abrirModalCancelamento(pedidoId) {
+    pedidoParaCancelar = pedidoId;
+    document.getElementById('btnConfirmarCancelar').onclick = confirmarCancelamento;
+    document.getElementById('modalConfirmarCancelamento').classList.add('active');
+}
+
+function fecharModalCancelamento(event) {
+    if (event && event.target !== document.getElementById('modalConfirmarCancelamento')) return;
+    document.getElementById('modalConfirmarCancelamento').classList.remove('active');
+    pedidoParaCancelar = null;
+}
+
+async function confirmarCancelamento() {
+    if (!pedidoParaCancelar) return;
+    
+    const pedido = pedidosAtuais.find(p => p.id === pedidoParaCancelar);
+    if (pedido && pedido.status === 'novo') pararSomNovoPedido();
+    
+    await mudarStatusPedido(pedidoParaCancelar, 'cancelado');
+    fecharModalCancelamento();
+}
+
 // ===== EXPOR =====
 window.toggleSidebar = toggleSidebar;
 window.filtrarPorStatus = filtrarPorStatus;
@@ -912,3 +950,6 @@ window.fecharModalBairros = fecharModalBairros;
 window.abrirBairro = abrirBairro;
 window.fecharModalWhatsAppCardapio = fecharModalWhatsAppCardapio;
 window.enviarWhatsAppCardapio = enviarWhatsAppCardapio;
+window.abrirModalCancelamento = abrirModalCancelamento;
+window.fecharModalCancelamento = fecharModalCancelamento;
+window.confirmarCancelamento = confirmarCancelamento;
