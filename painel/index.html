@@ -148,6 +148,42 @@
     </div>
 </div>
 
+    <!-- ========== MODAL WHATSAPP CARDÁPIO ========== -->
+<div class="modal-overlay" id="modalWhatsAppCardapio" onclick="fecharModalWhatsAppCardapio(event)">
+    <div class="modal-wpp-filtro" onclick="event.stopPropagation()">
+        
+        <!-- Cabeçalho -->
+        <div class="wpp-header">
+            <i class="fab fa-whatsapp"></i>
+            <h3>Enviar Cardápio</h3>
+            <button onclick="fecharModalWhatsAppCardapio()" 
+                    style="margin-left:auto; background:none; border:none; color:#fff; font-size:1.2rem; cursor:pointer;"
+                    onmouseover="this.style.color='#25D366'" onmouseout="this.style.color='#fff'">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Campo de número -->
+        <div class="wpp-input-group">
+            <label>Número do cliente</label>
+            <input type="text" id="wppNumeroCardapio" placeholder="(31) 99999-9999" value="31"
+                   onkeypress="if(event.key==='Enter') enviarWhatsAppCardapio()">
+            <small>Digite o número com DDD e pressione Enter ou clique em Enviar</small>
+        </div>
+        
+        <!-- Botões -->
+        <div class="wpp-buttons">
+            <button class="btn-wpp-enviar" onclick="enviarWhatsAppCardapio()">
+                <i class="fab fa-whatsapp"></i> ENVIAR
+            </button>
+            <button class="btn-wpp-cancelar" onclick="fecharModalWhatsAppCardapio()">
+                CANCELAR
+            </button>
+        </div>
+        
+    </div>
+</div>
+
 <!-- Scripts -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
