@@ -310,7 +310,7 @@ function criarCardPedido(pedido) {
 
 function criarSeta(direcao, proximoStatus, pedidoId, pedido) {
     const seta = document.createElement('button');
-    seta.className = `seta-status seta-${direcao}`;
+    seta.className = `seta-status ${direcao}`;
     const tooltip = direcao === 'direita' ? `Mover para ${getStatusLabel(proximoStatus)}` : `Voltar para ${getStatusLabel(proximoStatus)}`;
     seta.setAttribute('data-tooltip', tooltip);
     seta.innerHTML = direcao === 'direita' ? '<i class="fas fa-chevron-right"></i>' : '<i class="fas fa-chevron-left"></i>';
