@@ -272,15 +272,24 @@ function criarCardPedido(pedido) {
         btnsDiv.appendChild(btnCancelar);
     }
 
+      // WhatsApp (aparece em TODOS os status)
     const podeEnviarWpp = nivelAcesso !== null && pedido.cliente?.telefone;
-    if (podeEnviarWpp && !['preparando', 'saiu_entrega'].includes(pedido.status)) {
+    if (podeEnviarWpp) {
         const btnWpp = document.createElement('button');
         btnWpp.className = 'btn-whatsapp-card';
         btnWpp.innerHTML = '<i class="fab fa-whatsapp"></i>';
         btnWpp.onclick = (e) => {
             e.stopPropagation();
             if (pedido.status === 'novo') pararSomNovoPedido();
-            enviarWhatsAppManual(pedido);
+            
+            // Usa mensagem configurada para o status
+            if (pedido.status === 'preparando') {
+                enviarWhatsAppPreparando(pedido);
+            } else if (pedido.status === 'saiu_entrega') {
+                enviarWhatsAppSaiu(pedido);
+            } else {
+                enviarWhatsAppManual(pedido);
+            }
         };
         btnsDiv.appendChild(btnWpp);
     }
