@@ -536,7 +536,7 @@ function imprimirPedidoPainel(pedido) {
             
             // Sabores da pizza (formato com /)
             if (item.sabores && item.sabores.length > 0) {
-                const saboresTexto = item.sabores.map(s => s.nome).join(' / ');
+                const saboresTexto = item.sabores.map(s => s.nome).join(' meia ');
                 itensHtml += `<div style="font-size:18px; margin-left:15px;">Sabores: ${saboresTexto}</div>`;
             }
             
@@ -705,7 +705,6 @@ function imprimirPedidoPainel(pedido) {
             
             <div class="total-geral">TOTAL: ${formatarPrecoPainel(pedido.total)}</div>
             
-            <div class="telefone">${pedido.cliente?.telefone || '---'}</div>
             
             <div class="footer">Obrigado pela preferencia!</div>
             
