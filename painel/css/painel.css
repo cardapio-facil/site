@@ -339,10 +339,8 @@ body {
 .pedido-card.entregue { border-left: 5px solid #9C27B0; opacity: 0.85; }
 .pedido-card.cancelado { border-left: 5px solid #dc3545; opacity: 0.7; }
 
-/* SETAS LATERAIS */
+/* ===== SETAS LATERAIS (CORRIGIDO) ===== */
 .seta-status {
-    width: 45px;
-    min-width: 45px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -354,6 +352,7 @@ body {
     font-size: 1.4rem;
     position: relative;
     z-index: 10;
+    flex-shrink: 0;
 }
 
 .seta-status:hover {
@@ -362,9 +361,21 @@ body {
     font-size: 1.8rem;
 }
 
-.seta-status.esquerda { border-right: 1px solid rgba(128, 0, 32, 0.2); }
-.seta-status.direita { border-left: 1px solid rgba(128, 0, 32, 0.2); }
+/* Seta esquerda (voltar) - 30px */
+.seta-status.esquerda {
+    width: 30px;
+    min-width: 30px;
+    border-right: 1px solid rgba(128, 0, 32, 0.2);
+}
 
+/* Seta direita (avançar) - 45px */
+.seta-status.direita {
+    width: 45px;
+    min-width: 45px;
+    border-left: 1px solid rgba(128, 0, 32, 0.2);
+}
+
+/* Tooltip das setas */
 .seta-status[data-tooltip]:hover::after {
     content: attr(data-tooltip);
     position: absolute;
@@ -384,6 +395,7 @@ body {
 .card-conteudo {
     flex: 1;
     padding: 18px;
+    min-width: 0; /* evita que o conteúdo empurre as setas */
 }
 
 .card-header {
