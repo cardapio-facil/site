@@ -508,7 +508,12 @@ function imprimirPedidoPainel(pedido) {
             const preco = formatarPrecoPainel(item.totalItem || item.precoUnitario * item.quantidade);
             
             // Nome do item com quantidade e preço
-            itensHtml += `<div style="margin-bottom:3px;"><strong>${item.quantidade}x ${nome} - ${preco}</strong></div>`;
+            itensHtml += `<div style="margin-bottom:5px;"><strong>${item.quantidade}x ${nome} - ${preco}</strong></div>`;
+            
+            // 🆕 Observação do item (vai logo após o nome, antes dos detalhes)
+            if (item.snapshot?.observacao) {
+                itensHtml += `<div style="font-size:12px; margin-left:10px; margin-bottom:3px; font-style:italic;">Obs: ${item.snapshot.observacao}</div>`;
+            }
             
             // Detalhes de montagem
             if (item.tipo === 'montagem' && item.snapshot) {
@@ -539,11 +544,6 @@ function imprimirPedidoPainel(pedido) {
                     return a.nome + (a.preco > 0 ? ' (+' + formatarPrecoPainel(a.preco) + ')' : '');
                 }).join(', ');
                 itensHtml += `<div style="font-size:12px; margin-left:10px;">Adicionais: ${adicionaisTexto}</div>`;
-            }
-            
-            // Observação do item
-            if (item.snapshot?.observacao) {
-                itensHtml += `<div style="font-size:12px; margin-left:10px; font-style:italic;">Obs: ${item.snapshot.observacao}</div>`;
             }
             
             itensHtml += `<br>`;
@@ -597,25 +597,57 @@ function imprimirPedidoPainel(pedido) {
         <head>
             <title>Pedido #${pedido.numero || '---'}</title>
             <style>
-                body { font-family: 'Courier New', monospace; font-size: 13px; width: 80mm; margin: 0 auto; padding: 10px; }
-                .header { text-align: center; margin-bottom: 15px; border-bottom: 1px dashed #000; padding-bottom: 10px; }
-                h1 { font-size: 16px; margin: 0; }
-                h2 { font-size: 12px; color: #800020; }
-                .info { margin: 5px 0; }
-                .total { font-weight: bold; font-size: 16px; text-align: right; border-top: 2px solid #000; border-bottom: 2px solid #000; padding: 10px 0; margin: 15px 0; }
-                hr { border: none; border-top: 1px dashed #ccc; margin: 10px 0; }
+                body {
+                    font-family: 'Courier New', monospace;
+                    font-size: 14px;
+                    width: 80mm;
+                    margin: 0 auto;
+                    padding: 10px;
+                }
+                .header {
+                    text-align: center;
+                    margin-bottom: 15px;
+                    border-bottom: 1px dashed #000;
+                    padding-bottom: 10px;
+                }
+                h1 {
+                    font-size: 18px;
+                    margin: 0;
+                }
+                h2 {
+                    font-size: 14px;
+                    color: #800020;
+                }
+                .info {
+                    margin: 5px 0;
+                    font-size: 14px;
+                }
+                .total {
+                    font-weight: bold;
+                    font-size: 18px;
+                    text-align: right;
+                    border-top: 2px solid #000;
+                    border-bottom: 2px solid #000;
+                    padding: 10px 0;
+                    margin: 15px 0;
+                }
+                hr {
+                    border: none;
+                    border-top: 1px dashed #ccc;
+                    margin: 10px 0;
+                }
             </style>
         </head>
         <body>
             <div class="header">
                 <h1>${CONFIG_PAINEL.nomeRestaurante}</h1>
                 <h2>PEDIDO #${pedido.numero || '---'}</h2>
-                <p>${new Date().toLocaleString('pt-BR')}</p>
+                <p style="font-size:12px;">${new Date().toLocaleString('pt-BR')}</p>
             </div>
             
             <div class="info"><strong>Cliente:</strong> ${pedido.cliente?.nome || '---'}</div>
             <div class="info"><strong>Fone:</strong> ${pedido.cliente?.telefone || '---'}</div>
-            <div class="info"><strong>Endereço:</strong> ${enderecoCompleto}</div>
+            <div class="info"><strong>Endereco:</strong> ${enderecoCompleto}</div>
             ${complementoHtml}
             ${referenciaHtml}
             ${obsGeralHtml}
@@ -629,14 +661,13 @@ function imprimirPedidoPainel(pedido) {
             ${freteHtml}
             
             <div class="total">TOTAL: ${formatarPrecoPainel(pedido.total)}</div>
-            <div style="text-align:center; margin-top:20px;">Obrigado pela preferência!</div>
+            <div style="text-align:center; margin-top:20px; font-size:14px;">Obrigado pela preferencia!</div>
             <script>window.onload=function(){window.print();setTimeout(()=>window.close(),1000);}<\/script>
         </body>
         </html>
     `);
     win.document.close();
 }
-
 // ============================================
 // ===== WHATSAPP =============================
 // ============================================
