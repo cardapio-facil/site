@@ -489,20 +489,27 @@ body {
 .btn-whatsapp-card {
     position: absolute;
     bottom: 12px;
-    right: 120px;
+    right: 54px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 5;
+    font-size: 1rem;
     background: rgba(37, 211, 102, 0.15);
     border: 1px solid #25D366;
     color: #25D366;
-    padding: 6px 14px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    font-weight: 600;
-    transition: all 0.3s;
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+}
+
+.btn-whatsapp-card:hover {
+    background: #25D366;
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+    transform: scale(1.1);
 }
 
 .btn-whatsapp-card:hover {
