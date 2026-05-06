@@ -5,6 +5,8 @@
 const CONFIG_PAINEL = {
     restauranteId: 'deliverypro',
     nomeRestaurante: 'Delivery Pro',
+    cidade: 'Conselheiro Lafaiete',  // ← ADICIONAR
+    uf: 'MG', 
     logoUrl: 'https://png.pngtree.com/png-clipart/20200727/original/pngtree-pin-food-delivery-map-location-delivery-logo-concept-png-image_5137624.jpg',
 
     firebase: {
@@ -132,6 +134,17 @@ function getStatusClass(status) {
     return classes[status] || '';
 }
 
+// ============================================
+// ===== CONVERSÃO DE CIDADE =================
+// ============================================
+
+function getCidadeKey() {
+    return CONFIG_PAINEL.cidade
+        .toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+}
 // ============================================
 // ===== SISTEMA DE BAIRROS ===================
 // ============================================
@@ -468,3 +481,4 @@ window.aplicarFreteDesmarcadosPainel = aplicarFreteDesmarcadosPainel;
 window.salvarBairrosPainel = salvarBairrosPainel;
 window.renderizarBairrosPainel = renderizarBairrosPainel;
 window.confirmarSalvarBairros = confirmarSalvarBairros;
+window.getCidadeKey = getCidadeKey;
