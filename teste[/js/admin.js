@@ -43,14 +43,14 @@ async function verificarLogin() {
     const senhaMaster = config.senhaMaster || SENHA_MASTER;
     const senhaView = config.senhaView || SENHA_VIEW;
     
-    if (senha === senhaMaster) {
+     if (senha === String(senhaMaster)) {
         adminLogado = true;
         nivelAcesso = 'master';
         fecharModalLogin();
         mostrarToast('Bem-vindo, Master!', 'sucesso');
         atualizarInterfaceAdmin();
         abrirModalAdmin();
-    } else if (senha === senhaView) {
+    } else if (senha === String(senhaView)) {
         adminLogado = true;
         nivelAcesso = 'view';
         fecharModalLogin();
