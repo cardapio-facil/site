@@ -19,8 +19,8 @@ const CONFIG_PAINEL = {
         appId: "1:167323638749:web:6675d3d1edec31096b7434"
     },
 
-    senhaMasterPadrao: '123',
-    senhaViewPadrao: 'view123',
+      senhaMasterPadrao: null,
+      senhaViewPadrao: null,
 
     intervaloCronometro: 10,
 
