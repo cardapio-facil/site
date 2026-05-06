@@ -206,8 +206,12 @@ function criarCardPedido(pedido) {
     // Seta esquerda (voltar status)
     const idx = CONFIG_PAINEL.fluxoStatus.indexOf(pedido.status);
     if (idx > 0 && pedido.status !== 'cancelado') {
-        const setaEsq = criarSeta('esquerda', CONFIG_PAINEL.fluxoStatus[idx - 1], pedido.id);
+        const setaEsq = criarSeta('esquerda', CONFIG_PAINEL.fluxoStatus[idx - 1], pedido.id, pedido);
         card.appendChild(setaEsq);
+    } else {
+        const vazio = document.createElement('div');
+        vazio.className = 'seta-vazia';
+        card.appendChild(vazio);
     }
 
     // Conteúdo central
@@ -222,7 +226,6 @@ function criarCardPedido(pedido) {
         ? `${pedido.endereco.rua || ''}, ${pedido.endereco.numero || ''} - ${pedido.endereco.bairro || ''}`
         : 'Retirada no local';
 
-    // Informações do card (sem o valor total, que vai no rodapé)
     conteudo.innerHTML = `
         <div class="card-header">
             <span class="pedido-numero">#${pedido.numero || '---'}</span>
@@ -244,22 +247,19 @@ function criarCardPedido(pedido) {
         ${pedido.status === 'preparando' ? `<div class="cronometro-card" id="cron-${pedido.id}"></div>` : ''}
     `;
 
-    // ---- Rodapé com valor e botões ----
+    // Rodapé com valor e botões
     const footer = document.createElement('div');
     footer.style.cssText = 'display:flex; justify-content:space-between; align-items:flex-end; margin-top:auto; padding-top:10px;';
 
-    // Valor total
     const totalEl = document.createElement('div');
     totalEl.className = 'pedido-total';
     totalEl.textContent = formatarPrecoPainel(pedido.total);
     footer.appendChild(totalEl);
 
-    // Botões
     const btnsDiv = document.createElement('div');
     btnsDiv.style.display = 'flex';
     btnsDiv.style.gap = '8px';
 
-    // WhatsApp manual (exceto quando já é automático)
     const podeEnviarWpp = nivelAcesso !== null && pedido.cliente?.telefone;
     if (podeEnviarWpp && !['preparando', 'saiu_entrega'].includes(pedido.status)) {
         const btnWpp = document.createElement('button');
@@ -267,17 +267,18 @@ function criarCardPedido(pedido) {
         btnWpp.innerHTML = '<i class="fab fa-whatsapp"></i>';
         btnWpp.onclick = (e) => {
             e.stopPropagation();
+            if (pedido.status === 'novo') pararSomNovoPedido();
             enviarWhatsAppManual(pedido);
         };
         btnsDiv.appendChild(btnWpp);
     }
 
-    // Botão imprimir
     const btnImp = document.createElement('button');
     btnImp.className = 'btn-imprimir-card';
     btnImp.innerHTML = '<i class="fas fa-print"></i>';
     btnImp.onclick = (e) => {
         e.stopPropagation();
+        if (pedido.status === 'novo') pararSomNovoPedido();
         imprimirPedidoPainel(pedido);
     };
     btnsDiv.appendChild(btnImp);
@@ -289,33 +290,37 @@ function criarCardPedido(pedido) {
 
     // Seta direita (avançar status)
     if (idx >= 0 && idx < CONFIG_PAINEL.fluxoStatus.length - 1 && pedido.status !== 'cancelado') {
-        const setaDir = criarSeta('direita', CONFIG_PAINEL.fluxoStatus[idx + 1], pedido.id);
+        const setaDir = criarSeta('direita', CONFIG_PAINEL.fluxoStatus[idx + 1], pedido.id, pedido);
         card.appendChild(setaDir);
+    } else {
+        const vazio = document.createElement('div');
+        vazio.className = 'seta-vazia';
+        card.appendChild(vazio);
     }
 
-    // Evento de clique no card para abrir detalhes
+    // Evento de clique no card
     card.addEventListener('click', (e) => {
-        // Ignora clique em setas e botões
         if (e.target.closest('.seta-status, .btn-imprimir-card, .btn-whatsapp-card')) return;
+        if (pedido.status === 'novo') pararSomNovoPedido();
         abrirDetalhes(pedido);
     });
 
     return card;
 }
 
-function criarSeta(direcao, proximoStatus, pedidoId) {
+function criarSeta(direcao, proximoStatus, pedidoId, pedido) {
     const seta = document.createElement('button');
-    seta.className = `seta-status ${direcao}`;
+    seta.className = `seta-status seta-${direcao}`;
     const tooltip = direcao === 'direita' ? `Mover para ${getStatusLabel(proximoStatus)}` : `Voltar para ${getStatusLabel(proximoStatus)}`;
     seta.setAttribute('data-tooltip', tooltip);
     seta.innerHTML = direcao === 'direita' ? '<i class="fas fa-chevron-right"></i>' : '<i class="fas fa-chevron-left"></i>';
     seta.onclick = async (e) => {
         e.stopPropagation();
+        if (pedido && pedido.status === 'novo') pararSomNovoPedido();
         await mudarStatusPedido(pedidoId, proximoStatus);
     };
     return seta;
 }
-
 // ============================================
 // ===== MUDAR STATUS =========================
 // ============================================
