@@ -213,30 +213,7 @@ function carregarAdminProdutos() {
     container.appendChild(div);
 });
 
-    async function toggleDisponibilidadeProduto(produtoId) {
-     
-    const produto = produtos.find(p => p.id === produtoId);
-    if (!produto) return;
-    
-    // Alterna o status
-    produto.disponivel = !produto.disponivel;
-    
-    // Salva no Firebase
-    const sucesso = await salvarProdutosFirebase(produtos);
-    if (sucesso) {
-        const status = produto.disponivel ? 'disponível' : 'indisponível';
-        mostrarToast(`${produto.nome} agora está ${status}`, 'sucesso');
-        carregarAdminProdutos(); // Recarrega a lista
-        renderizarProdutos();    // Atualiza o cardápio
-    } else {
-        // Reverte se falhar
-        produto.disponivel = !produto.disponivel;
-        mostrarToast('Erro ao alterar disponibilidade', 'erro');
-    }
-}
-
-
-
+   
 function abrirModalCadastroProduto() {
     if (nivelAcesso !== 'master') {
         mostrarToast('Apenas Master pode cadastrar produtos', 'alerta');
@@ -1520,6 +1497,29 @@ async function salvarConfiguracoes() {
         renderizarProdutos();
     }
 }
+
+     async function toggleDisponibilidadeProduto(produtoId) {
+     
+    const produto = produtos.find(p => p.id === produtoId);
+    if (!produto) return;
+    
+    // Alterna o status
+    produto.disponivel = !produto.disponivel;
+    
+    // Salva no Firebase
+    const sucesso = await salvarProdutosFirebase(produtos);
+    if (sucesso) {
+        const status = produto.disponivel ? 'disponível' : 'indisponível';
+        mostrarToast(`${produto.nome} agora está ${status}`, 'sucesso');
+        carregarAdminProdutos(); // Recarrega a lista
+        renderizarProdutos();    // Atualiza o cardápio
+    } else {
+        // Reverte se falhar
+        produto.disponivel = !produto.disponivel;
+        mostrarToast('Erro ao alterar disponibilidade', 'erro');
+    }
+}
+
 
 // ===== ADMIN DESTAQUES =====
 function abrirGerenciarDestaques() {
