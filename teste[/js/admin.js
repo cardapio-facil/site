@@ -512,7 +512,7 @@ async function excluirAdicional(categoria, index) {
 }
 
 // ============================================
-// ===== 🛠️ ADMIN MONTAGENS (COMPLETO) ========
+// ===== 🛠️ ADMIN MONTAGENS (COMPLETO - VISUAL PROFISSIONAL) ========
 // ============================================
 
 let montagemEditando = null;
@@ -520,12 +520,13 @@ let montagemEditando = null;
 function carregarAdminMontagens() {
     const container = document.getElementById('listaMontagens');
     container.innerHTML = '';
+    container.classList.add('admin-montagens-lista');
     
     if (montagens.length === 0) {
         container.innerHTML = `
-            <div style="text-align: center; padding: 40px; color: var(--cor-texto-claro);">
-                <i class="fas fa-puzzle-piece" style="font-size: 3rem; opacity: 0.3;"></i>
-                <p>Nenhuma montagem cadastrada</p>
+            <div class="admin-section" style="text-align:center;padding:40px;">
+                <i class="fas fa-puzzle-piece" style="font-size:2.5rem;opacity:.2;margin-bottom:12px;"></i>
+                <p style="color:var(--text-secondary);font-size:.9rem;">Nenhuma montagem cadastrada</p>
             </div>
         `;
         return;
@@ -533,69 +534,35 @@ function carregarAdminMontagens() {
     
     montagens.forEach(montagem => {
         const div = document.createElement('div');
-        div.style.cssText = `
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--cor-borda);
-            background: #ffffff;
-            transition: all 0.2s ease;
-        `;
-        div.addEventListener('mouseenter', () => { div.style.background = '#fafafa'; });
-        div.addEventListener('mouseleave', () => { div.style.background = '#ffffff'; });
-
+        div.className = 'admin-montagem-card';
         div.innerHTML = `
-            <div style="flex: 1; min-width: 0;">
-                <strong style="display: block; margin-bottom: 3px;">
-                    <i class="fas fa-puzzle-piece" style="color: #9c27b0; margin-right: 4px;"></i>${montagem.nome}
-                </strong>
-                <small style="color: var(--cor-texto-claro);">
-                    <i class="fas fa-folder" style="margin-right: 4px;"></i>${getNomeCategoria(montagem.categoria)} | 
-                    <i class="fas fa-dollar-sign" style="margin-right: 4px;"></i>Base: ${formatarPreco(montagem.precoBase)}
-                </small>
+            <div class="admin-montagem-info">
+                <div class="admin-montagem-title">
+                    <i class="fas fa-puzzle-piece"></i>
+                    ${montagem.nome}
+                </div>
+                <div class="admin-montagem-meta">
+                    <span><i class="fas fa-folder"></i>${getNomeCategoria(montagem.categoria)}</span>
+                    <span><i class="fas fa-dollar-sign"></i>Base: ${formatarPreco(montagem.precoBase)}</span>
+                </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                <button onclick="toggleDisponibilidadeMontagem('${montagem.id}')" 
-                        title="${montagem.disponivel ? 'Disponível' : 'Indisponível'}"
-                        style="
-                            width: 38px; height: 38px; border-radius: 50%; border: none;
-                            cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
-                            transition: all 0.3s ease;
-                            background: ${montagem.disponivel ? 'rgba(76, 175, 80, 0.15)' : 'rgba(244, 67, 54, 0.15)'};
-                            color: ${montagem.disponivel ? '#4CAF50' : '#f44336'};
-                        ">
+            <div class="admin-actions">
+                <button onclick="toggleDisponibilidadeMontagem('${montagem.id}')"
+                        class="admin-icon-btn ${montagem.disponivel ? 'btn-view' : 'btn-hidden'}"
+                        title="${montagem.disponivel ? 'Disponível' : 'Indisponível'}">
                     <i class="fas ${montagem.disponivel ? 'fa-eye' : 'fa-eye-slash'}"></i>
                 </button>
-                
-                <button onclick="editarMontagem('${montagem.id}')" 
-                        title="Editar montagem"
-                        style="
-                            width: 38px; height: 38px; border-radius: 50%; border: none;
-                            cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
-                            transition: all 0.3s ease;
-                            background: rgba(33, 150, 243, 0.1);
-                            color: #2196F3;
-                        "
-                        onmouseover="this.style.background='#2196F3'; this.style.color='#fff'; this.style.transform='scale(1.1)'"
-                        onmouseout="this.style.background='rgba(33, 150, 243, 0.1)'; this.style.color='#2196F3'; this.style.transform='scale(1)'">
+                <button onclick="editarMontagem('${montagem.id}')"
+                        class="admin-icon-btn btn-edit"
+                        title="Editar montagem">
                     <i class="fas fa-pen-to-square"></i>
                 </button>
-                
                 ${nivelAcesso === 'master' ? `
-                <button onclick="excluirMontagem('${montagem.id}')" 
-                        title="Excluir montagem"
-                        style="
-                            width: 38px; height: 38px; border-radius: 50%; border: none;
-                            cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
-                            transition: all 0.3s ease;
-                            background: rgba(244, 67, 54, 0.1);
-                            color: #f44336;
-                        "
-                        onmouseover="this.style.background='#f44336'; this.style.color='#fff'; this.style.transform='scale(1.1)'"
-                        onmouseout="this.style.background='rgba(244, 67, 54, 0.1)'; this.style.color='#f44336'; this.style.transform='scale(1)'">
-                    <i class="fas fa-trash-can"></i>
-                </button>
+                    <button onclick="excluirMontagem('${montagem.id}')"
+                            class="admin-icon-btn btn-delete"
+                            title="Excluir montagem">
+                        <i class="fas fa-trash-can"></i>
+                    </button>
                 ` : ''}
             </div>
         `;
@@ -648,7 +615,12 @@ function abrirModalNovaMontagem() {
     
     document.getElementById('gruposContainer').innerHTML = '';
     document.getElementById('tamanhosContainer').innerHTML = '';
-    document.getElementById('modalCadastroMontagem').style.display = 'flex';
+    
+    const modal = document.getElementById('modalCadastroMontagem');
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+        modal.classList.add('active');
+    });
 }
 
 function editarMontagem(id) {
@@ -682,11 +654,20 @@ function editarMontagem(id) {
     
     renderizarTamanhosMontagem(montagem);
     renderizarGruposMontagem(montagem);
-    document.getElementById('modalCadastroMontagem').style.display = 'flex';
+    
+    const modal = document.getElementById('modalCadastroMontagem');
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+        modal.classList.add('active');
+    });
 }
 
 function fecharModalCadastroMontagem() {
-    document.getElementById('modalCadastroMontagem').style.display = 'none';
+    const modal = document.getElementById('modalCadastroMontagem');
+    modal.classList.remove('active');
+    setTimeout(() => {
+        modal.style.display = 'none';
+    }, 250);
 }
 
 // ============================================
@@ -696,35 +677,14 @@ function fecharModalCadastroMontagem() {
 function adicionarTamanho() {
     const container = document.getElementById('tamanhosContainer');
     const div = document.createElement('div');
-    div.style.cssText = `
-        display: flex; align-items: center; gap: 10px;
-        padding: 10px 12px; background: #fafafa;
-        border: 1px solid #eee; border-radius: 8px;
-        margin-bottom: 6px; transition: all 0.2s ease;
-    `;
+    div.className = 'admin-item';
     div.innerHTML = `
-        <div style="
-            width: 36px; height: 36px; border-radius: 8px;
-            background: rgba(33, 150, 243, 0.1); display: flex; 
-            align-items: center; justify-content: center; flex-shrink: 0;
-        ">
-            <i class="fas fa-ruler" style="color: #2196F3; font-size: 0.9rem;"></i>
+        <input type="text" placeholder="Nome do tamanho" class="admin-input">
+        <div style="display:flex;align-items:center;gap:4px;">
+            <span style="color:var(--text-secondary);">R$</span>
+            <input type="number" placeholder="0.00" step="0.01" value="0" class="admin-input" style="text-align:right;">
         </div>
-        <input type="text" placeholder="Nome do tamanho" style="flex: 2; padding: 8px 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;">
-        <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-            <span style="color: #999; font-size: 0.85rem;">R$</span>
-            <input type="number" placeholder="0.00" step="0.01" value="0" 
-                   style="width: 90px; padding: 8px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; text-align: right;">
-        </div>
-        <button onclick="this.parentElement.remove()" 
-                style="
-                    width: 32px; height: 32px; border-radius: 50%; border: none;
-                    cursor: pointer; display: flex; align-items: center; justify-content: center;
-                    background: rgba(244, 67, 54, 0.08); color: #f44336;
-                    transition: all 0.3s ease; flex-shrink: 0;
-                "
-                onmouseover="this.style.background='#f44336'; this.style.color='#fff'"
-                onmouseout="this.style.background='rgba(244, 67, 54, 0.08)'; this.style.color='#f44336'">
+        <button onclick="this.parentElement.remove()" class="admin-icon-btn btn-delete">
             <i class="fas fa-xmark"></i>
         </button>
     `;
@@ -738,35 +698,14 @@ function renderizarTamanhosMontagem(montagem) {
     if (montagem.tamanhos) {
         montagem.tamanhos.forEach(tamanho => {
             const div = document.createElement('div');
-            div.style.cssText = `
-                display: flex; align-items: center; gap: 10px;
-                padding: 10px 12px; background: #fafafa;
-                border: 1px solid #eee; border-radius: 8px;
-                margin-bottom: 6px; transition: all 0.2s ease;
-            `;
+            div.className = 'admin-item';
             div.innerHTML = `
-                <div style="
-                    width: 36px; height: 36px; border-radius: 8px;
-                    background: rgba(33, 150, 243, 0.1); display: flex; 
-                    align-items: center; justify-content: center; flex-shrink: 0;
-                ">
-                    <i class="fas fa-ruler" style="color: #2196F3; font-size: 0.9rem;"></i>
+                <input type="text" value="${tamanho.nome}" class="admin-input">
+                <div style="display:flex;align-items:center;gap:4px;">
+                    <span style="color:var(--text-secondary);">R$</span>
+                    <input type="number" value="${centavosParaFloat(tamanho.preco)}" step="0.01" class="admin-input" style="text-align:right;">
                 </div>
-                <input type="text" value="${tamanho.nome}" style="flex: 2; padding: 8px 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem;">
-                <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                    <span style="color: #999; font-size: 0.85rem;">R$</span>
-                    <input type="number" value="${centavosParaFloat(tamanho.preco)}" step="0.01" 
-                           style="width: 90px; padding: 8px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.9rem; text-align: right;">
-                </div>
-                <button onclick="this.parentElement.remove()" 
-                        style="
-                            width: 32px; height: 32px; border-radius: 50%; border: none;
-                            cursor: pointer; display: flex; align-items: center; justify-content: center;
-                            background: rgba(244, 67, 54, 0.08); color: #f44336;
-                            transition: all 0.3s ease; flex-shrink: 0;
-                        "
-                        onmouseover="this.style.background='#f44336'; this.style.color='#fff'"
-                        onmouseout="this.style.background='rgba(244, 67, 54, 0.08)'; this.style.color='#f44336'">
+                <button onclick="this.parentElement.remove()" class="admin-icon-btn btn-delete">
                     <i class="fas fa-xmark"></i>
                 </button>
             `;
@@ -784,101 +723,47 @@ function adicionarGrupo() {
     const grupoId = 'grp_' + Date.now();
     
     const div = document.createElement('div');
-    div.style.cssText = `
-        background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px;
-        padding: 20px; margin-bottom: 16px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.2s ease;
-    `;
+    div.className = 'admin-group-card';
     div.dataset.grupoId = grupoId;
     div.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0;">
-            <div style="
-                width: 40px; height: 40px; border-radius: 10px;
-                background: linear-gradient(135deg, #667eea, #764ba2);
-                display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-            ">
-                <i class="fas fa-layer-group" style="color: #fff; font-size: 1rem;"></i>
-            </div>
-            <input type="text" placeholder="Nome do grupo" onchange="atualizarTituloGrupo(this)"
-                   style="flex: 1; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 1rem; font-weight: 600; color: #333;">
-            <div style="display: flex; align-items: center; gap: 4px;">
-                <i class="fas fa-hashtag" style="color: #999; font-size: 0.8rem;"></i>
-                <input type="number" value="1" min="1" style="width: 55px; padding: 8px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 0.9rem; text-align: center;">
-            </div>
-            <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 6px 10px; background: rgba(244, 67, 54, 0.08); border-radius: 8px; font-size: 0.8rem; font-weight: 500;">
-                <input type="checkbox" checked style="width: 16px; height: 16px; accent-color: #f44336;">
-                <i class="fas fa-asterisk" style="color: #f44336; font-size: 0.6rem;"></i> Obrigatório
+        <div class="admin-group-header">
+            <input type="text" placeholder="Nome do grupo" class="admin-input" onchange="atualizarTituloGrupo(this)">
+            <input type="number" value="1" min="1" class="admin-input" style="width:80px;text-align:center;" placeholder="Limite">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">
+                <input type="checkbox" checked style="accent-color:var(--danger);"> Obrigatório
             </label>
-            <button onclick="this.closest('[data-grupo-id]').remove()" 
-                    style="width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
-                           display: flex; align-items: center; justify-content: center;
-                           background: rgba(244, 67, 54, 0.08); color: #f44336; transition: all 0.3s ease;"
-                    onmouseover="this.style.background='#f44336'; this.style.color='#fff'"
-                    onmouseout="this.style.background='rgba(244, 67, 54, 0.08)'; this.style.color='#f44336'">
+            <button onclick="this.closest('.admin-group-card').remove()" class="admin-icon-btn btn-delete">
                 <i class="fas fa-trash-can"></i>
             </button>
         </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px 12px; background: #f8f9fa; border-radius: 8px;">
-            <span style="font-size: 0.8rem; color: #666; font-weight: 500;">
-                <i class="fas fa-list-check" style="margin-right: 4px;"></i>Itens do grupo
-            </span>
-            <button onclick="desmarcarTodosItensGrupo(this)" 
-                    style="padding: 5px 12px; background: rgba(244, 67, 54, 0.08); border: 1px solid rgba(244, 67, 54, 0.2); 
-                           border-radius: 20px; color: #f44336; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: all 0.2s ease;"
-                    onmouseover="this.style.background='#f44336'; this.style.color='#fff'"
-                    onmouseout="this.style.background='rgba(244, 67, 54, 0.08)'; this.style.color='#f44336'">
-                <i class="fas fa-toggle-off"></i> Desmarcar Todos
+        <div class="admin-group-items"></div>
+        <div style="padding:10px;">
+            <button onclick="adicionarItemGrupo(this)" class="admin-btn admin-btn-soft" style="width:100%;">
+                <i class="fas fa-plus"></i> Adicionar Item
             </button>
         </div>
-        
-        <div class="itens-grupo-container" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;"></div>
-        
-        <button onclick="adicionarItemGrupo(this)" 
-                style="width: 100%; padding: 10px; background: rgba(102, 126, 234, 0.06); border: 2px dashed #667eea; 
-                       border-radius: 10px; color: #667eea; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease;"
-                onmouseover="this.style.background='rgba(102, 126, 234, 0.12)'; this.style.borderStyle='solid'"
-                onmouseout="this.style.background='rgba(102, 126, 234, 0.06)'; this.style.borderStyle='dashed'">
-            <i class="fas fa-plus-circle"></i> Adicionar Item
-        </button>
     `;
     container.appendChild(div);
 }
 
 function atualizarTituloGrupo(input) {
-    const grupoBox = input.closest('[data-grupo-id]');
-    if (!grupoBox) return;
-    const label = grupoBox.querySelector('.itens-grupo-container')?.previousElementSibling?.querySelector('span');
-    if (label) label.innerHTML = `<i class="fas fa-list-check" style="margin-right: 4px;"></i>Itens de "${input.value || 'Novo Grupo'}"`;
+    // placeholder para uso futuro
 }
 
 function adicionarItemGrupo(btn) {
-    const container = btn.previousElementSibling;
+    const container = btn.closest('.admin-group-card').querySelector('.admin-group-items');
     const itemDiv = document.createElement('div');
-    itemDiv.style.cssText = `
-        display: flex; align-items: center; gap: 8px; padding: 10px 12px;
-        background: #fafafa; border: 1px solid #eee; border-radius: 8px; transition: all 0.2s ease;
-    `;
+    itemDiv.className = 'admin-item';
     itemDiv.innerHTML = `
-        <div style="width: 32px; height: 32px; border-radius: 8px; background: rgba(76, 175, 80, 0.1);
-                    display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-            <i class="fas fa-cube" style="color: #4CAF50; font-size: 0.8rem;"></i>
+        <input type="text" placeholder="Nome do item" class="admin-input">
+        <div style="display:flex;align-items:center;gap:4px;">
+            <span style="color:var(--text-secondary);">R$</span>
+            <input type="number" step="0.01" value="0" class="admin-input" style="text-align:right;">
         </div>
-        <input type="text" placeholder="Nome do item" style="flex: 2; padding: 8px 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.85rem;">
-        <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-            <span style="color: #999; font-size: 0.8rem;">R$</span>
-            <input type="number" step="0.01" value="0" style="width: 75px; padding: 8px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.85rem; text-align: right;">
-        </div>
-        <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; padding: 6px 8px; border-radius: 6px;
-                       font-size: 0.7rem; font-weight: 500; background: rgba(76, 175, 80, 0.08); flex-shrink: 0;">
-            <input type="checkbox" checked style="width: 14px; height: 14px; accent-color: #4CAF50;"> Ativo
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.78rem;font-weight:600;">
+            <input type="checkbox" checked style="accent-color:var(--success);"> Ativo
         </label>
-        <button onclick="this.parentElement.remove()" 
-                style="width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer;
-                       display: flex; align-items: center; justify-content: center;
-                       background: rgba(244, 67, 54, 0.06); color: #f44336; transition: all 0.3s ease; flex-shrink: 0;"
-                onmouseover="this.style.background='#f44336'; this.style.color='#fff'"
-                onmouseout="this.style.background='rgba(244, 67, 54, 0.06)'; this.style.color='#f44336'">
+        <button onclick="this.parentElement.remove()" class="admin-icon-btn btn-delete">
             <i class="fas fa-xmark"></i>
         </button>
     `;
@@ -891,101 +776,41 @@ function renderizarGruposMontagem(montagem) {
     
     montagem.grupos.forEach(grupo => {
         const div = document.createElement('div');
-        div.style.cssText = `
-            background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px;
-            padding: 20px; margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: all 0.2s ease;
-        `;
+        div.className = 'admin-group-card';
         div.dataset.grupoId = grupo.id;
-        div.addEventListener('mouseenter', () => { div.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'; });
-        div.addEventListener('mouseleave', () => { div.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; });
-        
         div.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0;">
-                <div style="
-                    width: 40px; height: 40px; border-radius: 10px;
-                    background: linear-gradient(135deg, #667eea, #764ba2);
-                    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-                ">
-                    <i class="fas fa-layer-group" style="color: #fff; font-size: 1rem;"></i>
-                </div>
-                <input type="text" value="${grupo.nome}" onchange="atualizarTituloGrupo(this)"
-                       style="flex: 1; padding: 8px 12px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 1rem; font-weight: 600; color: #333;">
-                <div style="display: flex; align-items: center; gap: 4px;">
-                    <i class="fas fa-hashtag" style="color: #999; font-size: 0.8rem;"></i>
-                    <input type="number" value="${grupo.limite}" min="1" style="width: 55px; padding: 8px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 0.9rem; text-align: center;">
-                </div>
-                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 6px 10px;
-                               background: ${grupo.obrigatorio ? 'rgba(244, 67, 54, 0.08)' : '#f5f5f5'}; border-radius: 8px; font-size: 0.8rem; font-weight: 500;">
-                    <input type="checkbox" ${grupo.obrigatorio ? 'checked' : ''} style="width: 16px; height: 16px; accent-color: #f44336;">
-                    <i class="fas fa-asterisk" style="color: ${grupo.obrigatorio ? '#f44336' : '#ccc'}; font-size: 0.6rem;"></i> Obrigatório
+            <div class="admin-group-header">
+                <input type="text" value="${grupo.nome}" class="admin-input">
+                <input type="number" value="${grupo.limite}" min="1" class="admin-input" style="width:80px;text-align:center;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">
+                    <input type="checkbox" ${grupo.obrigatorio ? 'checked' : ''} style="accent-color:var(--danger);"> Obrigatório
                 </label>
-                <button onclick="this.closest('[data-grupo-id]').remove()" 
-                        style="width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
-                               display: flex; align-items: center; justify-content: center;
-                               background: rgba(244, 67, 54, 0.08); color: #f44336; transition: all 0.3s ease;"
-                        onmouseover="this.style.background='#f44336'; this.style.color='#fff'"
-                        onmouseout="this.style.background='rgba(244, 67, 54, 0.08)'; this.style.color='#f44336'">
+                <button onclick="this.closest('.admin-group-card').remove()" class="admin-icon-btn btn-delete">
                     <i class="fas fa-trash-can"></i>
                 </button>
             </div>
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 8px 12px; background: #f8f9fa; border-radius: 8px;">
-                <span style="font-size: 0.8rem; color: #666; font-weight: 500;">
-                    <i class="fas fa-list-check" style="margin-right: 4px;"></i>Itens de "${grupo.nome}"
-                </span>
-                <button onclick="desmarcarTodosItensGrupo(this)" 
-                        style="padding: 5px 12px; background: rgba(244, 67, 54, 0.08); border: 1px solid rgba(244, 67, 54, 0.2); 
-                               border-radius: 20px; color: #f44336; cursor: pointer; font-size: 0.75rem; font-weight: 500; transition: all 0.2s ease;"
-                        onmouseover="this.style.background='#f44336'; this.style.color='#fff'"
-                        onmouseout="this.style.background='rgba(244, 67, 54, 0.08)'; this.style.color='#f44336'">
-                    <i class="fas fa-toggle-off"></i> Desmarcar Todos
+            <div class="admin-group-items"></div>
+            <div style="padding:10px;">
+                <button onclick="adicionarItemGrupo(this)" class="admin-btn admin-btn-soft" style="width:100%;">
+                    <i class="fas fa-plus"></i> Adicionar Item
                 </button>
             </div>
-            
-            <div class="itens-grupo-container" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;"></div>
-            
-            <button onclick="adicionarItemGrupo(this)" 
-                    style="width: 100%; padding: 10px; background: rgba(102, 126, 234, 0.06); border: 2px dashed #667eea; 
-                           border-radius: 10px; color: #667eea; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.2s ease;"
-                    onmouseover="this.style.background='rgba(102, 126, 234, 0.12)'; this.style.borderStyle='solid'"
-                    onmouseout="this.style.background='rgba(102, 126, 234, 0.06)'; this.style.borderStyle='dashed'">
-                <i class="fas fa-plus-circle"></i> Adicionar Item
-            </button>
         `;
         
-        const itensContainer = div.querySelector('.itens-grupo-container');
+        const itensContainer = div.querySelector('.admin-group-items');
         grupo.itens.forEach(item => {
             const itemDiv = document.createElement('div');
-            itemDiv.style.cssText = `
-                display: flex; align-items: center; gap: 8px; padding: 10px 12px;
-                background: #fafafa; border: 1px solid #eee; border-radius: 8px; transition: all 0.2s ease;
-            `;
-            itemDiv.addEventListener('mouseenter', () => { itemDiv.style.background = '#f0f0f0'; });
-            itemDiv.addEventListener('mouseleave', () => { itemDiv.style.background = '#fafafa'; });
-            
+            itemDiv.className = 'admin-item';
             itemDiv.innerHTML = `
-                <div style="width: 32px; height: 32px; border-radius: 8px;
-                            background: ${item.disponivel !== false ? 'rgba(76, 175, 80, 0.1)' : 'rgba(158, 158, 158, 0.1)'};
-                            display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <i class="fas fa-cube" style="color: ${item.disponivel !== false ? '#4CAF50' : '#9e9e9e'}; font-size: 0.8rem;"></i>
+                <input type="text" value="${item.nome}" class="admin-input">
+                <div style="display:flex;align-items:center;gap:4px;">
+                    <span style="color:var(--text-secondary);">R$</span>
+                    <input type="number" value="${centavosParaFloat(item.preco)}" step="0.01" class="admin-input" style="text-align:right;">
                 </div>
-                <input type="text" value="${item.nome}" style="flex: 2; padding: 8px 10px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.85rem;">
-                <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                    <span style="color: #999; font-size: 0.8rem;">R$</span>
-                    <input type="number" value="${centavosParaFloat(item.preco)}" step="0.01" style="width: 75px; padding: 8px; border: 1px solid #e0e0e0; border-radius: 6px; font-size: 0.85rem; text-align: right;">
-                </div>
-                <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; padding: 6px 8px; border-radius: 6px;
-                               font-size: 0.7rem; font-weight: 500; flex-shrink: 0;
-                               background: ${item.disponivel !== false ? 'rgba(76, 175, 80, 0.08)' : 'rgba(158, 158, 158, 0.05)'};">
-                    <input type="checkbox" ${item.disponivel !== false ? 'checked' : ''} style="width: 14px; height: 14px; accent-color: #4CAF50;"> Ativo
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.78rem;font-weight:600;">
+                    <input type="checkbox" ${item.disponivel !== false ? 'checked' : ''} style="accent-color:var(--success);"> Ativo
                 </label>
-                <button onclick="this.parentElement.remove()" 
-                        style="width: 30px; height: 30px; border-radius: 50%; border: none; cursor: pointer;
-                               display: flex; align-items: center; justify-content: center;
-                               background: rgba(244, 67, 54, 0.06); color: #f44336; transition: all 0.3s ease; flex-shrink: 0;"
-                        onmouseover="this.style.background='#f44336'; this.style.color='#fff'"
-                        onmouseout="this.style.background='rgba(244, 67, 54, 0.06)'; this.style.color='#f44336'">
+                <button onclick="this.parentElement.remove()" class="admin-icon-btn btn-delete">
                     <i class="fas fa-xmark"></i>
                 </button>
             `;
@@ -994,24 +819,6 @@ function renderizarGruposMontagem(montagem) {
         
         container.appendChild(div);
     });
-}
-
-function desmarcarTodosItensGrupo(botao) {
-    const grupoBox = botao.closest('[data-grupo-id]');
-    if (!grupoBox) return;
-    
-    const checkboxes = grupoBox.querySelectorAll('.itens-grupo-container input[type="checkbox"]');
-    let contador = 0;
-    checkboxes.forEach(cb => {
-        if (cb.checked) {
-            cb.checked = false;
-            contador++;
-        }
-    });
-    
-    if (contador > 0) {
-        mostrarToast(`${contador} item(ns) desmarcado(s)`, 'info');
-    }
 }
 
 // ============================================
@@ -1036,7 +843,7 @@ async function salvarMontagem() {
     const precoBaseCentavos = floatParaCentavos(precoBaseInput);
     
     const tamanhos = [];
-    document.querySelectorAll('#tamanhosContainer > div').forEach(item => {
+    document.querySelectorAll('#tamanhosContainer .admin-item').forEach(item => {
         const inputs = item.querySelectorAll('input');
         const nomeTamanho = inputs[0]?.value?.trim();
         if (nomeTamanho) {
@@ -1050,8 +857,8 @@ async function salvarMontagem() {
     });
     
     const grupos = [];
-    document.querySelectorAll('#gruposContainer [data-grupo-id]').forEach(box => {
-        const cabecalhoInputs = box.querySelectorAll(':scope > div:first-child input');
+    document.querySelectorAll('#gruposContainer .admin-group-card').forEach(box => {
+        const cabecalhoInputs = box.querySelectorAll('.admin-group-header input');
         const nomeGrupo = cabecalhoInputs[0]?.value?.trim();
         if (!nomeGrupo) return;
         
@@ -1060,7 +867,7 @@ async function salvarMontagem() {
         const obrigatorio = cabecalhoInputs[2]?.checked || false;
         
         const itens = [];
-        box.querySelectorAll('.itens-grupo-container > div').forEach(itemDiv => {
+        box.querySelectorAll('.admin-group-items .admin-item').forEach(itemDiv => {
             const itemInputs = itemDiv.querySelectorAll('input');
             const nomeItem = itemInputs[0]?.value?.trim();
             if (nomeItem) {
@@ -1124,6 +931,26 @@ async function excluirMontagem(id) {
         }
     }
 }
+
+// ============================================
+// ===== MODAL UX GLOBAL ======================
+// ============================================
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('modalCadastroMontagem');
+        if (modal && modal.classList.contains('active')) {
+            fecharModalCadastroMontagem();
+        }
+    }
+});
+
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('modalCadastroMontagem');
+    if (modal && e.target === modal) {
+        fecharModalCadastroMontagem();
+    }
+});
 
 
 // ============================================
