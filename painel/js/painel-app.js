@@ -397,18 +397,19 @@ function iniciarCronometro() {
 
 function atualizarCronometros() {
     const agora = Date.now();
-    pedidosAtuais.forEach(pedido => {
-        if (pedido.status === 'preparando' && pedido.inicioPreparo) {
+    
+    // Percorre todos os elementos de cronômetro visíveis na tela
+    document.querySelectorAll('[data-cron]').forEach(el => {
+        const pedidoId = el.getAttribute('data-cron');
+        const pedido = pedidosAtuais.find(p => p.id === pedidoId);
+        
+        if (pedido && pedido.inicioPreparo) {
             const inicio = new Date(pedido.inicioPreparo).getTime();
             const minutos = Math.floor((agora - inicio) / 60000);
-            const el = document.getElementById('cron-' + pedido.id);
-            if (el) {
-                el.textContent = `🕐 Preparando há ${formatarTempoPreparo(minutos)}`;
-            }
+            el.textContent = `🕐 Preparando há ${formatarTempoPreparo(minutos)}`;
         }
     });
 }
-
 // ============================================
 // ===== FILTRAR POR STATUS ===================
 // ============================================
