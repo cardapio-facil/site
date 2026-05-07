@@ -2726,3 +2726,18 @@ select:focus {
         visibility: visible;
     }
 }
+
+.btn-disponibilidade-admin:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.btn-editar-admin:hover {
+    background: #2196F3 !important;
+    color: #fff !important;
+    transform: scale(1.1);
+}
+.btn-excluir-admin:hover {
+    background: #f44336 !important;
+    color: #fff !important;
+    transform: scale(1.1);
+}
