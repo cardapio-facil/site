@@ -726,13 +726,14 @@ function adicionarGrupo() {
     div.className = 'admin-group-card';
     div.dataset.grupoId = grupoId;
     div.innerHTML = `
-        <div class="admin-group-card">
     <div class="admin-group-header">
-        <input type="text" value="Carnes" class="admin-input">
-        <input type="number" value="1" min="1" class="admin-input" style="width:80px;text-align:center;">
-        <label>
-            <input type="checkbox" checked> Obrigatório
+        <input type="text" value="${grupo.nome}" class="admin-input">
+        <input type="number" value="${grupo.limite}" min="1" class="admin-input" style="width:80px;text-align:center;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">
+            <input type="checkbox" ${grupo.obrigatorio ? 'checked' : ''} style="accent-color:var(--danger);"> Obrigatório
         </label>
+        
+        <!-- 🆕 ADICIONE ESTE BOTÃO AQUI -->
         <button onclick="desmarcarTodosItensGrupo(this)" 
                 class="admin-btn admin-btn-danger" 
                 style="padding:6px 12px; font-size:0.75rem;">
@@ -743,13 +744,13 @@ function adicionarGrupo() {
             <i class="fas fa-trash-can"></i>
         </button>
     </div>
-        <div class="admin-group-items"></div>
-        <div style="padding:10px;">
-            <button onclick="adicionarItemGrupo(this)" class="admin-btn admin-btn-soft" style="width:100%;">
-                <i class="fas fa-plus"></i> Adicionar Item
-            </button>
-        </div>
-    `;
+    <div class="admin-group-items"></div>
+    <div style="padding:10px;">
+        <button onclick="adicionarItemGrupo(this)" class="admin-btn admin-btn-soft" style="width:100%;">
+            <i class="fas fa-plus"></i> Adicionar Item
+        </button>
+    </div>
+`;
     container.appendChild(div);
 }
 
