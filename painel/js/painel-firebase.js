@@ -6,6 +6,20 @@ firebase.initializeApp(CONFIG_PAINEL.firebase);
 const database = firebase.database();
 const dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
 
+// ============================================
+// ===== CONEXÃO FIREBASE DO PAINEL ===========
+// ============================================
+
+firebase.initializeApp(CONFIG_PAINEL.firebase);
+const database = firebase.database();
+const auth = firebase.auth();
+const dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
+
+// ===== AUTENTICAÇÃO OBRIGATÓRIA =====
+auth.signInAnonymously()
+    .then(() => console.log('✅ Painel autenticado'))
+    .catch(err => console.error('❌ Erro autenticação:', err));
+
 // ===== ESTADO =====
 let carregamentoInicial = true;
 let pedidosCache = {};
