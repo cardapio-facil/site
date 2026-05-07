@@ -228,25 +228,25 @@ function criarCardPedido(pedido) {
         : 'Retirada no local';
 
     conteudo.innerHTML = `
-        <div class="card-header">
-            <span class="pedido-numero">#${pedido.numero || '---'}</span>
-            <span class="pedido-status-badge ${getBadgeClass(pedido.status)}">${getStatusLabel(pedido.status)}</span>
-        </div>
-        <div class="pedido-cliente">
-            <i class="fas fa-user"></i> ${pedido.cliente?.nome || '---'}
-        </div>
-        <div class="pedido-info">
-            <i class="far fa-clock"></i> ${formatarHora(pedido.criadoEm)}
-        </div>
-        <div class="pedido-info">
-            <i class="fas fa-utensils"></i> ${itensCount} ${itensCount === 1 ? 'item' : 'itens'} &nbsp;|&nbsp;
-            <i class="fas ${pedido.tipoEntrega === 'entrega' ? 'fa-truck' : 'fa-store'}"></i> ${tipoEntregaTexto}
-        </div>
-        <div class="pedido-endereco">
-            <i class="fas fa-map-marker-alt"></i> ${enderecoTexto}
-        </div>
-${pedido.status === 'preparando' ? `<div class="cronometro-card" data-cron="${pedido.id}"></div>` : ''}
-    `;
+    <div class="card-header">
+        <span class="pedido-numero">#${pedido.numero || '---'}</span>
+        <span class="pedido-status-badge ${getBadgeClass(pedido.status)}">${getStatusLabel(pedido.status)}</span>
+    </div>
+    <div class="pedido-cliente">
+        <i class="fas fa-user"></i> ${pedido.cliente?.nome || '---'}
+    </div>
+    <div class="pedido-info">
+        <i class="far fa-clock"></i> ${formatarHora(pedido.criadoEm)}
+    </div>
+    <div class="pedido-info">
+        <i class="fas fa-utensils"></i> ${itensCount} ${itensCount === 1 ? 'item' : 'itens'} &nbsp;|&nbsp;
+        <i class="fas ${pedido.tipoEntrega === 'entrega' ? 'fa-truck' : 'fa-store'}"></i> ${tipoEntregaTexto}
+    </div>
+    <div class="pedido-endereco">
+        <i class="fas fa-map-marker-alt"></i> ${enderecoTexto}
+    </div>
+    ${pedido.status === 'preparando' ? `<div class="cronometro-card" id="cron-${pedido.id}"></div>` : ''}   
+`;
 
     // Rodapé com valor e botões
     const footer = document.createElement('div');
