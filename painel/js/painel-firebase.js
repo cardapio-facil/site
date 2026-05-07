@@ -4,14 +4,6 @@
 
 firebase.initializeApp(CONFIG_PAINEL.firebase);
 const database = firebase.database();
-const dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
-
-// ============================================
-// ===== CONEXÃO FIREBASE DO PAINEL ===========
-// ============================================
-
-firebase.initializeApp(CONFIG_PAINEL.firebase);
-const database = firebase.database();
 const auth = firebase.auth();
 const dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
 
