@@ -5,14 +5,52 @@
 firebase.initializeApp(CONFIG_PAINEL.firebase);
 const database = firebase.database();
 let dbRef = null;
+let authPronto = false;
+let authPromise = null;
 
-// Aguarda autenticação antes de criar referência
-firebase.auth().signInAnonymously()
+// Inicia autenticação e espera
+authPromise = firebase.auth().signInAnonymously()
     .then(() => {
         console.log('✅ Painel autenticado');
         dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
+        authPronto = true;
     })
-    .catch(err => console.error('❌ Erro autenticação:', err));
+    .catch(err => {
+        console.error('❌ Erro autenticação:', err);
+        // Fallback: cria dbRef mesmo sem auth
+        dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
+        authPronto = true;
+    });
+
+// ===== CARREGAR DADOS INICIAIS (ESPERA AUTH) =====
+async function carregarDadosPainel() {
+    // Espera autenticação terminar
+    if (!authPronto && authPromise) {
+        await authPromise;
+    }
+    
+    try {
+        console.log('📥 Carregando dados do Firebase...');
+        const snapshot = await dbRef.once('value');
+        const data = snapshot.val() || {};
+
+        if (data.config) {
+            if (data.config.nomeRestaurante) CONFIG_PAINEL.nomeRestaurante = data.config.nomeRestaurante;
+            if (data.config.logoUrl) CONFIG_PAINEL.logoUrl = data.config.logoUrl;
+            if (data.config.senhaMaster) CONFIG_PAINEL.senhaMasterPadrao = data.config.senhaMaster;
+            if (data.config.senhaView) CONFIG_PAINEL.senhaViewPadrao = data.config.senhaView;
+            if (data.config.mensagens) CONFIG_PAINEL.mensagens = { ...CONFIG_PAINEL.mensagens, ...data.config.mensagens };
+            if (data.config.tempoEstimado) CONFIG_PAINEL.tempoEstimado = data.config.tempoEstimado;
+        }
+
+        console.log('✅ Dados carregados');
+        return data;
+    } catch (error) {
+        console.error('❌ Erro ao carregar dados:', error);
+        return {};
+    }
+}
+
 
 // ===== ESTADO =====
 let carregamentoInicial = true;
