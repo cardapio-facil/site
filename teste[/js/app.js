@@ -919,8 +919,17 @@ total += subtotal;
     ${adicionaisHtml}
     ${(item.precoBase && item.precoBase !== item.precoUnitario) ? `<div class="item-adicionais" style="font-size:0.7rem; color:#888;">Preço base: ${formatarPreco(item.precoBase)}</div>` : ''}
     ${item.observacao ? `<div class="item-obs">📝 ${item.observacao}</div>` : ''}
-    <div class="item-footer">
-        ...
+       <div class="item-footer">
+        <div class="quantidade-control">
+            <button class="quantidade-btn" onclick="alterarQuantidade(${idx}, -1)">-</button>
+            <span>${item.quantidade}</span>
+            <button class="quantidade-btn" onclick="alterarQuantidade(${idx}, 1)">+</button>
+        </div>
+        <div class="item-actions">
+            <button class="btn-editar-item" onclick="editarItemCarrinho(${idx})"><i class="fas fa-edit"></i></button>
+            <button class="btn-duplicar-item" onclick="duplicarItemCarrinho(${idx})"><i class="fas fa-copy"></i></button>
+            <button class="btn-remover-item" onclick="removerItemCarrinho(${idx})"><i class="fas fa-trash"></i></button>
+        </div>
     </div>
 `;
         container.appendChild(div);
