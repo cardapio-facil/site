@@ -16,6 +16,11 @@ firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 const dbRef = database.ref('restaurantes/' + RESTAURANTE_ID);
 
+// 🆕 AUTENTICAÇÃO ANÔNIMA
+firebase.auth().signInAnonymously()
+    .then(() => console.log('✅ Site autenticado'))
+    .catch(err => console.error('❌ Erro auth:', err));
+
 // ===== PRODUTOS =====
 async function salvarProdutosFirebase(produtos) {
     try {
