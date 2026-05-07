@@ -880,7 +880,8 @@ function renderizarCarrinho() {
     container.innerHTML = '';
     
     carrinho.forEach((item, idx) => {
-        const subtotal = item.precoUnitario * item.quantidade;
+        const precoBase = item.precoBase || item.precoUnitario;
+const subtotal = precoBase * item.quantidade;
         total += subtotal;
         
         const div = document.createElement('div');
