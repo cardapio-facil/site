@@ -5,28 +5,22 @@
 firebase.initializeApp(CONFIG_PAINEL.firebase);
 const database = firebase.database();
 let dbRef = null;
-let authPronto = false;
-let authPromise = null;
 
-// Inicia autenticação e espera
-authPromise = firebase.auth().signInAnonymously()
+// Autenticação anônima
+firebase.auth().signInAnonymously()
     .then(() => {
         console.log('✅ Painel autenticado');
         dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
-        authPronto = true;
     })
     .catch(err => {
         console.error('❌ Erro autenticação:', err);
-        // Fallback: cria dbRef mesmo sem auth
-        dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
-        authPronto = true;
     });
 
 // ===== CARREGAR DADOS INICIAIS (ESPERA AUTH) =====
 async function carregarDadosPainel() {
-    // Espera autenticação terminar
-    if (!authPronto && authPromise) {
-        await authPromise;
+    // Espera auth terminar
+    while (!dbRef) {
+        await new Promise(r => setTimeout(r, 100));
     }
     
     try {
@@ -37,8 +31,8 @@ async function carregarDadosPainel() {
         if (data.config) {
             if (data.config.nomeRestaurante) CONFIG_PAINEL.nomeRestaurante = data.config.nomeRestaurante;
             if (data.config.logoUrl) CONFIG_PAINEL.logoUrl = data.config.logoUrl;
-            if (data.config.senhaMaster) CONFIG_PAINEL.senhaMasterPadrao = data.config.senhaMaster;
-            if (data.config.senhaView) CONFIG_PAINEL.senhaViewPadrao = data.config.senhaView;
+            if (data.config.senhaMaster) CONFIG_PAINEL.senhaMasterPadrao = String(data.config.senhaMaster);
+            if (data.config.senhaView) CONFIG_PAINEL.senhaViewPadrao = String(data.config.senhaView);
             if (data.config.mensagens) CONFIG_PAINEL.mensagens = { ...CONFIG_PAINEL.mensagens, ...data.config.mensagens };
             if (data.config.tempoEstimado) CONFIG_PAINEL.tempoEstimado = data.config.tempoEstimado;
         }
