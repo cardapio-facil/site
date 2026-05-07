@@ -567,13 +567,14 @@ function imprimirPedidoPainel(pedido) {
                 itensHtml += `<div style="font-size:22px; margin-left:15px; font-weight:bold;">Sabores: ${saboresTexto}</div>`;
             }
             
-            // Adicionais
-            if (item.adicionais && item.adicionais.length > 0) {
-                const adicionaisTexto = item.adicionais.map(a => {
-                    return a.nome + (a.preco > 0 ? ' (+' + formatarPrecoPainel(a.preco) + ')' : '');
-                }).join(', ');
-                itensHtml += `<div style="font-size:22px; margin-left:15px; font-weight:bold;">Adicionais: ${adicionaisTexto}</div>`;
-            }
+            
+          // Adicionais
+const adicionais = item.adicionais || (item.snapshot && item.snapshot.adicionais);
+if (adicionais && adicionais.length > 0) {
+    adicionais.forEach(adicional => {
+        itensHtml += `<div style="font-size:22px; margin-left:15px; font-weight:bold;">${adicional.nome}${adicional.preco > 0 ? ' (+' + formatarPrecoPainel(adicional.preco) + ')' : ''}</div>`;
+    });
+}
             
             // Espaçamento entre itens
             itensHtml += `<div style="margin-bottom:15px;"></div>`;
