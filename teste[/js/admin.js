@@ -142,28 +142,100 @@ function carregarAdminProdutos() {
     });
     
     produtos.forEach(produto => {
-        const div = document.createElement('div');
-        div.style.cssText = `
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid var(--cor-borda);
-        `;
-        div.innerHTML = `
-            <div>
-                <strong>${produto.nome}</strong><br>
-                <small>${getNomeCategoria(produto.categoria)} | ${formatarPreco(produto.preco)}</small>
-                <small>${produto.disponivel ? '✅ Disponível' : '❌ Indisponível'}</small>
-            </div>
-            <div>
-                <button onclick="editarProduto('${produto.id}')" class="btn-editar-admin" title="Editar">✏️</button>
-                <button onclick="excluirProduto('${produto.id}')" class="btn-excluir-admin" title="Excluir">🗑️</button>
-            </div>
-        `;
-        container.appendChild(div);
+    const div = document.createElement('div');
+    div.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 15px;
+        border-bottom: 1px solid var(--cor-borda);
+        background: #ffffff;
+        transition: all 0.2s ease;
+    `;
+    div.addEventListener('mouseenter', () => {
+        div.style.background = '#fafafa';
     });
+    div.addEventListener('mouseleave', () => {
+        div.style.background = '#ffffff';
+    });
+
+    div.innerHTML = `
+        <div style="flex: 1; min-width: 0;">
+            <strong style="display: block; margin-bottom: 3px;">${produto.nome}</strong>
+            <small style="color: var(--cor-texto-claro);">
+                ${getNomeCategoria(produto.categoria)} | ${formatarPreco(produto.preco)}
+            </small>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+            <!-- Botão Disponibilidade -->
+            <button onclick="toggleDisponibilidadeProduto('${produto.id}')" 
+                    class="btn-disponibilidade-admin" 
+                    title="${produto.disponivel ? 'Disponível - Clique para indisponibilizar' : 'Indisponível - Clique para disponibilizar'}"
+                    style="
+                        width: 38px; height: 38px; border-radius: 50%; border: none;
+                        cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+                        transition: all 0.3s ease;
+                        background: ${produto.disponivel ? 'rgba(76, 175, 80, 0.15)' : 'rgba(244, 67, 54, 0.15)'};
+                        color: ${produto.disponivel ? '#4CAF50' : '#f44336'};
+                    ">
+                <i class="fas ${produto.disponivel ? 'fa-eye' : 'fa-eye-slash'}"></i>
+            </button>
+            
+            <!-- Botão Editar -->
+            <button onclick="editarProduto('${produto.id}')" 
+                    class="btn-editar-admin" 
+                    title="Editar produto"
+                    style="
+                        width: 38px; height: 38px; border-radius: 50%; border: none;
+                        cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
+                        transition: all 0.3s ease;
+                        background: rgba(33, 150, 243, 0.1);
+                        color: #2196F3;
+                    ">
+                <i class="fas fa-pen-to-square"></i>
+            </button>
+            
+            <!-- Botão Excluir -->
+            <button onclick="excluirProduto('${produto.id}')" 
+                    class="btn-excluir-admin" 
+                    title="Excluir produto"
+                    style="
+                        width: 38px; height: 38px; border-radius: 50%; border: none;
+                        cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
+                        transition: all 0.3s ease;
+                        background: rgba(244, 67, 54, 0.1);
+                        color: #f44336;
+                    ">
+                <i class="fas fa-trash-can"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(div);
+});
+
+    async function toggleDisponibilidadeProduto(produtoId) {
+     
+    const produto = produtos.find(p => p.id === produtoId);
+    if (!produto) return;
+    
+    // Alterna o status
+    produto.disponivel = !produto.disponivel;
+    
+    // Salva no Firebase
+    const sucesso = await salvarProdutosFirebase(produtos);
+    if (sucesso) {
+        const status = produto.disponivel ? 'disponível' : 'indisponível';
+        mostrarToast(`${produto.nome} agora está ${status}`, 'sucesso');
+        carregarAdminProdutos(); // Recarrega a lista
+        renderizarProdutos();    // Atualiza o cardápio
+    } else {
+        // Reverte se falhar
+        produto.disponivel = !produto.disponivel;
+        mostrarToast('Erro ao alterar disponibilidade', 'erro');
+    }
 }
+
+
 
 function abrirModalCadastroProduto() {
     if (nivelAcesso !== 'master') {
@@ -1558,6 +1630,7 @@ window.adicionarGrupo = adicionarGrupo;
 window.adicionarItemGrupo = adicionarItemGrupo;
 window.atualizarTituloGrupo = atualizarTituloGrupo;
 window.toggleHorarioLoja = toggleHorarioLoja;
+window.toggleDisponibilidadeProduto = toggleDisponibilidadeProduto;
 
 // 🆕 Horários
 window.abrirModalGerenciarHorarios = abrirModalGerenciarHorarios;
