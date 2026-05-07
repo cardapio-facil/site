@@ -4,14 +4,15 @@
 
 firebase.initializeApp(CONFIG_PAINEL.firebase);
 const database = firebase.database();
-const dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
+let dbRef = null;
 
-// Usa auth() do Firebase compat
-if (firebase.auth) {
-    firebase.auth().signInAnonymously()
-        .then(() => console.log('✅ Painel autenticado'))
-        .catch(err => console.error('❌ Erro autenticação:', err));
-}
+// Aguarda autenticação antes de criar referência
+firebase.auth().signInAnonymously()
+    .then(() => {
+        console.log('✅ Painel autenticado');
+        dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
+    })
+    .catch(err => console.error('❌ Erro autenticação:', err));
 
 // ===== ESTADO =====
 let carregamentoInicial = true;
