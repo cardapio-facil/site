@@ -775,13 +775,14 @@ function adicionarAoCarrinho() {
         
         const nomeFinal = `${montagemSelecionada.nome}${tamanhoSelecionado ? ' (' + tamanhoSelecionado.nome + ')' : ''}`;
         
-        const itemCarrinho = {
-            id: montagemSelecionada.id + '-' + Date.now(),
-            produtoId: montagemSelecionada.id,
-            tipo: 'montagem',
-            nome: nomeFinal,
-            precoUnitario: precoFinal,
-            quantidade: quantidadeSelecionada,
+      const itemCarrinho = {
+    id: montagemSelecionada.id + '-' + Date.now(),
+    produtoId: montagemSelecionada.id,
+    tipo: 'montagem',
+    nome: nomeFinal,
+    precoUnitario: precoFinal,
+    precoBase: montagemSelecionada.precoBase,
+    quantidade: quantidadeSelecionada,
             observacao: document.getElementById('obsItem').value,
             montagemDetalhes: {
                 montagemId: montagemSelecionada.id,
@@ -830,13 +831,14 @@ function adicionarAoCarrinho() {
         }
     }
     
-    const itemCarrinho = {
-        id: produtoSelecionado.id + '-' + Date.now(),
-        produtoId: produtoSelecionado.id,
-        tipo: 'produto',
-        nome: nomeFinal,
-        precoUnitario: precoFinal,
-        quantidade: quantidadeSelecionada,
+  const itemCarrinho = {
+    id: produtoSelecionado.id + '-' + Date.now(),
+    produtoId: produtoSelecionado.id,
+    tipo: 'produto',
+    nome: nomeFinal,
+    precoUnitario: precoFinal,
+    precoBase: produtoSelecionado.preco,
+    quantidade: quantidadeSelecionada,
         observacao: document.getElementById('obsItem').value,
         adicionais: adicionaisSelecionados.map(a => ({
             nome: a.nome,
@@ -880,9 +882,9 @@ function renderizarCarrinho() {
     container.innerHTML = '';
     
     carrinho.forEach((item, idx) => {
-        const precoBase = item.precoBase || item.precoUnitario;
+const precoBase = item.precoBase || item.precoUnitario;
 const subtotal = precoBase * item.quantidade;
-        total += subtotal;
+total += item.precoUnitario * item.quantidade; // 
         
         const div = document.createElement('div');
         div.className = 'carrinho-item';
