@@ -883,8 +883,8 @@ function renderizarCarrinho() {
     
     carrinho.forEach((item, idx) => {
 const precoBase = item.precoBase || item.precoUnitario;
-const subtotal = precoBase * item.quantidade;
-total += item.precoUnitario * item.quantidade; // 
+const subtotal = item.precoUnitario * item.quantidade;
+total += subtotal;
         
         const div = document.createElement('div');
         div.className = 'carrinho-item';
@@ -909,28 +909,20 @@ total += item.precoUnitario * item.quantidade; //
             }).join(', ')}</div>`;
         }
         
-        div.innerHTML = `
-            <div class="item-header">
-                <span class="item-nome">${item.quantidade}x ${item.nome}</span>
-                <span class="item-preco">${formatarPreco(subtotal)}</span>
-            </div>
-            ${detalhesHtml}
-            ${saboresHtml}
-            ${adicionaisHtml}
-            ${item.observacao ? `<div class="item-obs">📝 ${item.observacao}</div>` : ''}
-            <div class="item-footer">
-                <div class="quantidade-control">
-                    <button class="quantidade-btn" onclick="alterarQuantidade(${idx}, -1)">-</button>
-                    <span>${item.quantidade}</span>
-                    <button class="quantidade-btn" onclick="alterarQuantidade(${idx}, 1)">+</button>
-                </div>
-                <div class="item-actions">
-                    <button class="btn-editar-item" onclick="editarItemCarrinho(${idx})"><i class="fas fa-edit"></i></button>
-                    <button class="btn-duplicar-item" onclick="duplicarItemCarrinho(${idx})"><i class="fas fa-copy"></i></button>
-                    <button class="btn-remover-item" onclick="removerItemCarrinho(${idx})"><i class="fas fa-trash"></i></button>
-                </div>
-            </div>
-        `;
+      div.innerHTML = `
+    <div class="item-header">
+        <span class="item-nome">${item.quantidade}x ${item.nome}</span>
+        <span class="item-preco">${formatarPreco(subtotal)}</span>
+    </div>
+    ${detalhesHtml}
+    ${saboresHtml}
+    ${adicionaisHtml}
+    ${(item.precoBase && item.precoBase !== item.precoUnitario) ? `<div class="item-adicionais" style="font-size:0.7rem; color:#888;">Preço base: ${formatarPreco(item.precoBase)}</div>` : ''}
+    ${item.observacao ? `<div class="item-obs">📝 ${item.observacao}</div>` : ''}
+    <div class="item-footer">
+        ...
+    </div>
+`;
         container.appendChild(div);
     });
    
