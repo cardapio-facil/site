@@ -245,7 +245,7 @@ function criarCardPedido(pedido) {
     <div class="pedido-endereco">
         <i class="fas fa-map-marker-alt"></i> ${enderecoTexto}
     </div>
-    ${pedido.status === 'preparando' ? `<div class="cronometro-card" id="cron-${pedido.id}"></div>` : ''}   
+    ${pedido.status === 'preparando' ? `<div class="cronometro-card" data-cron="${pedido.id}"></div>` : ''}   
 `;
 
     // Rodapé com valor e botões
