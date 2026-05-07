@@ -532,10 +532,11 @@ function imprimirPedidoPainel(pedido) {
     if (pedido.itens) {
         pedido.itens.forEach(item => {
             const nome = item.snapshot?.nome || 'Item';
-            const preco = formatarPrecoPainel(item.totalItem || item.precoUnitario * item.quantidade);
+          const precoBase = item.precoUnitario || item.snapshot?.preco || 0;
+const precoBaseFormatado = formatarPrecoPainel(precoBase);
             
             // Nome do item com quantidade e preço
-            itensHtml += `<div class="item-linha"><span>${item.quantidade}x ${nome}</span><span>${preco}</span></div>`;
+            itensHtml += `<div class="item-linha"><span>${item.quantidade}x ${nome}</span><span>${precoBaseFormatado}</span></div>`;
             
             // Observação do item (logo após o nome)
             if (item.snapshot?.observacao) {
