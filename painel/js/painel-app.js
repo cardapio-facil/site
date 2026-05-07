@@ -814,40 +814,84 @@ function construirMensagemCompleta(pedido, status) {
                      .replace('{NUMERO}', pedido.numero || '---');
 
     let msg = prefixo;
-    msg += `\nCliente: ${pedido.cliente?.nome || '---'}`;
-    msg += `\nTelefone: ${pedido.cliente?.telefone || '---'}\n`;
-    msg += `\nItens:\n`;
+    msg += `Cliente: ${pedido.cliente?.nome || '---'}\n`;
+    msg += `Telefone: ${pedido.cliente?.telefone || '---'}\n`;
 
-    if (pedido.itens) {
-        pedido.itens.forEach((item, i) => {
+    // Endereço ou retirada
+    if (pedido.tipoEntrega === 'entrega' && pedido.endereco) {
+        msg += `\nEntrega: ${pedido.endereco.rua || ''}, ${pedido.endereco.numero || ''} - ${pedido.endereco.bairro || ''}`;
+        if (pedido.endereco.complemento) {
+            msg += `\nComplemento: ${pedido.endereco.complemento}`;
+        }
+    } else {
+        msg += `\nRetirada no local`;
+    }
+
+    msg += `\n\n-----------------------------------------------\nItens:\n`;
+
+    // Itens do pedido
+    if (pedido.itens && pedido.itens.length > 0) {
+        pedido.itens.forEach((item) => {
             const nome = item.snapshot?.nome || 'Item';
-            const preco = formatarPrecoPainel(item.totalItem || item.precoUnitario * item.quantidade);
-            msg += `${item.quantidade}x ${nome} - ${preco}\n`;
-            if (item.snapshot?.tamanho) msg += `   Tamanho: ${item.snapshot.tamanho.nome}\n`;
-            if (item.snapshot?.grupos) {
-                item.snapshot.grupos.forEach(g => {
-                    if (g.itens.length > 0) msg += `   ${g.nome}: ${g.itens.map(i => i.nome + (i.preco > 0 ? ' (+' + formatarPrecoPainel(i.preco) + ')' : '')).join(', ')}\n`;
+            const precoBase = item.precoUnitario || item.snapshot?.preco || 0;
+            const precoBaseFormatado = formatarPrecoPainel(precoBase);
+            const quantidade = item.quantidade || 1;
+
+            // Linha do item: quantidade x nome - preço base (sem adicionais)
+            msg += `\n${quantidade}x ${nome} - ${precoBaseFormatado}`;
+
+            // Tamanho (se for montagem)
+            if (item.tipo === 'montagem' && item.snapshot?.tamanho) {
+                const tam = item.snapshot.tamanho;
+                msg += `\n   Tamanho: ${tam.nome}${tam.preco > 0 ? ' (+' + formatarPrecoPainel(tam.preco) + ')' : ''}`;
+            }
+
+            // Grupos de montagem (Carnes, Arroz, Feijão, Guarnições, etc.)
+            if (item.snapshot?.grupos && item.snapshot.grupos.length > 0) {
+                item.snapshot.grupos.forEach(grupo => {
+                    if (grupo.itens && grupo.itens.length > 0) {
+                        const itensTexto = grupo.itens.map(i =>
+                            i.nome + (i.preco > 0 ? ' (+' + formatarPrecoPainel(i.preco) + ')' : '')
+                        ).join(', ');
+                        msg += `\n   ${grupo.nome}: ${itensTexto}`;
+                    }
                 });
             }
-            if (item.sabores || item.snapshot?.sabores) {
-                const sabores = item.sabores || item.snapshot?.sabores;
-                if (sabores) msg += `   Sabores: ${sabores.map(s => s.nome).join(' e ')}\n`;
+
+            // Adicionais (sem a palavra "Adicional:", mostra direto)
+            const adicionais = item.adicionais || item.snapshot?.adicionais;
+            if (adicionais && adicionais.length > 0) {
+                adicionais.forEach(adicional => {
+                    msg += `\n   ${adicional.nome}${adicional.preco > 0 ? ' (+' + formatarPrecoPainel(adicional.preco) + ')' : ''}`;
+                });
+            }
+
+            // Observação do item
+            if (item.snapshot?.observacao) {
+                msg += `\n   Obs: ${item.snapshot.observacao}`;
             }
         });
     }
 
-    msg += `\nSubtotal: ${formatarPrecoPainel(pedido.subtotal)}`;
-    if (pedido.cupom) msg += `\nCupom ${pedido.cupom.codigo}: -${formatarPrecoPainel(pedido.cupom.descontoCentavos)}`;
-    if (pedido.frete) msg += `\nFrete: ${formatarPrecoPainel(pedido.frete)}`;
+    msg += `\n-----------------------------------------------`;
+
+    // Totais
+    msg += `\n\nSubtotal: ${formatarPrecoPainel(pedido.subtotal)}`;
+    if (pedido.cupom) {
+        msg += `\nCupom ${pedido.cupom.codigo}: -${formatarPrecoPainel(pedido.cupom.descontoCentavos)}`;
+    }
+    if (pedido.frete && pedido.frete > 0) {
+        msg += `\nFrete: ${formatarPrecoPainel(pedido.frete)}`;
+    }
     msg += `\nTotal: ${formatarPrecoPainel(pedido.total)}`;
 
-    if (pedido.tipoEntrega === 'entrega' && pedido.endereco) {
-        msg += `\n\nEntrega: ${pedido.endereco.rua || ''}, ${pedido.endereco.numero || ''} - ${pedido.endereco.bairro || ''}`;
-    } else {
-        msg += `\n\nRetirada no local`;
+    // Pagamento
+    msg += `\n\nPagamento: ${pedido.pagamento?.tipo || '---'}`;
+    if (pedido.pagamento?.trocoPara) {
+        msg += ` (Troco para ${formatarPrecoPainel(pedido.pagamento.trocoPara)})`;
     }
-    msg += `\nPagamento: ${pedido.pagamento?.tipo || '---'}`;
-    if (pedido.pagamento?.trocoPara) msg += ` (Troco para ${formatarPrecoPainel(pedido.pagamento.trocoPara)})`;
+
+    // Tempo estimado
     msg += `\n\nTempo estimado: ${CONFIG_PAINEL.tempoEstimado}`;
 
     return msg;
