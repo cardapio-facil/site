@@ -726,16 +726,23 @@ function adicionarGrupo() {
     div.className = 'admin-group-card';
     div.dataset.grupoId = grupoId;
     div.innerHTML = `
-        <div class="admin-group-header">
-            <input type="text" placeholder="Nome do grupo" class="admin-input" onchange="atualizarTituloGrupo(this)">
-            <input type="number" value="1" min="1" class="admin-input" style="width:80px;text-align:center;" placeholder="Limite">
-            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">
-                <input type="checkbox" checked style="accent-color:var(--danger);"> Obrigatório
-            </label>
-            <button onclick="this.closest('.admin-group-card').remove()" class="admin-icon-btn btn-delete">
-                <i class="fas fa-trash-can"></i>
-            </button>
-        </div>
+        <div class="admin-group-card">
+    <div class="admin-group-header">
+        <input type="text" value="Carnes" class="admin-input">
+        <input type="number" value="1" min="1" class="admin-input" style="width:80px;text-align:center;">
+        <label>
+            <input type="checkbox" checked> Obrigatório
+        </label>
+        <button onclick="desmarcarTodosItensGrupo(this)" 
+                class="admin-btn admin-btn-danger" 
+                style="padding:6px 12px; font-size:0.75rem;">
+            <i class="fas fa-toggle-off"></i> Desmarcar Todos
+        </button>
+        
+        <button onclick="this.closest('.admin-group-card').remove()" class="admin-icon-btn btn-delete">
+            <i class="fas fa-trash-can"></i>
+        </button>
+    </div>
         <div class="admin-group-items"></div>
         <div style="padding:10px;">
             <button onclick="adicionarItemGrupo(this)" class="admin-btn admin-btn-soft" style="width:100%;">
@@ -951,6 +958,26 @@ document.addEventListener('click', (e) => {
         fecharModalCadastroMontagem();
     }
 });
+
+
+function desmarcarTodosItensGrupo(botao) {
+    const grupoBox = botao.closest('.admin-group-card');
+    if (!grupoBox) return;
+    
+    const checkboxes = grupoBox.querySelectorAll('.admin-group-items input[type="checkbox"]');
+    let contador = 0;
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            cb.checked = false;
+            contador++;
+        }
+    });
+    
+    if (contador > 0) {
+        mostrarToast(`${contador} item(ns) desmarcado(s)`, 'info');
+    }
+}
+
 
 
 // ============================================
