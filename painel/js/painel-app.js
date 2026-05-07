@@ -245,22 +245,7 @@ function criarCardPedido(pedido) {
         <div class="pedido-endereco">
             <i class="fas fa-map-marker-alt"></i> ${enderecoTexto}
         </div>
-
-function atualizarCronometros() {
-    const agora = Date.now();
-    
-    // Percorre todos os elementos de cronômetro visíveis na tela
-    document.querySelectorAll('[data-cron]').forEach(el => {
-        const pedidoId = el.getAttribute('data-cron');
-        const pedido = pedidosAtuais.find(p => p.id === pedidoId);
-        
-        if (pedido && pedido.inicioPreparo) {
-            const inicio = new Date(pedido.inicioPreparo).getTime();
-            const minutos = Math.floor((agora - inicio) / 60000);
-            el.textContent = `🕐 Preparando há ${formatarTempoPreparo(minutos)}`;
-        }
-    });
-}
+${pedido.status === 'preparando' ? `<div class="cronometro-card" data-cron="${pedido.id}"></div>` : ''}
     `;
 
     // Rodapé com valor e botões
