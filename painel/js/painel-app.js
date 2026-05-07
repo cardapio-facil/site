@@ -875,6 +875,12 @@ function construirMensagemCompleta(pedido, status) {
 
     msg += `\n-----------------------------------------------`;
 
+    // Pagamento
+    msg += `\n\nPagamento: ${pedido.pagamento?.tipo || '---'}`;
+    if (pedido.pagamento?.trocoPara) {
+        msg += ` (Troco para ${formatarPrecoPainel(pedido.pagamento.trocoPara)})`;
+    }
+    
     // Totais
     msg += `\n\nSubtotal: ${formatarPrecoPainel(pedido.subtotal)}`;
     if (pedido.cupom) {
@@ -885,14 +891,13 @@ function construirMensagemCompleta(pedido, status) {
     }
     msg += `\nTotal: ${formatarPrecoPainel(pedido.total)}`;
 
-    // Pagamento
-    msg += `\n\nPagamento: ${pedido.pagamento?.tipo || '---'}`;
-    if (pedido.pagamento?.trocoPara) {
-        msg += ` (Troco para ${formatarPrecoPainel(pedido.pagamento.trocoPara)})`;
-    }
+    
 
     // Tempo estimado
     msg += `\n\nTempo estimado: ${CONFIG_PAINEL.tempoEstimado}`;
+
+    // Agradecimento final
+    msg += `\n\nObrigado pela preferência!`;
 
     return msg;
 }
