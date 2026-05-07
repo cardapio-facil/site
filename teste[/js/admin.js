@@ -212,7 +212,7 @@ function carregarAdminProdutos() {
     `;
     container.appendChild(div);
 });
-
+}
    
 function abrirModalCadastroProduto() {
     if (nivelAcesso !== 'master') {
