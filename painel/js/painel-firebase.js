@@ -8,22 +8,23 @@ let dbRef = null;
 
 // Autenticação anônima
 firebase.auth().signInAnonymously()
-    .then(() => {
+    .then((userCredential) => {
         console.log('✅ Painel autenticado');
+        console.log('UID:', userCredential.user.uid);
         dbRef = database.ref('restaurantes/' + CONFIG_PAINEL.restauranteId);
     })
-    .catch(err => {
+    .catch((err) => {
         console.error('❌ Erro autenticação:', err);
     });
 
-// ===== CARREGAR DADOS INICIAIS (ESPERA AUTH) =====
+// ===== CARREGAR DADOS INICIAIS =====
 async function carregarDadosPainel() {
-    // Espera auth terminar
-    while (!dbRef) {
-        await new Promise(r => setTimeout(r, 100));
-    }
-    
     try {
+        // Espera autenticação terminar
+        while (!dbRef) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+
         console.log('📥 Carregando dados do Firebase...');
         const snapshot = await dbRef.once('value');
         const data = snapshot.val() || {};
@@ -44,6 +45,7 @@ async function carregarDadosPainel() {
         return {};
     }
 }
+
 
 
 // ===== ESTADO =====
