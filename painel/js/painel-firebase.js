@@ -103,29 +103,6 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// ===== CARREGAR DADOS INICIAIS =====
-async function carregarDadosPainel() {
-    try {
-        console.log('📥 Carregando dados do Firebase...');
-        const snapshot = await dbRef.once('value');
-        const data = snapshot.val() || {};
-
-        if (data.config) {
-            if (data.config.nomeRestaurante) CONFIG_PAINEL.nomeRestaurante = data.config.nomeRestaurante;
-            if (data.config.logoUrl) CONFIG_PAINEL.logoUrl = data.config.logoUrl;
-            if (data.config.senhaMaster) CONFIG_PAINEL.senhaMasterPadrao = data.config.senhaMaster;
-            if (data.config.senhaView) CONFIG_PAINEL.senhaViewPadrao = data.config.senhaView;
-            if (data.config.mensagens) CONFIG_PAINEL.mensagens = { ...CONFIG_PAINEL.mensagens, ...data.config.mensagens };
-            if (data.config.tempoEstimado) CONFIG_PAINEL.tempoEstimado = data.config.tempoEstimado;
-        }
-
-        console.log('✅ Dados carregados');
-        return data;
-    } catch (error) {
-        console.error('❌ Erro ao carregar dados:', error);
-        return {};
-    }
-}
 
 // ===== DEBOUNCE PARA RENDERIZAÇÃO =====
 function debounceRender(callback) {
