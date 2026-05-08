@@ -722,11 +722,10 @@ if (adicionais && adicionais.length > 0) {
             ${referenciaHtml}
 ${obsGeralHtml}
 
-<div class="linha-separadora">---------------</div>
+<div class="linha-separadora">-----------------------</div>
 
 <div style="margin:10px 0;">${itensHtml}</div>
 
-<div class="linha-separadora">---------------</div>
 
 <div class="info-cliente">Pagamento: ${pedido.pagamento?.tipo || '---'}</div>
             ${trocoHtml}
