@@ -947,21 +947,16 @@ const troco = pagamento === 'dinheiro'
 function fecharModalConfirmacao() {
     const overlay = document.getElementById('modalConfirmacaoOverlay');
     
-    // Remove classe ativo com animação
     overlay.classList.remove('ativo');
     overlay.setAttribute('aria-hidden', 'true');
     
-    // Aguarda a animação terminar para limpar
     setTimeout(() => {
-        // Limpa o carrinho
         carrinho = [];
         renderizarCarrinho();
         
-        // Limpa campo de observação
         const obsGeral = document.getElementById('observacaoGeral');
         if (obsGeral) obsGeral.value = '';
         
-        // Remove cupom se existir
         if (cupomAplicado) {
             cupomAplicado = null;
             document.getElementById('codigoCupom').value = '';
@@ -969,10 +964,9 @@ function fecharModalConfirmacao() {
             atualizarResumoCupom();
         }
         
-        // Fecha o checkout
+        // ✅ Fecha o checkout AGORA (depois da animação)
         fecharModalCheckout();
         
-        // Reseta campos do checkout
         document.getElementById('checkoutNome').value = '';
         document.getElementById('checkoutTelefone').value = '';
         document.getElementById('checkoutCep').value = '';
@@ -983,16 +977,13 @@ function fecharModalConfirmacao() {
         document.getElementById('checkoutComplemento').value = '';
         document.getElementById('checkoutTroco').value = '';
         
-        // Rola para o topo (melhor experiência mobile)
         window.scrollTo({ top: 0, behavior: 'smooth' });
         
-        // Atualiza barra mobile
         if (typeof atualizarCarrinhoMobileBar === 'function') {
             atualizarCarrinhoMobileBar();
         }
     }, 350);
 }
-
 // ===== EXPOR =====
 window.abrirCheckout = abrirCheckout;
 window.fecharModalCheckout = fecharModalCheckout;
