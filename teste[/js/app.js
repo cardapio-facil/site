@@ -896,15 +896,11 @@ if (item.tipo === 'montagem' && item.montagemDetalhes) {
         const t = item.montagemDetalhes.tamanho;
         detalhesHtml += `${t.nome}${t.preco > 0 ? ` (+${formatarPreco(t.preco)})` : ''}<br>`;
     }
-    const itens = item.montagemDetalhes.itens || [];
-    const gruposMap = {};
-    itens.forEach(i => {
-        if (!gruposMap[i.grupoId]) gruposMap[i.grupoId] = [];
-        gruposMap[i.grupoId].push(i);
-    });
-    Object.values(gruposMap).forEach(grupoItens => {
-        const nomeGrupo = grupoItens[0].grupoId || 'Item';
-        detalhesHtml += `${nomeGrupo}: ${grupoItens.map(i => i.nome + (i.preco > 0 ? ` (+${formatarPreco(i.preco)})` : '')).join(', ')}<br>`;
+    const descricao = item.montagemDetalhes.descricao || [];
+    descricao.forEach(linha => {
+        if (!linha.startsWith('📏')) {
+            detalhesHtml += `${linha}<br>`;
+        }
     });
     detalhesHtml += '</div>';
 }
