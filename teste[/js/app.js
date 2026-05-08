@@ -859,6 +859,7 @@ if (saboresSelecionados.length === 1) {
     renderizarCarrinho();
     fecharModalProduto();
 }
+}
 // ============================================
 // ===== RENDERIZAÇÃO DO CARRINHO ============
 // ============================================
