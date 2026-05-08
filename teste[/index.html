@@ -335,64 +335,6 @@
             ✅ CONFIRMAR PEDIDO
         </button>
     </div>
-<!-- ===================================================== -->
-<!-- MODAL DE CONFIRMAÇÃO -->
-<!-- ===================================================== -->
-
-<div 
-    class="modal-confirmacao-overlay" 
-    id="modalConfirmacaoOverlay"
-    aria-hidden="true"
->
-
-    <div 
-        class="modal-confirmacao-box"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirmacaoTitulo"
-    >
-
-        <!-- Botão fechar -->
-        <button 
-            class="confirmacao-btn-fechar"
-            id="confirmacaoBtnFechar"
-            aria-label="Fechar modal"
-        >
-            <i class="fas fa-times"></i>
-        </button>
-
-        <!-- Ícone -->
-        <div class="confirmacao-icone">
-            <i class="fas fa-check-circle"></i>
-        </div>
-
-        <!-- Título -->
-        <h2 
-            class="confirmacao-titulo"
-            id="confirmacaoTitulo"
-        >
-            Pedido Confirmado!
-        </h2>
-
-        <!-- Mensagem -->
-        <p class="confirmacao-mensagem">
-            Entraremos em contato em breve
-        </p>
-
-        <!-- Botão -->
-        <button 
-            class="confirmacao-btn-ok"
-            id="confirmacaoBtnOk"
-        >
-            <i class="fas fa-check"></i>
-            Tudo certo
-        </button>
-
-    </div>
-
-</div>
-
-
 </div>
 
 
@@ -639,6 +581,45 @@
         <div id="listaFeriadosCadastrados" class="lista-cards"></div>
     </div>
 </div>
+
+<div 
+    class="modal-confirmacao-overlay" 
+    id="modalConfirmacaoOverlay"
+    aria-hidden="true"
+>
+    <div 
+        class="modal-confirmacao-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmacaoTitulo"
+    >
+        <button 
+            class="confirmacao-btn-fechar"
+            id="confirmacaoBtnFechar"
+            aria-label="Fechar modal"
+        >
+            <i class="fas fa-times"></i>
+        </button>
+
+        <div class="confirmacao-icone">
+            <i class="fas fa-check-circle"></i>
+        </div>
+
+        <h2 class="confirmacao-titulo" id="confirmacaoTitulo">
+            Pedido Confirmado!
+        </h2>
+
+        <p class="confirmacao-mensagem">
+            Entraremos em contato em breve
+        </p>
+
+        <button class="confirmacao-btn-ok" id="confirmacaoBtnOk">
+            <i class="fas fa-check"></i>
+            Tudo certo
+        </button>
+    </div>
+</div>
+
 
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
