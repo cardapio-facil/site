@@ -787,9 +787,9 @@ async function confirmarPedido() {
     }
     
     const pagamento = document.getElementById('checkoutPagamento').value;
-    const troco = pagamento === 'dinheiro' 
-        ? floatParaCentavos(parseFloat(document.getElementById('checkoutTroco').value) || 0)
-        : null;
+const troco = pagamento === 'dinheiro' 
+    ? Math.round((parseFloat(document.getElementById('checkoutTroco').value) || 0) * 100)
+    : null;
 
     console.log('🔍 CARRINHO COMPLETO:', JSON.stringify(carrinho, null, 2));
 
