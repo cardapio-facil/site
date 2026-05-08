@@ -962,3 +962,11 @@ body {
     box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
     transform: scale(1.1);
 }
+
+.linha-separadora {
+    text-align: center;
+    color: #800020;
+    font-weight: bold;
+    margin: 10px 0;
+    letter-spacing: 2px;
+}
