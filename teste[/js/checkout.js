@@ -983,6 +983,33 @@ function fecharModalConfirmacao() {
         }
     }, 350);
 }
+
+    // ============================================
+// ===== EVENTOS DO MODAL DE CONFIRMAÇÃO ======
+// ============================================
+
+document.addEventListener('DOMContentLoaded', () => {
+    const overlay = document.getElementById('modalConfirmacaoOverlay');
+    const btnFechar = document.getElementById('confirmacaoBtnFechar');
+    const btnOk = document.getElementById('confirmacaoBtnOk');
+    
+    if (btnFechar) {
+        btnFechar.addEventListener('click', fecharModalConfirmacao);
+    }
+    
+    if (btnOk) {
+        btnOk.addEventListener('click', fecharModalConfirmacao);
+    }
+    
+    if (overlay) {
+        overlay.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                fecharModalConfirmacao();
+            }
+        });
+    }
+});
+    
 // ===== EXPOR =====
 window.abrirCheckout = abrirCheckout;
 window.fecharModalCheckout = fecharModalCheckout;
