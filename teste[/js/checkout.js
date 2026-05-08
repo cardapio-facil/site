@@ -920,7 +920,7 @@ const troco = pagamento === 'dinheiro'
     
     mostrarLoader(true);
     const sucesso = await salvarPedidoFirebase(pedido);
-    if (sucesso) {
+   if (sucesso) {
     if (tipoEntrega === 'entrega') salvarEndereco();
     if (cupomAplicado) {
         registrarUsoCupom(cupomAplicado.codigo, nome, cupomAplicado.descontoCentavos, pedido.id);
@@ -933,11 +933,9 @@ const troco = pagamento === 'dinheiro'
     document.getElementById('modalConfirmacaoOverlay').classList.add('ativo');
     document.getElementById('modalConfirmacaoOverlay').setAttribute('aria-hidden', 'false');
     
-    // Foca no botão OK para acessibilidade
     setTimeout(() => {
         document.getElementById('confirmacaoBtnOk').focus();
     }, 500);
-}
 }
 
 // ============================================
@@ -964,9 +962,10 @@ function fecharModalConfirmacao() {
             atualizarResumoCupom();
         }
         
-        // ✅ Fecha o checkout AGORA (depois da animação)
+        // ✅ Só fecha o checkout AGORA
         fecharModalCheckout();
         
+        // Limpa campos
         document.getElementById('checkoutNome').value = '';
         document.getElementById('checkoutTelefone').value = '';
         document.getElementById('checkoutCep').value = '';
