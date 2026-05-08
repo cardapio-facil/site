@@ -766,12 +766,12 @@ function adicionarAoCarrinho() {
         let descricaoMontagem = [];
         if (tamanhoSelecionado) descricaoMontagem.push(`📏 ${tamanhoSelecionado.nome}`);
         
-        montagemSelecionada.grupos.forEach(grupo => {
-            const itensDoGrupo = itensMontagemSelecionados.filter(i => i.grupoId === grupo.id);
-            if (itensDoGrupo.length > 0) {
-                descricaoMontagem.push(`${grupo.nome}: ${itensDoGrupo.map(i => i.nome).join(', ')}`);
-            }
-        });
+montagemSelecionada.grupos.forEach(grupo => {
+    const itensDoGrupo = itensMontagemSelecionados.filter(i => i.grupoId === grupo.id);
+    if (itensDoGrupo.length > 0) {
+        descricaoMontagem.push(`${grupo.nome}: ${itensDoGrupo.map(i => i.nome + (i.preco > 0 ? ' (+' + formatarPreco(i.preco) + ')' : '')).join(', ')}`);
+    }
+});
         
         const nomeFinal = `${montagemSelecionada.nome}${tamanhoSelecionado ? ' (' + tamanhoSelecionado.nome + ')' : ''}`;
         
