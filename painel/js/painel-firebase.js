@@ -149,7 +149,9 @@ function ouvirPedidosPainel(callback) {
                 if (!pedidosNotificados[id]) {
                     console.log('🆕 NOVO PEDIDO:', pedido.numero || id);
                     pedidosNotificados[id] = true;
-                    tocarSomNovoPedido();
+                    alertaPedido.pedidosPendentes.add(id);
+                      tocarSomNovoPedido();
+                      iniciarPiscarTitulo();
                     notificarComThrottle(pedido);
                 }
             }
@@ -206,31 +208,78 @@ function notificarComThrottle(pedido) {
 // ===== SOM PARA NOVO PEDIDO =====
 let audioNovoPedido = null;
 
-function tocarSomNovoPedido() {
+const alertaPedido = {
+    ativo: false,
+    tituloInterval: null,
+    tituloOriginal: document.title,
+    pedidosPendentes: new Set()
+};
+
+function inicializarAudio() {
+    if (audioNovoPedido) return;
+    audioNovoPedido = new Audio('img/som.mp3');
+    audioNovoPedido.loop = true;
+    audioNovoPedido.preload = 'auto';
+    audioNovoPedido.volume = 1;
+
+    const desbloquear = () => {
+        audioNovoPedido.play()
+            .then(() => {
+                audioNovoPedido.pause();
+                audioNovoPedido.currentTime = 0;
+            })
+            .catch(() => {});
+        document.removeEventListener('click', desbloquear);
+    };
+    document.addEventListener('click', desbloquear);
+}
+
+async function tocarSomNovoPedido() {
     try {
-        if (!audioNovoPedido) {
-            audioNovoPedido = new Audio('img/som.mp3');
-            audioNovoPedido.loop = false;
+        if (!audioNovoPedido) inicializarAudio();
+        if (!alertaPedido.ativo) {
+            alertaPedido.ativo = true;
+            audioNovoPedido.currentTime = 0;
+            await audioNovoPedido.play();
         }
-        audioNovoPedido.currentTime = 0;
-        audioNovoPedido.play().catch(e => console.log('🔇 Som bloqueado'));
     } catch (e) {
-        console.log('🔇 Erro ao tocar som:', e);
+        console.log('🔇 Falha ao tocar som:', e);
     }
 }
 
-function pararSomNovoPedido() {
+function iniciarPiscarTitulo() {
+    if (alertaPedido.tituloInterval) return;
+    if (!document.hidden) return;
+    let alternar = false;
+    alertaPedido.tituloInterval = setInterval(() => {
+        document.title = alternar ? '🛎️ NOVO PEDIDO!' : alertaPedido.tituloOriginal;
+        alternar = !alternar;
+    }, 1000);
+}
+
+function pararAlertasNovoPedido() {
+    alertaPedido.ativo = false;
     if (audioNovoPedido) {
         audioNovoPedido.pause();
         audioNovoPedido.currentTime = 0;
     }
+    if (alertaPedido.tituloInterval) {
+        clearInterval(alertaPedido.tituloInterval);
+        alertaPedido.tituloInterval = null;
+    }
+    document.title = alertaPedido.tituloOriginal;
 }
 
-function solicitarPermissaoNotificacao() {
-    if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission();
+function removerPedidoPendente(id) {
+    alertaPedido.pedidosPendentes.delete(id);
+    if (alertaPedido.pedidosPendentes.size === 0) {
+        pararAlertasNovoPedido();
     }
 }
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) pararAlertasNovoPedido();
+});
 
 // ===== ATUALIZAR STATUS =====
 async function atualizarStatusPedidoPainel(pedidoId, novoStatus) {
@@ -291,4 +340,5 @@ window.pararOuvirPedidos = pararOuvirPedidos;
 window.iniciarAutoReload = iniciarAutoReload;
 window.solicitarPermissaoNotificacao = solicitarPermissaoNotificacao;
 window.tocarSomNovoPedido = tocarSomNovoPedido;
-window.pararSomNovoPedido = pararSomNovoPedido;
+window.removerPedidoPendente = removerPedidoPendente;
+window.pararAlertasNovoPedido = pararAlertasNovoPedido;
