@@ -859,7 +859,6 @@ montagemSelecionada.grupos.forEach(grupo => {
     renderizarCarrinho();
     fecharModalProduto();
 }
-}
 // ============================================
 // ===== RENDERIZAÇÃO DO CARRINHO ============
 // ============================================
@@ -919,7 +918,6 @@ if (item.tipo === 'montagem' && item.montagemDetalhes) {
         <span class="item-preco">${formatarPreco(subtotal)}</span>
     </div>
     ${detalhesHtml}
-    ${saboresHtml}
     ${adicionaisHtml}
     ${(item.precoBase && item.precoBase !== item.precoUnitario) ? `<div class="item-adicionais" style="font-size:0.7rem; color:#888;">Preço base: ${formatarPreco(item.precoBase)}</div>` : ''}
     ${item.observacao ? `<div class="item-obs">📝 ${item.observacao}</div>` : ''}
