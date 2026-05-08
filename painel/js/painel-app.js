@@ -280,7 +280,7 @@ function criarCardPedido(pedido) {
         btnWpp.innerHTML = '<i class="fab fa-whatsapp"></i>';
         btnWpp.onclick = (e) => {
             e.stopPropagation();
-            if (pedido.status === 'novo') pararSomNovoPedido();
+            if (pedido.status === 'novo') removerPedidoPendente(pedido.id);
             
             // Usa mensagem configurada para o status
             if (pedido.status === 'preparando') {
@@ -299,7 +299,7 @@ function criarCardPedido(pedido) {
     btnImp.innerHTML = '<i class="fas fa-print"></i>';
     btnImp.onclick = (e) => {
         e.stopPropagation();
-        if (pedido.status === 'novo') pararSomNovoPedido();
+        if (pedido.status === 'novo')removerPedidoPendente(pedido.id);
         imprimirPedidoPainel(pedido);
     };
     btnsDiv.appendChild(btnImp);
@@ -322,7 +322,7 @@ function criarCardPedido(pedido) {
     // Evento de clique no card
     card.addEventListener('click', (e) => {
         if (e.target.closest('.seta-status, .btn-imprimir-card, .btn-whatsapp-card')) return;
-        if (pedido.status === 'novo') pararSomNovoPedido();
+        if (pedido.status === 'novo') removerPedidoPendente(pedido.id);
         abrirDetalhes(pedido);
     });
 
@@ -337,7 +337,7 @@ function criarSeta(direcao, proximoStatus, pedidoId, pedido) {
     seta.innerHTML = direcao === 'direita' ? '<i class="fas fa-chevron-right"></i>' : '<i class="fas fa-chevron-left"></i>';
     seta.onclick = async (e) => {
         e.stopPropagation();
-        if (pedido && pedido.status === 'novo') pararSomNovoPedido();
+        if (pedido && pedido.status === 'novo') removerPedidoPendente(pedido.id);
         await mudarStatusPedido(pedidoId, proximoStatus);
     };
     return seta;
@@ -989,7 +989,7 @@ async function confirmarCancelamento() {
     if (!pedidoParaCancelar) return;
     
     const pedido = pedidosAtuais.find(p => p.id === pedidoParaCancelar);
-    if (pedido && pedido.status === 'novo') pararSomNovoPedido();
+    if (pedido && pedido.status === 'novo') removerPedidoPendente(pedido.id);
     
     await mudarStatusPedido(pedidoParaCancelar, 'cancelado');
     fecharModalCancelamento();
