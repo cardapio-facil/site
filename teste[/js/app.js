@@ -824,12 +824,11 @@ montagemSelecionada.grupos.forEach(grupo => {
     let nomeFinal = produtoSelecionado.nome;
     
     if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
-        if (saboresSelecionados.length === 1) {
-            nomeFinal = `${produtoSelecionado.nome} - ${saboresSelecionados[0].nome}`;
-        } else if (saboresSelecionados.length === 2) {
-            nomeFinal = `${produtoSelecionado.nome} - Meio ${saboresSelecionados[0].nome} / Meio ${saboresSelecionados[1].nome}`;
-        }
-    }
+if (saboresSelecionados.length === 1) {
+    nomeFinal = produtoSelecionado.nome;
+} else if (saboresSelecionados.length === 2) {
+    nomeFinal = `${produtoSelecionado.nome} meia ${saboresSelecionados[0].nome} meia ${saboresSelecionados[1].nome}`;
+}
     
   const itemCarrinho = {
     id: produtoSelecionado.id + '-' + Date.now(),
@@ -904,11 +903,6 @@ if (item.tipo === 'montagem' && item.montagemDetalhes) {
     });
     detalhesHtml += '</div>';
 }
-        
-        let saboresHtml = '';
-        if (item.sabores && item.sabores.length) {
-            saboresHtml = `<div class="item-adicionais">🍕 Sabores: ${item.sabores.map(s => s.nome).join(' e ')}</div>`;
-        }
         
         let adicionaisHtml = '';
         if (item.adicionais && item.adicionais.length) {
