@@ -718,13 +718,15 @@ if (adicionais && adicionais.length > 0) {
             <div class="info-cliente">Endereco: ${enderecoCompleto}</div>
             ${complementoHtml}
             ${referenciaHtml}
-            ${obsGeralHtml}
-            
-            <div class="linha"></div>
-            
-            <div style="margin:10px 0;">${itensHtml}</div>
-            
-            <div class="info-cliente">Pagamento: ${pedido.pagamento?.tipo || '---'}</div>
+${obsGeralHtml}
+
+<div class="linha-separadora">---------------</div>
+
+<div style="margin:10px 0;">${itensHtml}</div>
+
+<div class="linha-separadora">---------------</div>
+
+<div class="info-cliente">Pagamento: ${pedido.pagamento?.tipo || '---'}</div>
             ${trocoHtml}
             ${cupomHtml}
             ${freteHtml}
