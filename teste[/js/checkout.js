@@ -921,20 +921,76 @@ const troco = pagamento === 'dinheiro'
     mostrarLoader(true);
     const sucesso = await salvarPedidoFirebase(pedido);
     if (sucesso) {
-        if (tipoEntrega === 'entrega') salvarEndereco();
-        if (cupomAplicado) {
-            registrarUsoCupom(cupomAplicado.codigo, nome, cupomAplicado.descontoCentavos, pedido.id);
-            cupomAplicado = null;
-            atualizarResumoCupom();
-            atualizarTotalCarrinho();
-        }
-        mostrarToast(`✅ Pedido #${pedido.numero} realizado!`, 'Seu pedido foi enviado para o restaurante', 'sucesso');
+    if (tipoEntrega === 'entrega') salvarEndereco();
+    if (cupomAplicado) {
+        registrarUsoCupom(cupomAplicado.codigo, nome, cupomAplicado.descontoCentavos, pedido.id);
+        cupomAplicado = null;
+        atualizarResumoCupom();
+        atualizarTotalCarrinho();
+    }
+    
+    // ✅ ABRE MODAL DE CONFIRMAÇÃO
+    document.getElementById('modalConfirmacaoOverlay').classList.add('ativo');
+    document.getElementById('modalConfirmacaoOverlay').setAttribute('aria-hidden', 'false');
+    
+    // Foca no botão OK para acessibilidade
+    setTimeout(() => {
+        document.getElementById('confirmacaoBtnOk').focus();
+    }, 500);
+}
+}
+
+// ============================================
+// ===== FECHAR MODAL DE CONFIRMAÇÃO ==========
+// ============================================
+
+function fecharModalConfirmacao() {
+    const overlay = document.getElementById('modalConfirmacaoOverlay');
+    
+    // Remove classe ativo com animação
+    overlay.classList.remove('ativo');
+    overlay.setAttribute('aria-hidden', 'true');
+    
+    // Aguarda a animação terminar para limpar
+    setTimeout(() => {
+        // Limpa o carrinho
         carrinho = [];
         renderizarCarrinho();
-        document.getElementById('observacaoGeral').value = '';
+        
+        // Limpa campo de observação
+        const obsGeral = document.getElementById('observacaoGeral');
+        if (obsGeral) obsGeral.value = '';
+        
+        // Remove cupom se existir
+        if (cupomAplicado) {
+            cupomAplicado = null;
+            document.getElementById('codigoCupom').value = '';
+            document.getElementById('cupomInfo').innerHTML = '';
+            atualizarResumoCupom();
+        }
+        
+        // Fecha o checkout
         fecharModalCheckout();
-    }
-    mostrarLoader(false);
+        
+        // Reseta campos do checkout
+        document.getElementById('checkoutNome').value = '';
+        document.getElementById('checkoutTelefone').value = '';
+        document.getElementById('checkoutCep').value = '';
+        document.getElementById('checkoutBairro').value = '';
+        document.getElementById('checkoutCidade').value = '';
+        document.getElementById('checkoutRua').value = '';
+        document.getElementById('checkoutNumero').value = '';
+        document.getElementById('checkoutComplemento').value = '';
+        document.getElementById('checkoutTroco').value = '';
+        
+        // Rola para o topo (melhor experiência mobile)
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Atualiza barra mobile
+        if (typeof atualizarCarrinhoMobileBar === 'function') {
+            atualizarCarrinhoMobileBar();
+        }
+    }, 350);
 }
 
 // ===== EXPOR =====
@@ -952,3 +1008,4 @@ window.selecionarCepDaBusca = selecionarCepDaBusca;
 window.buscarFretePorBairro = buscarFretePorBairro;
 window.salvarEndereco = salvarEndereco;
 window.confirmarPedido = confirmarPedido;
+window.fecharModalConfirmacao = fecharModalConfirmacao;
