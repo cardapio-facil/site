@@ -822,13 +822,9 @@ montagemSelecionada.grupos.forEach(grupo => {
     
     let nomeFinal = produtoSelecionado.nome;
     
-    if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
-        if (saboresSelecionados.length === 1) {
-            nomeFinal = produtoSelecionado.nome;
-        } else if (saboresSelecionados.length === 2) {
-            nomeFinal = `${produtoSelecionado.nome} meia ${saboresSelecionados[0].nome} meia ${saboresSelecionados[1].nome}`;
-        }
-    }
+if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length === 1) {
+    nomeFinal = `${produtoSelecionado.nome} meia ${saboresSelecionados[0].nome}`;
+}
     
     const itemCarrinho = {
         id: produtoSelecionado.id + '-' + Date.now(),
