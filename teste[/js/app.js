@@ -815,7 +815,6 @@ montagemSelecionada.grupos.forEach(grupo => {
         precoFinal = Math.max(precoFinal, maiorPrecoSabor);
     }
     
-    // ✅ CORREÇÃO: Garante que adicionais estejam em centavos
     adicionaisSelecionados.forEach(adicional => {
         const precoAdicional = adicional.preco < 100 ? adicional.preco * 100 : adicional.preco;
         precoFinal += precoAdicional;
@@ -824,37 +823,38 @@ montagemSelecionada.grupos.forEach(grupo => {
     let nomeFinal = produtoSelecionado.nome;
     
     if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
-if (saboresSelecionados.length === 1) {
-    nomeFinal = produtoSelecionado.nome;
-} else if (saboresSelecionados.length === 2) {
-    nomeFinal = `${produtoSelecionado.nome} meia ${saboresSelecionados[0].nome} meia ${saboresSelecionados[1].nome}`;
-}
+        if (saboresSelecionados.length === 1) {
+            nomeFinal = produtoSelecionado.nome;
+        } else if (saboresSelecionados.length === 2) {
+            nomeFinal = `${produtoSelecionado.nome} meia ${saboresSelecionados[0].nome} meia ${saboresSelecionados[1].nome}`;
+        }
+    }
     
-  const itemCarrinho = {
-    id: produtoSelecionado.id + '-' + Date.now(),
-    produtoId: produtoSelecionado.id,
-    tipo: 'produto',
-    nome: nomeFinal,
-    precoUnitario: precoFinal,
-    precoBase: produtoSelecionado.preco,
-    quantidade: quantidadeSelecionada,
+    const itemCarrinho = {
+        id: produtoSelecionado.id + '-' + Date.now(),
+        produtoId: produtoSelecionado.id,
+        tipo: 'produto',
+        nome: nomeFinal,
+        precoUnitario: precoFinal,
+        precoBase: produtoSelecionado.preco,
+        quantidade: quantidadeSelecionada,
         observacao: document.getElementById('obsItem').value,
         adicionais: adicionaisSelecionados.map(a => ({
             nome: a.nome,
-            preco: a.preco < 100 ? a.preco * 100 : a.preco  // ✅ Normaliza para centavos
+            preco: a.preco < 100 ? a.preco * 100 : a.preco
         })),
         sabores: [...saboresSelecionados]
     };
-        
-        if (window.editandoCarrinhoIndex !== undefined && window.editandoCarrinhoIndex !== null) {
-            carrinho[window.editandoCarrinhoIndex] = itemCarrinho;
-            window.editandoCarrinhoIndex = null;
-            mostrarToast('Item atualizado!', 'sucesso');
-        } else {
-            carrinho.push(itemCarrinho);
-            mostrarToast(`${nomeFinal} adicionado ao carrinho!`, 'sucesso');
-        }
+    
+    if (window.editandoCarrinhoIndex !== undefined && window.editandoCarrinhoIndex !== null) {
+        carrinho[window.editandoCarrinhoIndex] = itemCarrinho;
+        window.editandoCarrinhoIndex = null;
+        mostrarToast('Item atualizado!', 'sucesso');
+    } else {
+        carrinho.push(itemCarrinho);
+        mostrarToast(`${nomeFinal} adicionado ao carrinho!`, 'sucesso');
     }
+}
     
     renderizarCarrinho();
     fecharModalProduto();
