@@ -891,10 +891,22 @@ total += subtotal;
         
         let detalhesHtml = '';
         if (item.tipo === 'montagem' && item.montagemDetalhes) {
-            detalhesHtml = '<div class="item-adicionais" style="font-size: 0.75rem;">';
-            item.montagemDetalhes.descricao.forEach(linha => { detalhesHtml += `${linha}<br>`; });
-            detalhesHtml += '</div>';
-        }
+detalhesHtml = '<div class="item-adicionais" style="font-size: 0.75rem;">';
+if (item.montagemDetalhes.tamanho) {
+    const t = item.montagemDetalhes.tamanho;
+    detalhesHtml += ` ${t.nome}${t.preco > 0 ? ` (+${formatarPreco(t.preco)})` : ''}<br>`;
+}
+const itens = item.montagemDetalhes.itens || [];
+const gruposMap = {};
+itens.forEach(i => {
+    if (!gruposMap[i.grupoId]) gruposMap[i.grupoId] = [];
+    gruposMap[i.grupoId].push(i);
+});
+Object.values(gruposMap).forEach(grupoItens => {
+    const nomeGrupo = grupoItens[0].grupoId || 'Item';
+    detalhesHtml += `${nomeGrupo}: ${grupoItens.map(i => i.nome + (i.preco > 0 ? ` (+${formatarPreco(i.preco)})` : '')).join(', ')}<br>`;
+});
+detalhesHtml += '</div>';
         
         let saboresHtml = '';
         if (item.sabores && item.sabores.length) {
