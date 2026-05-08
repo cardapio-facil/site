@@ -579,6 +579,8 @@ if (adicionais && adicionais.length > 0) {
             
             // Espaçamento entre itens
             itensHtml += `<div style="margin-bottom:15px;"></div>`;
+
+            itensHtml += `<div class="linha-separadora">-----------------------</div>`;
         });
     }
 
