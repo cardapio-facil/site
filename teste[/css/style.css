@@ -3285,3 +3285,214 @@ select:focus {
     }
 }
 
+/* ===================================================== */
+/* MODAL DE CONFIRMAÇÃO DO PEDIDO */
+/* ===================================================== */
+
+.modal-confirmacao-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
+}
+
+.modal-confirmacao-overlay.ativo {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-confirmacao-box {
+    position: relative;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 28px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: #ffffff;
+    text-align: center;
+    box-shadow:
+        0 25px 60px rgba(0, 0, 0, 0.25),
+        0 8px 20px rgba(0, 0, 0, 0.08);
+    transform: scale(0.85) translateY(30px);
+    opacity: 0;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    transition:
+        transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+        opacity 0.3s ease;
+}
+
+.modal-confirmacao-overlay.ativo .modal-confirmacao-box {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+}
+
+.confirmacao-icone {
+    position: relative;
+    margin-bottom: 20px;
+    font-size: 80px;
+    color: #4CAF50;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    animation: confirmacaoPulse 0.6s ease-out;
+}
+
+.confirmacao-icone::after {
+    content: "";
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    background: rgba(76, 175, 80, 0.12);
+    filter: blur(18px);
+    z-index: -1;
+}
+
+.confirmacao-icone i {
+    filter: drop-shadow(0 8px 16px rgba(76, 175, 80, 0.3));
+}
+
+@keyframes confirmacaoPulse {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.confirmacao-titulo {
+    margin-bottom: 12px;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #2E7D32;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    animation: fadeUp 0.5s ease-out 0.15s both;
+}
+
+.confirmacao-mensagem {
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+    color: #4b5563;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
+    animation: fadeUp 0.5s ease-out 0.3s both;
+}
+
+.confirmacao-sub-mensagem {
+    margin-bottom: 28px;
+    font-size: 0.85rem;
+    color: #9ca3af;
+    letter-spacing: 0.01em;
+    animation: fadeUp 0.5s ease-out 0.4s both;
+}
+
+.confirmacao-btn-ok {
+    position: relative;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    backface-visibility: hidden;
+    transform-style: preserve-3d;
+    box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+    overflow: hidden;
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        filter 0.25s ease;
+    animation: fadeUp 0.5s ease-out 0.55s both;
+}
+
+.confirmacao-btn-ok::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+        rgba(255, 255, 255, 0.18),
+        transparent
+    );
+    pointer-events: none;
+}
+
+.confirmacao-btn-ok:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 10px 30px rgba(76, 175, 80, 0.4);
+    filter: brightness(1.05);
+}
+
+.confirmacao-btn-ok:active {
+    transform: scale(0.97);
+}
+
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(18px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===================================================== */
+/* TEMA ESCURO */
+/* ===================================================== */
+
+[data-theme="dark"] .modal-confirmacao-box {
+    background: #1e1e1e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .confirmacao-titulo {
+    color: #66BB6A;
+}
+
+[data-theme="dark"] .confirmacao-mensagem {
+    color: #d1d5db;
+}
+
+[data-theme="dark"] .confirmacao-sub-mensagem {
+    color: #9ca3af;
+}
+
+/* ===================================================== */
+/* RESPONSIVO MOBILE */
+/* ===================================================== */
+
+@media (max-width: 480px) {
+    .modal-confirmacao-box {
+        max-width: 92%;
+        padding: 32px 22px;
+        border-radius: 22px;
+    }
+    .confirmacao-icone {
+        font-size: 68px;
+    }
+    .confirmacao-titulo {
+        font-size: 1.3rem;
+    }
+}
+
