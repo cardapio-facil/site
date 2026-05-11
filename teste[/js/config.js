@@ -5,7 +5,7 @@
 // CONFIGURAÇÕES DO RESTAURANTE (MUDE AQUI)
 const RESTAURANTE_ID = 'deliverypro';
 const NOME_RESTAURANTE = 'Delivery Pro';
-const LOGO_PADRAO = 'https://png.pngtree.com/png-clipart/20200727/original/pngtree-pin-food-delivery-map-location-delivery-logo-concept-png-image_5137624.jpg';
+const LOGO_PADRAO = 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTUV1KGEJdyXVgGNPrhAGgw90wdlvE2J8gsQ&s';
 
 // SENHAS (mude para suas senhas)
 const SENHA_MASTER = '123';
