@@ -338,41 +338,74 @@ function carregarAdminCategorias() {
         
         const visivel = categoriasVisiveis[cat] !== false;
         
-        if (cat === 'pizza') {
-            div.innerHTML = `
-                <span>🔒 ${getIconeCategoria(cat)} ${getNomeCategoria(cat)} <small style="color: #e65100;">(fixa)</small></span>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label style="font-size: 0.8rem; cursor: pointer;">
-                        <input type="checkbox" ${visivel ? 'checked' : ''} onchange="toggleVisibilidadeCategoria('${cat}', this.checked)" ${nivelAcesso !== 'master' ? 'disabled' : ''}>
-                        Visível
-                    </label>
-                    <span style="color: #999; font-size: 0.8rem;">🔒</span>
-                </div>
-            `;
-        } else {
-            div.innerHTML = `
-                <span>${getIconeCategoria(cat)} ${getNomeCategoria(cat)}</span>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <label style="font-size: 0.8rem; cursor: pointer;">
-                        <input type="checkbox" ${visivel ? 'checked' : ''} onchange="toggleVisibilidadeCategoria('${cat}', this.checked)" ${nivelAcesso !== 'master' ? 'disabled' : ''}>
-                        Visível
-                    </label>
-                    <button onclick="excluirCategoria('${cat}')" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
-                </div>
-            `;
-        }
-        
-        container.appendChild(div);
-    });
+if (cat === 'pizza') {
+    div.innerHTML = `
+        <span>${getIconeCategoria(cat)} ${getNomeCategoria(cat)} <small style="color: #e65100;">(fixa)</small></span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="toggleVisibilidadeCategoria('${cat}')" 
+                    class="btn-disponibilidade-admin" 
+                    title="${visivel ? 'Visível - Clique para ocultar' : 'Oculta - Clique para mostrar'}"
+                    style="
+                        width: 38px; height: 38px; border-radius: 50%; border: none;
+                        cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+                        transition: all 0.3s ease;
+                        background: ${visivel ? 'rgba(76, 175, 80, 0.15)' : 'rgba(244, 67, 54, 0.15)'};
+                        color: ${visivel ? '#4CAF50' : '#f44336'};
+                    ">
+                <i class="fas ${visivel ? 'fa-eye' : 'fa-eye-slash'}"></i>
+            </button>
+            <span title="Categoria fixa" style="
+                width: 38px; height: 38px; border-radius: 50%;
+                display: flex; align-items: center; justify-content: center;
+                background: rgba(158, 158, 158, 0.1); color: #9e9e9e; font-size: 0.9rem;
+            ">
+                <i class="fas fa-lock"></i>
+            </span>
+        </div>
+    `;
+} else {
+    div.innerHTML = `
+        <span>${getIconeCategoria(cat)} ${getNomeCategoria(cat)}</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button onclick="toggleVisibilidadeCategoria('${cat}')" 
+                    class="btn-disponibilidade-admin" 
+                    title="${visivel ? 'Visível - Clique para ocultar' : 'Oculta - Clique para mostrar'}"
+                    style="
+                        width: 38px; height: 38px; border-radius: 50%; border: none;
+                        cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+                        transition: all 0.3s ease;
+                        background: ${visivel ? 'rgba(76, 175, 80, 0.15)' : 'rgba(244, 67, 54, 0.15)'};
+                        color: ${visivel ? '#4CAF50' : '#f44336'};
+                    ">
+                <i class="fas ${visivel ? 'fa-eye' : 'fa-eye-slash'}"></i>
+            </button>
+            <button onclick="excluirCategoria('${cat}')" 
+                    class="btn-excluir-admin" 
+                    title="Excluir categoria"
+                    style="
+                        width: 38px; height: 38px; border-radius: 50%; border: none;
+                        cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
+                        transition: all 0.3s ease;
+                        background: rgba(244, 67, 54, 0.1);
+                        color: #f44336;
+                    ">
+                <i class="fas fa-trash-can"></i>
+            </button>
+        </div>
+    `;
 }
 
-async function toggleVisibilidadeCategoria(cat, visivel) {
-    if (nivelAcesso !== 'master') {
-        mostrarToast('Apenas Master pode alterar visibilidade', 'alerta');
+async function toggleVisibilidadeCategoria(cat) {
+    // Master e View podem usar
+    if (!adminLogado) {
+        mostrarToast('Faça login para alterar visibilidade', 'alerta');
         return;
     }
     
-    categoriasVisiveis[cat] = visivel;
+    const visivel = categoriasVisiveis[cat] !== false;
+    categoriasVisiveis[cat] = !visivel;
+   
+}
     
     const sucesso = await salvarCategoriasVisiveisFirebase(categoriasVisiveis);
     if (sucesso) {
