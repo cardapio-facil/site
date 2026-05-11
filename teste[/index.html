@@ -720,6 +720,51 @@
 
 <!-- Overlay -->
 <div id="carrinhoMobileOverlay" class="carrinho-mobile-overlay" onclick="fecharCarrinhoMobile()"></div>
+
+
+    <!-- ===================================================== -->
+<!-- MODAL DE CONFIRMAÇÃO DO PEDIDO -->
+<!-- ===================================================== -->
+
+<div 
+    class="modal-confirmacao-overlay" 
+    id="modalConfirmacaoOverlay"
+    aria-hidden="true"
+>
+    <div 
+        class="modal-confirmacao-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmacaoTitulo"
+    >
+        <!-- Ícone de sucesso animado -->
+        <div class="confirmacao-icone">
+            <i class="fas fa-check-circle"></i>
+        </div>
+
+        <!-- Título -->
+        <h2 class="confirmacao-titulo" id="confirmacaoTitulo">
+            Pedido Realizado!
+        </h2>
+
+        <!-- Mensagem -->
+        <p class="confirmacao-mensagem">
+            Seu pedido foi registrado com sucesso!
+        </p>
+        
+        <p class="confirmacao-sub-mensagem">
+            Em breve entraremos em contato.
+        </p>
+
+        <!-- Botão OK -->
+        <button 
+            class="confirmacao-btn-ok"
+            id="confirmacaoBtnOk"
+        >
+            OK
+        </button>
+    </div>
+</div>
     
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
