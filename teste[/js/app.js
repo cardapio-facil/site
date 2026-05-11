@@ -593,10 +593,28 @@ function toggleAdicional(checkbox, nome, preco) {
     if (checkbox.checked) {
         adicionaisSelecionados.push({ nome, preco });
     } else {
-        adicionaisSelecionados = adicionaisSelecionados.filter(a => a.nome !== nome);
+        adicionaisSelecionados = adicionaisSelecionados.filter(
+            adicional => adicional.nome !== nome
+        );
     }
-    if (produtoSelecionado && produtoSelecionado.categoria === 'pizza') {
+
+    // Atualiza o preço visual
+    if (!produtoSelecionado) return;
+
+    if (produtoSelecionado.categoria === 'pizza') {
         atualizarPrecoPizza();
+        return;
+    }
+
+    // Recalcula preço final
+    let precoFinal = produtoSelecionado.preco;
+    adicionaisSelecionados.forEach(adicional => {
+        precoFinal += adicional.preco;
+    });
+
+    const modalPreco = document.getElementById('modalProdutoPreco');
+    if (modalPreco) {
+        modalPreco.innerHTML = formatarPreco(precoFinal);
     }
 }
 
