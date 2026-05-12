@@ -8,8 +8,8 @@ const NOME_RESTAURANTE = 'Restaurante 40 graus';
 const LOGO_PADRAO = 'https://i.imgur.com/yV7ub1g.png';
 
 // SENHAS (mude para suas senhas)
-const SENHA_MASTER = '123';
-const SENHA_VIEW = 'view123';
+const SENHA_MASTER = 'suasenhamaster';   // Acesso total
+const SENHA_VIEW = 'suasenhaview';       // Acesso limitado
 
 // CONFIGURAÇÕES PADRÃO DO RESTAURANTE
 const CONFIG_PADRAO = {
