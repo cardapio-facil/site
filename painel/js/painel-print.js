@@ -90,22 +90,34 @@ function logImpressao(pedidoId, status, erro) {
     }
 }
 
+javascript
 function configurarSegurancaQZ() {
     if (typeof qz === 'undefined') return;
 
+    // Certificado público
     qz.security.setCertificatePromise(function(resolve, reject) {
-        fetch('certificate.txt')
-            .then(function(r) { return r.text(); })
+
+        fetch('./certificate.txt')
+            .then(function(response) {
+                return response.text();
+            })
             .then(resolve)
             .catch(reject);
+
     });
 
+    // SHA512
+    qz.security.setSignatureAlgorithm("SHA512");
+
+    // ASSINATURA TEMPORÁRIA (modo teste)
     qz.security.setSignaturePromise(function(toSign) {
         return function(resolve, reject) {
             resolve();
         };
     });
 }
+
+
 function limparTexto(texto) {
     if (!texto) return '';
     return String(texto).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
