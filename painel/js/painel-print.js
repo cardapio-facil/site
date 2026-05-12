@@ -92,12 +92,20 @@ function logImpressao(pedidoId, status, erro) {
 
 function configurarSegurancaQZ() {
     if (typeof qz === 'undefined') return;
-    qz.security.setCertificatePromise(function(resolve) { resolve(); });
-    qz.security.setSignaturePromise(function() {
-        return function(resolve) { resolve(); };
+
+    qz.security.setCertificatePromise(function(resolve, reject) {
+        fetch('certificate.txt')
+            .then(function(r) { return r.text(); })
+            .then(resolve)
+            .catch(reject);
+    });
+
+    qz.security.setSignaturePromise(function(toSign) {
+        return function(resolve, reject) {
+            resolve();
+        };
     });
 }
-
 function limparTexto(texto) {
     if (!texto) return '';
     return String(texto).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
