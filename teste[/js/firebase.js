@@ -360,7 +360,7 @@ async function salvarCuponsFirebase(cupons) {
 // ===== SISTEMA DE INATIVIDADE (OTIMIZADO) ===
 // ============================================
 
-const TEMPO_INATIVIDADE = 30000;
+const TEMPO_INATIVIDADE = 300000; // 5 minutos
 const INTERVALO_VERIFICACAO = 5000;
 
 const inactivityManager = {
