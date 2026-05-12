@@ -747,7 +747,7 @@ function editarMontagem(id) {
     document.getElementById('montagemDestaque').checked = montagem.destaque || false;
 
     // Botão Desativar Todos ao lado de "Em destaque" (View)
-if (isView) {
+if (adminLogado) {
     const checkboxGroup = document.querySelector('#modalCadastroMontagem .checkbox-group');
     if (checkboxGroup) {
         const btnTodos = document.createElement('button');
