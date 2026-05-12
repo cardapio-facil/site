@@ -96,27 +96,29 @@ function configurarSegurancaQZ() {
 
     // Certificado público
     qz.security.setCertificatePromise(function(resolve, reject) {
-
         fetch('./certificate.txt')
-            .then(function(response) {
-                return response.text();
-            })
+            .then(function(response) { return response.text(); })
             .then(resolve)
             .catch(reject);
-
     });
 
     // SHA512
     qz.security.setSignatureAlgorithm("SHA512");
 
-    // ASSINATURA TEMPORÁRIA (modo teste)
+    // ASSINATURA REAL (backend no Vercel)
     qz.security.setSignaturePromise(function(toSign) {
         return function(resolve, reject) {
-            resolve();
+            fetch('https://backend-woad-nine-25.vercel.app/sign-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ request: toSign })
+            })
+            .then(function(response) { return response.text(); })
+            .then(resolve)
+            .catch(reject);
         };
     });
 }
-
 
 function limparTexto(texto) {
     if (!texto) return '';
