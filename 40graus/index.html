@@ -169,12 +169,12 @@
             <h3>🔐 Área Administrativa</h3>
             <button class="close-modal" onclick="fecharModalLogin()">&times;</button>
         </div>
-        <div style="position: relative;">
-            <input type="password" id="senhaAdmin" placeholder="Digite a senha" class="input-password">
-            <button onclick="toggleSenha()" class="toggle-password-btn">👁️</button>
-        </div>
+        <label>Email</label>
+        <input type="email" id="emailAdmin" class="checkout-input" placeholder="admin@40graus.com">
+        <label>Senha</label>
+        <input type="password" id="senhaAdmin" class="checkout-input" placeholder="Digite a senha">
         <button class="btn-adicionar-carrinho" onclick="verificarLogin()" style="background: var(--cor-primaria);">ENTRAR</button>
-        <div id="erroLogin" class="erro-login">Senha incorreta!</div>
+        <div id="erroLogin" class="erro-login" style="display: none;">Email ou senha incorretos!</div>
     </div>
 </div>
 
