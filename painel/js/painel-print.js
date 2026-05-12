@@ -483,5 +483,8 @@ window.imprimirPedidoQZ = imprimirPedidoQZ;
 window.conectarQZ = conectarQZ;
 window.aoReceberNovoPedido = aoReceberNovoPedido;
 window.ativarImpressaoAutomatica = ativarImpressaoAutomatica;
+window.impressaoAutomatica = impressaoAutomatica;  
+
+} 
 
 } 
