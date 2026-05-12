@@ -501,10 +501,54 @@ function carregarAdminAdicionais() {
             `;
             div.innerHTML = `
                 <span>${adicional.nome} ${adicional.preco > 0 ? `(+${formatarPreco(adicional.preco)})` : ''}</span>
-                <button onclick="excluirAdicional('${categoria}', ${idx})" style="background:none; border:none; color:red; cursor:pointer;">🗑️</button>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button onclick="toggleDisponibilidadeAdicional('${categoria}', ${idx})" 
+                            class="btn-disponibilidade-admin" 
+                            title="${adicional.disponivel !== false ? 'Disponível - Clique para indisponibilizar' : 'Indisponível - Clique para disponibilizar'}"
+                            style="
+                                width: 38px; height: 38px; border-radius: 50%; border: none;
+                                cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+                                transition: all 0.3s ease;
+                                background: ${adicional.disponivel !== false ? 'rgba(76, 175, 80, 0.15)' : 'rgba(244, 67, 54, 0.15)'};
+                                color: ${adicional.disponivel !== false ? '#4CAF50' : '#f44336'};
+                            ">
+                        <i class="fas ${adicional.disponivel !== false ? 'fa-eye' : 'fa-eye-slash'}"></i>
+                    </button>
+                    ${nivelAcesso === 'master' ? `
+                        <button onclick="excluirAdicional('${categoria}', ${idx})" 
+                                class="btn-excluir-admin" 
+                                title="Excluir adicional"
+                                style="
+                                    width: 38px; height: 38px; border-radius: 50%; border: none;
+                                    cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
+                                    transition: all 0.3s ease;
+                                    background: rgba(244, 67, 54, 0.1);
+                                    color: #f44336;
+                                ">
+                            <i class="fas fa-trash-can"></i>
+                        </button>
+                    ` : ''}
+                </div>
             `;
             container.appendChild(div);
         });
+    }
+}
+
+async function toggleDisponibilidadeAdicional(categoria, index) {
+    if (!adminLogado) {
+        mostrarToast('Faça login para alterar disponibilidade', 'alerta');
+        return;
+    }
+    
+    const adicional = adicionaisPorCategoria[categoria][index];
+    adicional.disponivel = adicional.disponivel === false ? true : false;
+    
+    const sucesso = await salvarAdicionaisFirebase(adicionaisPorCategoria);
+    if (sucesso) {
+        const status = adicional.disponivel !== false ? 'disponível' : 'indisponível';
+        mostrarToast(`${adicional.nome} agora está ${status}`, 'sucesso');
+        carregarAdminAdicionais();
     }
 }
 
@@ -1764,7 +1808,7 @@ window.fecharModalGerenciarDestaques = fecharModalGerenciarDestaques;
 window.salvarDestaques = salvarDestaques;
 window.toggleHorarioLoja = toggleHorarioLoja;
 window.toggleDisponibilidadeProduto = toggleDisponibilidadeProduto;
-
+window.toggleDisponibilidadeAdicional = toggleDisponibilidadeAdicional;
 // 🆕 Horários
 window.abrirModalGerenciarHorarios = abrirModalGerenciarHorarios;
 window.fecharModalGerenciarHorarios = fecharModalGerenciarHorarios;
