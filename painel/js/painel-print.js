@@ -90,7 +90,7 @@ function logImpressao(pedidoId, status, erro) {
     }
 }
 
-javascript
+
 function configurarSegurancaQZ() {
     if (typeof qz === 'undefined') return;
 
