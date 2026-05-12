@@ -119,6 +119,13 @@ async function inicializarPainel() {
         pedidosAtuais = pedidos;
         atualizarContadores();
         renderizarPedidos();
+        
+        // Dispara impressão automática para pedidos novos
+        pedidos.forEach(pedido => {
+            if (pedido.status === 'novo' && typeof aoReceberNovoPedido === 'function') {
+                aoReceberNovoPedido(pedido);
+            }
+        });
     });
 
     // Inicia cronômetro global
