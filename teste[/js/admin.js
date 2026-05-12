@@ -786,7 +786,7 @@ if (isView) {
     });
     
     // ===== BLOQUEIA CAMPOS PARA VIEW =====
-    if (isView) {
+    if (adminLogado) {
         document.getElementById('montagemNome').readOnly = true;
         document.getElementById('montagemDesc').readOnly = true;
         document.getElementById('montagemPrecoBase').readOnly = true;
@@ -821,7 +821,7 @@ if (isView) {
     renderizarTamanhosMontagem(montagem, isView);
     renderizarGruposMontagem(montagem, isView);
 
-      if (isView) {
+      if (adminLogado) {
         const botoesContainer = document.createElement('div');
         botoesContainer.style.cssText = 'display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;';
         
