@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>Restaurante 40 graus</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<div class="header">
+    <div class="logo-area">
+        <img id="logoImg" class="logo-img" src="https://i.imgur.com/yV7ub1g.png" alt="Logo">
+        <span class="restaurante-nome" id="restauranteNome">Restaurante 40 graus</span>
+    </div>
+    <div class="header-info">
+        <div class="status-horario" id="statusHorarioHeader">🟢 ABERTO</div>
+<!--
+<button class="theme-toggle-btn" onclick="toggleTema()">
+    <i class="fas fa-moon" id="themeIcon"></i>
+    <span id="themeText">Escuro</span>
+</button>
+-->
+        <button class="admin-btn" id="adminBtn" onclick="abrirModalAdmin()" style="display: none;">👤 Área Admin</button>
+    </div>
+</div>
+
+<!-- ========== CONTAINER PRINCIPAL ========== -->
+<div class="container">
+    <!-- LADO ESQUERDO: CARDÁPIO -->
+    <div class="menu-section">
+        <!-- CATEGORIAS COM WRAPPER -->
+        <div class="categorias-wrapper">
+            <button class="categoria-nav-btn categoria-nav-left" onclick="scrollCategorias(-200)">◀</button>
+            <div class="categorias-tabs" id="categoriasTabs"></div>
+            <button class="categoria-nav-btn categoria-nav-right" onclick="scrollCategorias(200)">▶</button>
+        </div>
+
+        <!-- SEÇÃO DESTAQUES -->
+        <div class="destaques-section" id="destaquesSection" style="display: none;">
+            <div class="destaques-header">
+                <h2><i class="fas fa-fire"></i> Promoções em Destaque</h2>
+                <button class="admin-btn" id="gerenciarDestaquesBtn" onclick="abrirGerenciarDestaques()" style="display: none;">⭐ Gerenciar</button>
+            </div>
+            <div class="destaques-grid" id="destaquesGrid"></div>
+        </div>
+
+        <!-- PRODUTOS -->
+        <div class="produtos-grid" id="produtosGrid"></div>
+    </div>
+
+    <!-- LADO DIREITO: CARRINHO -->
+    <div class="sidebar">
+        <h2><i class="fas fa-shopping-cart"></i> Seu Pedido</h2>
+        <button class="fechar-sidebar-mobile" onclick="fecharCarrinhoMobile()">
+    <span></span>
+    <span></span>
+</button>
+        <div id="carrinhoContainer"></div>
+
+        
+        <div id="observacaoGeralDiv" style="margin-top: 15px;">
+            <label style="font-size: 0.8rem; color: var(--cor-texto-claro);">📝 Observação geral do pedido:</label>
+            <textarea id="observacaoGeral" rows="2" placeholder="Ex: Sem talheres, entregar rápido..."></textarea>
+        </div>
+
+        <!-- 🆕 Seção de Cupom -->
+<div id="cupomSection" style="margin: 15px 0; padding: 15px; background: var(--cinza-fundo); border-radius: 12px; border: 2px dashed var(--cor-borda);">
+    <label style="font-size: 0.85rem; font-weight: 600; color: var(--cor-primaria); display: flex; align-items: center; gap: 5px;">
+        🎫 Cupom de desconto
+    </label>
+    <div style="display: flex; gap: 8px; margin-top: 8px;">
+        <input type="text" 
+               id="codigoCupom" 
+               placeholder="Digite o código" 
+               style="flex: 1; padding: 10px 12px; border: 2px solid var(--cinza-medio); border-radius: 8px; font-size: 0.9rem; text-transform: uppercase;"
+               oninput="this.value = this.value.toUpperCase()">
+        <button onclick="aplicarCupom()" 
+                id="btnAplicarCupom"
+                style="padding: 10px 16px; background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria)); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; white-space: nowrap;">
+            Aplicar
+        </button>
+    </div>
+    <p style="font-size: 0.7rem; color: var(--cor-texto-claro); margin-top: 5px;">
+    </p>
+    <div id="cupomInfo" style="margin-top: 8px; font-size: 0.85rem;"></div>
+</div>
+
+<!-- Desconto no resumo -->
+<div id="descontoResumo" style="display: none; margin-top: 10px; padding: 8px 12px; background: #e8f5e9; border-radius: 8px; border-left: 4px solid #4caf50;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 0.9rem; color: #2e7d32;">🎫 Desconto:</span>
+        <span id="valorDesconto" style="font-weight: bold; color: #2e7d32;">-R$ 0,00</span>
+    </div>
+    <button onclick="removerCupom()" style="margin-top: 5px; padding: 4px 10px; background: none; border: 1px solid #c8e6c9; border-radius: 6px; color: #e53935; cursor: pointer; font-size: 0.75rem;">
+        ✕ Remover cupom
+    </button>
+</div>
+        
+        <div class="total-carrinho">
+            <span>Total:</span>
+            <span id="totalCarrinho">R$ 0,00</span>
+        </div>
+        
+        <button class="btn-finalizar" onclick="abrirCheckout()">📱 FINALIZAR PEDIDO</button>
+    </div>
+</div>
+
+<!-- ========== MODAL DE PRODUTO ========== -->
+<div class="modal" id="modalProduto">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalProdutoNome">Produto</h3>
+            <button class="close-modal" onclick="fecharModalProduto()">&times;</button>
+        </div>
+        <img id="modalProdutoImg" class="modal-produto-img" src="" alt="">
+        <p id="modalProdutoDesc" class="modal-produto-desc"></p>
+        <div class="modal-preco" id="modalProdutoPreco">R$ 0,00</div>
+        
+        <!-- 🍕 Sabores da Pizza -->
+        <div id="saboresPizzaDiv" style="display: none;">
+            <div class="sabores-pizza">
+                <h4>🍕 Monte sua pizza</h4>
+                <p style="font-size: 0.8rem; color: #e65100; margin-bottom: 10px;">
+                    ⚠️ Escolha 1 sabor (pizza inteira) ou 2 sabores (meio a meio) - Preço será o maior valor
+                </p>
+                <div id="saboresLista"></div>
+            </div>
+        </div>
+        
+        <!-- ➕ Adicionais -->
+        <div id="adicionaisDiv" style="display: none;">
+            <div class="adicionais-group">
+                <h4>➕ Adicionais</h4>
+                <div id="adicionaisLista"></div>
+            </div>
+        </div>
+        
+        <!-- 🛠️ Seção de Montagem -->
+        <div id="montagemDiv" style="display: none;"></div>
+        
+        <div class="quantidade-selector">
+            <button onclick="diminuirQuantidade()">-</button>
+            <span id="quantidadeProduto">1</span>
+            <button onclick="aumentarQuantidade()">+</button>
+        </div>
+        
+        <textarea id="obsItem" class="obs-input" placeholder="📝 Observação para este item"></textarea>
+        
+        <button class="btn-adicionar-carrinho" onclick="adicionarAoCarrinho()">
+            <i class="fas fa-cart-plus"></i> Adicionar ao Carrinho
+        </button>
+    </div>
+</div>
+
+<!-- ========== MODAL DE LOGIN ========== -->
+<div class="modal" id="modalLogin">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>🔐 Área Administrativa</h3>
+            <button class="close-modal" onclick="fecharModalLogin()">&times;</button>
+        </div>
+        <div style="position: relative;">
+            <input type="password" id="senhaAdmin" placeholder="Digite a senha" class="input-password">
+            <button onclick="toggleSenha()" class="toggle-password-btn">👁️</button>
+        </div>
+        <button class="btn-adicionar-carrinho" onclick="verificarLogin()" style="background: var(--cor-primaria);">ENTRAR</button>
+        <div id="erroLogin" class="erro-login">Senha incorreta!</div>
+    </div>
+</div>
+
+<!-- ========== MODAL DE ADMIN ========== -->
+<div class="modal" id="modalAdmin">
+    <div class="modal-content modal-content-large">
+        <div class="modal-header">
+            <h3>👑 Painel Administrativo</h3>
+            <button class="close-modal" onclick="fecharModalAdmin()">&times;</button>
+        </div>
+        
+        <div class="admin-tabs">
+            <button class="categoria-tab ativo" onclick="mostrarAbaAdmin('produtos')">📦 Produtos</button>
+            <button class="categoria-tab" onclick="mostrarAbaAdmin('categorias')">🏷️ Categorias</button>
+            <button class="categoria-tab" onclick="mostrarAbaAdmin('adicionais')">➕ Adicionais</button>
+            <button class="categoria-tab" onclick="mostrarAbaAdmin('montagens')">🛠️ Monte o Produto</button>
+            <button class="categoria-tab" onclick="mostrarAbaAdmin('config')">⚙️ Configurações</button>
+        </div>
+        
+        <!-- Aba Produtos -->
+        <div id="adminProdutos">
+            <button class="btn-add-full" onclick="abrirModalCadastroProduto()">+ Novo Produto</button>
+            <div id="adminProdutosLista" class="admin-list"></div>
+        </div>
+        
+        <!-- Aba Categorias -->
+        <div id="adminCategorias" style="display: none;">
+            <div class="admin-form-row">
+                <input type="text" id="novaCategoria" placeholder="Nova categoria" class="input-field">
+                <button onclick="adicionarCategoria()" class="btn-primary">Adicionar</button>
+            </div>
+            <div id="listaCategorias"></div>
+        </div>
+        
+        <!-- Aba Adicionais -->
+        <div id="adminAdicionais" style="display: none;">
+            <div class="admin-form-row">
+                <select id="categoriaAdicional" class="select-field"></select>
+                <input type="text" id="nomeAdicional" placeholder="Nome do adicional" class="input-field">
+                <input type="number" id="precoAdicional" placeholder="Preço" step="0.01" class="input-field-small">
+                <button onclick="adicionarAdicional()" class="btn-primary">+</button>
+            </div>
+            <div id="listaAdicionais"></div>
+        </div>
+        
+        <!-- 🛠️ Aba Monte o Produto -->
+        <div id="adminMontagens" style="display: none;">
+            <button class="btn-add-full" onclick="abrirModalNovaMontagem()">+ Nova Montagem</button>
+            <div id="listaMontagens" class="admin-list"></div>
+        </div>
+        
+        <!-- Aba Configurações -->
+        <div id="adminConfig" style="display: none;">
+            <!-- 🆕 Status Manual -->
+            <div class="config-field">
+                <label>Status da loja:</label>
+                <select id="configStatusManual" class="select-field">
+                    <option value="aberto">🟢 Aberto</option>
+                    <option value="fechado">🔴 Fechado</option>
+                </select>
+            </div>
+            
+            <!-- 🆕 Horários da Loja -->
+            <div class="config-field">
+                <label>Horários da loja:</label>
+                <div id="configHorariosLoja" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+            
+            <!-- 🆕 Gerenciar Horários -->
+            <button class="btn-add-full" onclick="abrirModalGerenciarHorarios()" style="background: linear-gradient(135deg, #9c27b0, #e040fb);">
+                🕐 Gerenciar Horários
+            </button>
+            
+            <!-- 🆕 Gerenciar Feriados -->
+            <button class="btn-add-full" onclick="abrirModalGerenciarFeriados()" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                📅 Gerenciar Feriados
+            </button>
+
+    <!-- 🆕 Gerenciar Cupons -->
+<button class="btn-add-full" onclick="abrirModalGerenciarCupons()" style="background: linear-gradient(135deg, #FF6B6B, #ee5a24);">
+    🎫 Gerenciar Cupons
+</button>
+            
+            <hr style="margin: 20px 0; border-color: var(--cor-borda);">
+            
+            <!-- Frete -->
+            <div class="config-field">
+                <label>Tipo de frete:</label>
+                <select id="configTipoFrete" onchange="toggleFreteFixo()" class="select-field">
+                    <option value="bairro">Por bairro</option>
+                    <option value="fixo">Fixo</option>
+                </select>
+            </div>
+            
+            <div class="config-field" id="configFreteFixoField" style="display: none;">
+                <label>Valor frete fixo (R$):</label>
+                <input type="number" id="configFreteFixo" step="0.01" value="5.00" class="input-field-small">
+            </div>
+            
+            <button onclick="salvarConfiguracoes()" class="btn-adicionar-carrinho" style="background: var(--cor-primaria);">Salvar Configurações</button>
+        </div>
+        
+        <button onclick="logout()" class="btn-logout">Sair do Admin</button>
+    </div>
+</div>
+
+<!-- ========== MODAL DE CHECKOUT ========== -->
+<div class="modal" id="modalCheckout">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📋 Finalizar Pedido</h3>
+            <button class="close-modal" onclick="fecharModalCheckout()">&times;</button>
+        </div>
+        
+        <label>Nome completo *</label>
+        <input type="text" id="checkoutNome" class="checkout-input" placeholder="Seu nome completo">
+        
+        <label>Telefone *</label>
+        <input type="tel" id="checkoutTelefone" class="checkout-input" placeholder="(31) 99999-9999">
+        
+        <label>Tipo de entrega</label>
+        <select id="checkoutTipoEntrega" onchange="toggleCamposEntrega()" class="checkout-select">
+            <option value="entrega">🛵 Entrega</option>
+            <option value="retirada">🏃 Retirada no local</option>
+        </select>
+        
+        <div id="camposEntrega">
+            <label>CEP *</label>
+            <div class="cep-container">
+                <input type="text" id="checkoutCep" class="checkout-input cep-input" placeholder="00000-000" maxlength="9" oninput="formatarCep(this)" onblur="buscarCep()">
+                <button type="button" class="btn-buscar-cep" onclick="buscarCep()">🔍</button>
+            </div>
+            <button type="button" class="btn-buscar-endereco" onclick="abrirModalBuscaEndereco()" style="width: 100%; padding: 10px; background: #f0f0f0; border: 1px dashed var(--cor-borda); border-radius: 8px; cursor: pointer; margin-bottom: 15px;">
+                🔍 Não sei meu CEP - Buscar por rua
+            </button>
+            
+            <div class="checkout-row">
+                <div>
+                    <label>Bairro *</label>
+                    <input type="text" id="checkoutBairro" class="checkout-input readonly" readonly>
+                </div>
+                <div>
+                    <label>Cidade</label>
+                    <input type="text" id="checkoutCidade" class="checkout-input readonly" readonly>
+                </div>
+            </div>
+
+            <label>Rua *</label>
+            <input type="text" id="checkoutRua" class="checkout-input readonly" readonly>
+
+            <div class="checkout-row">
+                <div>
+                    <label>Número *</label>
+                    <input type="text" id="checkoutNumero" class="checkout-input">
+                </div>
+                <div>
+                    <label>Complemento</label>
+                    <input type="text" id="checkoutComplemento" class="checkout-input">
+                </div>
+            </div>
+            
+            <label>Taxa de entrega</label>
+            <input type="text" id="checkoutFrete" readonly class="checkout-input readonly" data-valor="0">
+        </div>
+        
+        <label>Forma de pagamento</label>
+        <select id="checkoutPagamento" onchange="toggleCampoTroco()" class="checkout-select">
+            <option value="pix">📱 Pix</option>
+            <option value="cartao">💳 Cartão</option>
+            <option value="dinheiro">💵 Dinheiro</option>
+        </select>
+        
+        <div id="campoTroco" style="display: none;">
+            <label>Troco para quanto?</label>
+            <input type="number" id="checkoutTroco" step="0.01" class="checkout-input">
+        </div>
+        
+        <div class="checkout-resumo">
+            <div class="resumo-linha">
+                <span>Subtotal:</span>
+                <span id="checkoutSubtotal">R$ 0,00</span>
+            </div>
+            <div class="resumo-linha">
+                <span>Frete:</span>
+                <span id="checkoutFreteValor">R$ 0,00</span>
+            </div>
+            <div class="resumo-linha" id="checkoutDesconto" style="display: none; color: #2e7d32;">
+        <span>Cupom Desconto:</span>
+        <span id="checkoutDescontoValor" style="color: #2e7d32;">-R$ 0,00</span>
+    </div>
+    
+            <div class="resumo-total">
+                <span>TOTAL:</span>
+                <span id="checkoutTotal">R$ 0,00</span>
+            </div>
+        </div>
+        
+        <button class="btn-adicionar-carrinho" onclick="confirmarPedido()" style="background: var(--cor-sucesso);">
+            ✅ CONFIRMAR PEDIDO
+        </button>
+    </div>
+</div>
+
+<!-- ========== MODAL DE BUSCA DE ENDEREÇO ========== -->
+<div class="modal" id="modalBuscaEndereco">
+    <div class="modal-content modal-busca-content">
+        <div class="modal-header">
+            <h3>🔍 Buscar Endereço</h3>
+            <button class="close-modal" onclick="fecharModalBuscaEndereco()">&times;</button>
+        </div>
+        
+        <p style="margin-bottom: 15px; color: var(--cor-texto-claro);">
+            Buscando em: <strong id="cidadeUfBusca"></strong>
+        </p>
+        
+        <div class="busca-endereco-input-group">
+            <input type="text" id="buscaEnderecoInput" placeholder="Digite o nome da rua..." class="checkout-input" onkeypress="buscarEnderecoEnter(event)">
+            <button onclick="buscarEnderecoAvancado()" class="btn-buscar-avancado">
+                <i class="fas fa-search"></i> BUSCAR
+            </button>
+        </div>
+        
+        <div id="resultadosBuscaEndereco" style="max-height: 400px; overflow-y: auto;"></div>
+    </div>
+</div>
+
+<!-- ========== MODAL CADASTRO PRODUTO ========== -->
+<div class="modal" id="modalCadastroProduto">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="cadastroProdutoTitulo">➕ Novo Produto</h3>
+            <button class="close-modal" onclick="fecharModalCadastroProduto()">&times;</button>
+        </div>
+        
+        <input type="hidden" id="editProdutoId">
+        
+        <label>Nome do produto *</label>
+        <input type="text" id="produtoNome" class="checkout-input">
+        
+        <label>Descrição</label>
+        <textarea id="produtoDesc" rows="2" class="checkout-input"></textarea>
+        
+        <label>Preço *</label>
+        <input type="number" id="produtoPreco" step="0.01" class="checkout-input">
+        
+        <label>Categoria *</label>
+        <select id="produtoCategoria" class="checkout-select"></select>
+        
+        <label>URL da imagem</label>
+        <input type="text" id="produtoImagem" placeholder="https://..." class="checkout-input">
+        
+        <div class="checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="produtoDisponivel" checked> Disponível
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="produtoDestaque"> Em destaque
+            </label>
+        </div>
+        
+        <button class="btn-adicionar-carrinho" onclick="salvarProduto()" style="background: var(--cor-primaria);">Salvar Produto</button>
+    </div>
+</div>
+
+<!-- ========== 🛠️ MODAL CADASTRO MONTAGEM ========== -->
+<div class="modal" id="modalCadastroMontagem">
+    <div class="modal-content modal-content-large">
+        <div class="modal-header">
+            <h3 id="modalMontagemTitulo">➕ Nova Montagem</h3>
+            <button class="close-modal" onclick="fecharModalCadastroMontagem()">&times;</button>
+        </div>
+        
+        <input type="hidden" id="editMontagemId">
+        
+        <div class="checkout-row">
+            <div>
+                <label>Nome *</label>
+                <input type="text" id="montagemNome" class="checkout-input" placeholder="Ex: Marmitex">
+            </div>
+            <div>
+                <label>Preço Base *</label>
+                <input type="number" id="montagemPrecoBase" step="0.01" class="checkout-input" placeholder="25.00">
+            </div>
+        </div>
+        
+        <label>Descrição</label>
+        <textarea id="montagemDesc" rows="2" class="checkout-input" placeholder="Monte sua refeição do seu jeito"></textarea>
+        
+        <div class="checkout-row">
+            <div>
+                <label>Categoria *</label>
+                <select id="montagemCategoria" class="checkout-select"></select>
+            </div>
+            <div>
+                <label>URL da imagem</label>
+                <input type="text" id="montagemImagem" class="checkout-input" placeholder="https://...">
+            </div>
+        </div>
+        
+        <div class="checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="montagemDisponivel" checked> Disponível
+            </label>
+            <label class="checkbox-label">
+                <input type="checkbox" id="montagemDestaque"> Em destaque
+            </label>
+        </div>
+        
+        <div class="montagem-section-admin">
+            <h4>📏 Tamanhos</h4>
+            <div id="tamanhosContainer"></div>
+            <button onclick="adicionarTamanho()" style="padding: 8px 16px; background: #e3f2fd; border: none; border-radius: 8px; cursor: pointer; font-size: 0.85rem;">
+                + Adicionar Tamanho
+            </button>
+        </div>
+        
+        <div class="montagem-section-admin" style="margin-top: 20px;">
+            <h4>📦 Grupos de Itens</h4>
+            <div id="gruposContainer"></div>
+            <button onclick="adicionarGrupo()" style="padding: 10px 20px; background: #fff3e0; border: 2px dashed #ff9800; border-radius: 12px; cursor: pointer; font-size: 0.9rem; width: 100%;">
+                + Adicionar Grupo
+            </button>
+        </div>
+        
+        <button class="btn-adicionar-carrinho" onclick="salvarMontagem()" style="background: var(--cor-primaria); margin-top: 20px;">
+            💾 Salvar Montagem
+        </button>
+    </div>
+</div>
+
+<!-- ========== MODAL GERENCIAR DESTAQUES ========== -->
+<div class="modal" id="modalGerenciarDestaques">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>⭐ Gerenciar Destaques</h3>
+            <button class="close-modal" onclick="fecharModalGerenciarDestaques()">&times;</button>
+        </div>
+        
+        <p style="margin-bottom: 15px; color: var(--cor-texto-claro);">
+            Selecione até 4 produtos ou montagens para aparecer na seção de destaques
+        </p>
+        
+        <div id="listaProdutosDestaques"></div>
+        
+        <button class="btn-adicionar-carrinho" onclick="salvarDestaques()" style="background: var(--cor-secundaria);">
+            💾 Salvar Destaques
+        </button>
+    </div>
+</div>
+
+<!-- ========== 🆕 MODAL GERENCIAR HORÁRIOS ========== -->
+<div class="modal" id="modalGerenciarHorarios">
+    <div class="modal-content modal-content-large">
+        <div class="modal-header">
+            <h3>🕐 Gerenciar Horários</h3>
+            <button class="close-modal" onclick="fecharModalGerenciarHorarios()">&times;</button>
+        </div>
+        
+        <input type="hidden" id="editHorarioId">
+        
+        <div class="form-group">
+            <label>Nome do horário *</label>
+            <input type="text" id="horarioNome" class="checkout-input" placeholder="Ex: Almoço, Jantar, Madrugada...">
+        </div>
+        
+        <div class="checkout-row">
+            <div class="form-group">
+                <label>Hora início *</label>
+                <input type="time" id="horarioInicio" class="checkout-input">
+            </div>
+            <div class="form-group">
+                <label>Hora fim *</label>
+                <input type="time" id="horarioFim" class="checkout-input">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="checkbox-label" for="horarioViradaDia">
+                <input type="checkbox" id="horarioViradaDia">
+                Permite virada de dia (ex: 23:00 às 01:00)
+            </label>
+        </div>
+        
+        <div class="form-group">
+            <label>Dias da semana</label>
+            <div class="dias-semana" id="diasSemanaCheckboxes">
+                <label><input type="checkbox" value="1" onchange="atualizarCheckboxTodos(this)"><span>Seg</span></label>
+                <label><input type="checkbox" value="2" onchange="atualizarCheckboxTodos(this)"><span>Ter</span></label>
+                <label><input type="checkbox" value="3" onchange="atualizarCheckboxTodos(this)"><span>Qua</span></label>
+                <label><input type="checkbox" value="4" onchange="atualizarCheckboxTodos(this)"><span>Qui</span></label>
+                <label><input type="checkbox" value="5" onchange="atualizarCheckboxTodos(this)"><span>Sex</span></label>
+                <label><input type="checkbox" value="6" onchange="atualizarCheckboxTodos(this)"><span>Sáb</span></label>
+                <label><input type="checkbox" value="7" onchange="atualizarCheckboxTodos(this)"><span>Dom</span></label>
+                <label><input type="checkbox" id="todosDias" onchange="toggleTodosDias(this)"><span>Todos</span></label>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Categorias que este horário atende</label>
+            <div class="checkbox-group" id="categoriasHorarioCheckboxes"></div>
+        </div>
+        
+        <button class="btn-primary" onclick="salvarHorario()">💾 Salvar Horário</button>
+        
+        <div class="section-divider"></div>
+        
+        <h4 style="margin-bottom: 15px;">📋 Horários cadastrados</h4>
+        <div id="listaHorariosCadastrados" class="lista-cards"></div>
+    </div>
+</div>
+
+<!-- ========== 🆕 MODAL GERENCIAR FERIADOS ========== -->
+<div class="modal" id="modalGerenciarFeriados">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>📅 Gerenciar Feriados</h3>
+            <button class="close-modal" onclick="fecharModalGerenciarFeriados()">&times;</button>
+        </div>
+        
+        <input type="hidden" id="editFeriadoId">
+        
+        <div class="form-group">
+            <label>Nome do feriado *</label>
+            <input type="text" id="feriadoNome" class="checkout-input" placeholder="Ex: Natal, Ano Novo...">
+        </div>
+        
+        <div class="form-group">
+            <label>Data *</label>
+            <input type="date" id="feriadoData" class="checkout-input">
+        </div>
+        
+        <div class="form-group">
+            <label class="checkbox-label" for="feriadoRecorrente">
+                <input type="checkbox" id="feriadoRecorrente" checked>
+                Recorrente (todo ano)
+            </label>
+        </div>
+        
+        <button class="btn-primary" onclick="salvarFeriado()" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">💾 Salvar Feriado</button>
+        
+        <div class="section-divider"></div>
+        
+        <h4 style="margin-bottom: 15px;">📋 Feriados cadastrados</h4>
+        <div id="listaFeriadosCadastrados" class="lista-cards"></div>
+    </div>
+</div>
+
+     <!-- ========== 🆕 MODAL GERENCIAR CUPONS ========== -->
+<div class="modal" id="modalGerenciarCupons">
+    <div class="modal-content modal-content-large">
+        <div class="modal-header">
+            <h3>🎫 Gerenciar Cupons</h3>
+            <button class="close-modal" onclick="fecharModalGerenciarCupons()">&times;</button>
+        </div>
+        
+        <input type="hidden" id="editCupomId">
+        
+        <div class="form-group">
+            <label>Código do cupom *</label>
+            <input type="text" id="cupomCodigo" class="checkout-input" placeholder="Ex: DESCONTO10" style="text-transform: uppercase;">
+        </div>
+        
+        <div class="checkout-row">
+            <div class="form-group">
+                <label>Tipo de desconto</label>
+                <select id="cupomTipoDesconto" class="checkout-select">
+                    <option value="percentual">Percentual (%)</option>
+                    <option value="fixo">Valor fixo (R$)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Valor do desconto *</label>
+                <input type="text" id="cupomValorDesconto" class="checkout-input" placeholder="Ex: 10 ou 10%">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label class="checkbox-label" for="cupomAtivo">
+                <input type="checkbox" id="cupomAtivo" checked>
+                Cupom ativo
+            </label>
+        </div>
+        
+        <div class="checkout-row">
+            <div class="form-group">
+                <label>Tipo de limite de uso</label>
+                <select id="cupomTipoLimite" class="checkout-select" onchange="toggleCamposLimiteCupom()">
+                    <option value="ilimitado">Ilimitado</option>
+                    <option value="unico">Uso único (global)</option>
+                    <option value="limitado">Limitado</option>
+                </select>
+            </div>
+            <div class="form-group" id="campoLimiteUso" style="display: none;">
+                <label>Quantidade máxima</label>
+                <input type="number" id="cupomLimiteUso" class="checkout-input" value="50" min="1">
+            </div>
+        </div>
+        
+        <div class="checkout-row">
+            <div class="form-group">
+                <label>Limite por usuário</label>
+                <input type="number" id="cupomLimitePorUsuario" class="checkout-input" placeholder="1 = cada usuário usa 1x" value="1" min="1">
+                <small style="color: var(--cor-texto-claro);">Deixe vazio para sem limite por usuário</small>
+            </div>
+            <div class="form-group">
+                <label>Valor mínimo do pedido</label>
+                <input type="number" id="cupomValorMinimo" class="checkout-input" placeholder="R$ 0,00" step="0.01">
+            </div>
+        </div>
+        
+        <div class="checkout-row">
+            <div class="form-group">
+                <label>Data de início</label>
+                <input type="date" id="cupomDataInicio" class="checkout-input">
+            </div>
+            <div class="form-group">
+                <label>Data de expiração</label>
+                <input type="date" id="cupomDataExpiracao" class="checkout-input">
+            </div>
+        </div>
+        
+        <button class="btn-primary" onclick="salvarCupom()">💾 Salvar Cupom</button>
+        
+        <div class="section-divider"></div>
+        
+        <h4 style="margin-bottom: 15px;">📋 Cupons cadastrados</h4>
+        <div id="listaCuponsCadastrados" class="lista-cards"></div>
+    </div>
+</div>
+
+<!-- 🛒 Barra flutuante do carrinho (mobile) -->
+<div id="carrinhoMobileBar" class="carrinho-mobile-bar" onclick="abrirCarrinhoMobile()">
+    <div class="carrinho-mobile-glow"></div>
+    <div class="carrinho-mobile-content">
+        <div class="carrinho-mobile-left">
+            <span class="carrinho-mobile-icone">🛒</span>
+            <span id="carrinhoMobileQtd" class="carrinho-mobile-qtd">0 itens</span>
+        </div>
+        <div class="carrinho-mobile-right">
+            <span id="carrinhoMobileTotal" class="carrinho-mobile-total">R$ 0,00</span>
+            <span class="carrinho-mobile-arrow">›</span>
+        </div>
+    </div>
+</div>
+
+<!-- Overlay -->
+<div id="carrinhoMobileOverlay" class="carrinho-mobile-overlay" onclick="fecharCarrinhoMobile()"></div>
+
+
+    <!-- ===================================================== -->
+<!-- MODAL DE CONFIRMAÇÃO DO PEDIDO -->
+<!-- ===================================================== -->
+
+<div 
+    class="modal-confirmacao-overlay" 
+    id="modalConfirmacaoOverlay"
+    aria-hidden="true"
+>
+    <div 
+        class="modal-confirmacao-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirmacaoTitulo"
+    >
+        <!-- Ícone de sucesso animado -->
+        <div class="confirmacao-icone">
+            <i class="fas fa-check-circle"></i>
+        </div>
+
+        <!-- Título -->
+        <h2 class="confirmacao-titulo" id="confirmacaoTitulo">
+            Pedido Realizado!
+        </h2>
+
+        <!-- Mensagem -->
+        <p class="confirmacao-mensagem">
+            Seu pedido foi registrado com sucesso!
+        </p>
+        
+        <p class="confirmacao-sub-mensagem">
+            Em breve entraremos em contato.
+        </p>
+
+        <!-- Botão OK -->
+        <button 
+            class="confirmacao-btn-ok"
+            id="confirmacaoBtnOk"
+        >
+            OK
+        </button>
+    </div>
+</div>
+    
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Scripts -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="js/config.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/app.js"></script>
+<script src="js/checkout.js"></script>
+<script src="js/admin.js"></script>
+
+   
+
+</body>
+</html>
