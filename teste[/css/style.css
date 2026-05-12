@@ -3572,3 +3572,251 @@ select:focus {
     }
 }
 
+/* ===================================================== */
+/* MODAL DE INATIVIDADE */
+/* ===================================================== */
+
+.modal-inatividade-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10001;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(2, 6, 23, 0.72);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    opacity: 0;
+
+    transition: opacity 0.35s ease;
+
+    will-change: opacity;
+}
+
+.modal-inatividade-overlay.ativo {
+    opacity: 1;
+}
+
+.modal-inatividade-box {
+    width: 100%;
+    max-width: 390px;
+
+    padding: 34px 28px;
+
+    border-radius: 28px;
+
+    background: rgba(255, 255, 255, 0.92);
+
+    border: 1px solid rgba(255, 255, 255, 0.45);
+
+    text-align: center;
+
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.12),
+        0 24px 70px rgba(0, 0, 0, 0.18);
+
+    transform: scale(0.92) translateY(24px);
+
+    transition:
+        transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        opacity 0.35s ease;
+
+    will-change: transform;
+}
+
+.modal-inatividade-overlay.ativo .modal-inatividade-box {
+    transform: scale(1) translateY(0);
+}
+
+.modal-inatividade-icone {
+    font-size: 62px;
+
+    margin-bottom: 18px;
+
+    animation:
+        bounceIn .7s cubic-bezier(0.22, 1, 0.36, 1),
+        floatIcon 3.5s ease-in-out infinite;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+
+    60% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+@keyframes floatIcon {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.modal-inatividade-titulo {
+    font-size: 1.35rem;
+    font-weight: 800;
+
+    color: #111827;
+
+    margin-bottom: 10px;
+
+    letter-spacing: -0.4px;
+}
+
+.modal-inatividade-texto {
+    font-size: 0.95rem;
+    line-height: 1.5;
+
+    color: #6b7280;
+
+    margin-bottom: 26px;
+}
+
+.modal-inatividade-btn {
+    position: relative;
+
+    width: 100%;
+
+    padding: 15px 18px;
+
+    border: none;
+    border-radius: 999px;
+
+    background: linear-gradient(
+        135deg,
+        #ff5a1f,
+        #ff7b00
+    );
+
+    color: #ffffff;
+
+    font-size: 0.95rem;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    overflow: hidden;
+
+    transition:
+        transform .22s ease,
+        box-shadow .25s ease,
+        filter .25s ease;
+
+    box-shadow:
+        0 8px 20px rgba(255, 90, 31, 0.28),
+        0 14px 40px rgba(255, 123, 0, 0.22);
+}
+
+.modal-inatividade-btn::before {
+    content: '';
+
+    position: absolute;
+    inset: 0;
+
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,.22),
+        transparent
+    );
+
+    transform: translateX(-120%);
+    transition: transform .7s ease;
+}
+
+.modal-inatividade-btn:hover {
+    transform: translateY(-2px);
+
+    filter: brightness(1.03);
+
+    box-shadow:
+        0 12px 26px rgba(255, 90, 31, 0.35),
+        0 20px 50px rgba(255, 123, 0, 0.28);
+}
+
+.modal-inatividade-btn:hover::before {
+    transform: translateX(120%);
+}
+
+.modal-inatividade-btn:active {
+    transform: scale(0.98);
+}
+
+.modal-inatividade-btn:focus-visible {
+    outline: 3px solid rgba(255,255,255,.45);
+    outline-offset: 3px;
+}
+
+/* ===================================================== */
+/* DARK MODE */
+/* ===================================================== */
+
+[data-theme="dark"] .modal-inatividade-box {
+    background: rgba(17, 24, 39, 0.92);
+
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.4),
+        0 24px 70px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .modal-inatividade-titulo {
+    color: #f8fafc;
+}
+
+[data-theme="dark"] .modal-inatividade-texto {
+    color: #9ca3af;
+}
+
+/* ===================================================== */
+/* MOBILE */
+/* ===================================================== */
+
+@media (max-width: 480px) {
+
+    .modal-inatividade-box {
+        max-width: 94%;
+
+        padding: 28px 22px;
+
+        border-radius: 24px;
+    }
+
+    .modal-inatividade-icone {
+        font-size: 54px;
+    }
+
+    .modal-inatividade-titulo {
+        font-size: 1.2rem;
+    }
+
+    .modal-inatividade-texto {
+        font-size: 0.9rem;
+    }
+
+    .modal-inatividade-btn {
+        padding: 14px 16px;
+    }
+}
