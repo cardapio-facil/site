@@ -26,8 +26,17 @@ async function verificarLogin() {
     try {
         await firebase.auth().signInWithEmailAndPassword(email, senha);
         adminLogado = true;
+        
+        // Verificar nível de acesso pelo email
+        if (email === 'master@40graus.com') {
+            nivelAcesso = 'master';
+            mostrarToast('Bem-vindo, Master!', 'sucesso');
+        } else if (email === 'view@40graus.com') {
+            nivelAcesso = 'view';
+            mostrarToast('Modo visualização', 'info');
+        }
+        
         fecharModalLogin();
-        mostrarToast('Bem-vindo, Admin!', 'sucesso');
         atualizarInterfaceAdmin();
         abrirModalAdmin();
     } catch (error) {
