@@ -61,10 +61,14 @@ async function verificarSenha() {
     const senha = document.getElementById('senhaInput').value;
     const lembrar = document.getElementById('lembrarCheck').checked;
 
-    // Primeiro carrega dados do Firebase para obter senhas atualizadas
-    await carregarDadosPainel();
+    // Verifica se Firebase já carregou
+    if (typeof carregarDadosPainel === 'function') {
+        await carregarDadosPainel();
+    } else {
+        console.warn('⚠️ Firebase ainda não carregou. Usando senhas padrão.');
+    }
 
-  if (senha === String(CONFIG_PAINEL.senhaMasterPadrao)) {
+    if (senha === String(CONFIG_PAINEL.senhaMasterPadrao)) {
         nivelAcesso = 'master';
     } else if (senha === String(CONFIG_PAINEL.senhaViewPadrao)) {
         nivelAcesso = 'view';
@@ -83,10 +87,11 @@ async function verificarSenha() {
         localStorage.setItem('painel_lembrar', 'false');
     }
 
+    
     document.getElementById('modalLogin').style.display = 'none';
     inicializarPainel();
+    
 }
-
 // ============================================
 // ===== INICIAR PAINEL =======================
 // ============================================
