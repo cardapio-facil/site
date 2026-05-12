@@ -2,64 +2,74 @@
 // ===== FUNÇÕES DE ADMINISTRAÇÃO ============
 // ============================================
 
-// ===== LOGIN =====
+// ===== NOVAS FUNÇÕES DE LOGIN =====
 function abrirModalLogin() {
     document.getElementById('modalLogin').style.display = 'flex';
+    document.getElementById('emailAdmin').value = '';
     document.getElementById('senhaAdmin').value = '';
     document.getElementById('erroLogin').style.display = 'none';
-    
-    setTimeout(() => {
-        const senhaInput = document.getElementById('senhaAdmin');
-        if (senhaInput) {
-            senhaInput.focus();
-            senhaInput.removeEventListener('keypress', loginEnterHandler);
-            senhaInput.addEventListener('keypress', loginEnterHandler);
-        }
-    }, 100);
-}
-
-function loginEnterHandler(event) {
-    if (event.key === 'Enter') {
-        event.preventDefault();
-        verificarLogin();
-    }
 }
 
 function fecharModalLogin() {
     document.getElementById('modalLogin').style.display = 'none';
 }
 
-function toggleSenha() {
-    const input = document.getElementById('senhaAdmin');
-    input.type = input.type === 'password' ? 'text' : 'password';
-}
-
 async function verificarLogin() {
+    const email = document.getElementById('emailAdmin').value.trim();
     const senha = document.getElementById('senhaAdmin').value;
     
-    // Buscar senhas do Firebase
-    const snap = await database.ref(`restaurantes/${RESTAURANTE_ID}/config`).once('value');
-    const config = snap.val() || {};
-    const senhaMaster = config.senhaMaster || SENHA_MASTER;
-    const senhaView = config.senhaView || SENHA_VIEW;
+    if (!email || !senha) {
+        mostrarToast('Preencha email e senha!', 'alerta');
+        return;
+    }
     
-     if (senha === String(senhaMaster)) {
+    try {
+        await firebase.auth().signInWithEmailAndPassword(email, senha);
+        adminLogado = true;
+        fecharModalLogin();
+        mostrarToast('Bem-vindo, Admin!', 'sucesso');
+        atualizarInterfaceAdmin();
+        abrirModalAdmin();
+    } catch (error) {
+        document.getElementById('erroLogin').style.display = 'block';
+        mostrarToast('Email ou senha incorretos!', 'erro');
+    }
+}
+
+async function logout() {
+    await firebase.auth().signOut();
+    adminLogado = false;
+    nivelAcesso = null;
+    atualizarInterfaceAdmin();
+    fecharModalAdmin();
+    mostrarToast('Logout realizado', 'info');
+}
+
+function fecharModalLogin() {
+    document.getElementById('modalLogin').style.display = 'none';
+}
+
+
+async function verificarLogin() {
+    const email = document.getElementById('emailAdmin').value.trim();
+    const senha = document.getElementById('senhaAdmin').value;
+    
+    if (!email || !senha) {
+        mostrarToast('Preencha email e senha!', 'alerta');
+        return;
+    }
+    
+    try {
+        await firebase.auth().signInWithEmailAndPassword(email, senha);
         adminLogado = true;
         nivelAcesso = 'master';
         fecharModalLogin();
-        mostrarToast('Bem-vindo, Master!', 'sucesso');
+        mostrarToast('Bem-vindo, Admin!', 'sucesso');
         atualizarInterfaceAdmin();
         abrirModalAdmin();
-    } else if (senha === String(senhaView)) {
-        adminLogado = true;
-        nivelAcesso = 'view';
-        fecharModalLogin();
-        mostrarToast('Modo visualização', 'info');
-        atualizarInterfaceAdmin();
-        abrirModalAdmin();
-    } else {
+    } catch (error) {
         document.getElementById('erroLogin').style.display = 'block';
-        mostrarToast('Senha incorreta!', 'erro');
+        mostrarToast('Email ou senha incorretos!', 'erro');
     }
 }
 
@@ -1966,7 +1976,6 @@ function desativarItensGrupo(grupoIdx) {
 // ===== EXPOR =====
 window.abrirModalLogin = abrirModalLogin;
 window.fecharModalLogin = fecharModalLogin;
-window.toggleSenha = toggleSenha;
 window.verificarLogin = verificarLogin;
 window.logout = logout;
 window.abrirModalAdmin = abrirModalAdmin;
