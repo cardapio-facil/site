@@ -31,13 +31,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 function verificarSenhaSalva() {
     const senhaSalva = localStorage.getItem('painel_senha');
     const lembrar = localStorage.getItem('painel_lembrar') === 'true';
+    
+    const senhaInput = document.getElementById('senhaInput');
+    const lembrarCheck = document.getElementById('lembrarCheck');
+    
+    if (!senhaInput) return;
+    
     if (lembrar && senhaSalva) {
-        document.getElementById('senhaInput').value = senhaSalva;
-        document.getElementById('lembrarCheck').checked = true;
-        document.getElementById('senhaInput').focus();
-    } else {
-        document.getElementById('senhaInput').focus();
+        senhaInput.value = senhaSalva;
+        if (lembrarCheck) lembrarCheck.checked = true;
     }
+    
+    senhaInput.focus();
 }
 
 function toggleOlho() {
