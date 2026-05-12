@@ -4,7 +4,7 @@
 
 :root {
     --cor-primaria: hsl(0, 100%, 20%);
-    --cor-secundaria: hsl(0, 100%, 20%);
+    --cor-secundaria: hsl(0, 100%, 50%);
     --cor-fundo: hsl(0, 100%, 20%);
     --cor-card:  #f0f0f0;
     --cor-texto: #1c1c1c;
