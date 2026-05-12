@@ -745,6 +745,35 @@ function editarMontagem(id) {
     document.getElementById('montagemImagem').value = montagem.imagem || '';
     document.getElementById('montagemDisponivel').checked = montagem.disponivel;
     document.getElementById('montagemDestaque').checked = montagem.destaque || false;
+
+    // Botão Desativar Todos ao lado de "Em destaque" (View)
+if (isView) {
+    const checkboxGroup = document.querySelector('#modalCadastroMontagem .checkbox-group');
+    if (checkboxGroup) {
+        const btnTodos = document.createElement('button');
+        btnTodos.type = 'button';
+        btnTodos.innerHTML = '<i class="fas fa-eye-slash"></i> Desativar Todos';
+        btnTodos.style.cssText = `
+            margin-left: 12px;
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background: rgba(220, 38, 38, 0.1);
+            color: #dc2626;
+            transition: all 0.2s ease;
+        `;
+        btnTodos.onmouseenter = () => { btnTodos.style.background = '#dc2626'; btnTodos.style.color = '#fff'; };
+        btnTodos.onmouseleave = () => { btnTodos.style.background = 'rgba(220, 38, 38, 0.1)'; btnTodos.style.color = '#dc2626'; };
+        btnTodos.onclick = (e) => {
+            e.preventDefault();
+            desativarTodosItens();
+        };
+        checkboxGroup.appendChild(btnTodos);
+    }
+}
     
     const selectCat = document.getElementById('montagemCategoria');
     selectCat.innerHTML = '';
