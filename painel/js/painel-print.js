@@ -485,6 +485,5 @@ window.aoReceberNovoPedido = aoReceberNovoPedido;
 window.ativarImpressaoAutomatica = ativarImpressaoAutomatica;
 window.impressaoAutomatica = impressaoAutomatica;  
 
-} 
 
 } 
