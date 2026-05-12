@@ -1,6 +1,12 @@
 // ============================================
-// ===== PAINEL PRINT - QZ TRAY v3.2 =========
+// ===== PAINEL PRINT - QZ TRAY v4.0 =========
 // ============================================
+
+if (window.PAINEL_PRINT_QZ_CARREGADO) {
+    console.warn('QZ Print ja carregado');
+} else {
+
+window.PAINEL_PRINT_QZ_CARREGADO = true;
 
 let qzConectado = false;
 let conectando = false;
@@ -85,9 +91,9 @@ function logImpressao(pedidoId, status, erro) {
 
 function configurarSegurancaQZ() {
     if (typeof qz === 'undefined') return;
-    qz.security.setCertificatePromise(function(resolve) { resolve(); });
+    qz.security.setCertificatePromise(function(resolve) { resolve(null); });
     qz.security.setSignaturePromise(function() {
-        return function(resolve) { resolve(); };
+        return function(resolve) { resolve(null); };
     });
 }
 
@@ -108,7 +114,7 @@ function mostrarToast(mensagem, tipo) {
     };
     var toast = document.createElement('div');
     toast.id = 'qzToast';
-    toast.style.cssText = 'position:fixed; bottom:30px; right:30px; z-index:99999; background:' + (cores[tipo] || cores.info) + '; color:#fff; padding:15px 25px; border-radius:12px; font-weight:600; box-shadow:0 10px 30px rgba(0,0,0,0.5); max-width:400px;';
+    toast.style.cssText = 'position:fixed;bottom:30px;right:30px;z-index:99999;background:' + (cores[tipo] || cores.info) + ';color:#fff;padding:15px 25px;border-radius:12px;font-weight:600;box-shadow:0 10px 30px rgba(0,0,0,0.5);max-width:400px;';
     toast.textContent = mensagem;
     document.body.appendChild(toast);
     setTimeout(function() {
@@ -162,10 +168,13 @@ function iniciarReconexaoAutomatica() {
             conectando = true;
             configurarSegurancaQZ();
             try {
-                await qz.websocket.connect();
+                if (!qz.websocket.isActive()) {
+                    await qz.websocket.connect();
+                }
                 qzConectado = true;
                 falhasConsecutivas = 0;
                 atualizarStatusQZ('conectado', 'Conectado');
+                iniciarHeartbeat();
                 conectando = false;
                 if (filaImpressao.length > 0) processarFila();
             } catch (e) {
@@ -180,21 +189,28 @@ function iniciarReconexaoAutomatica() {
 function alertarOperador() {
     console.error('ALERTA: QZ Tray offline');
     mostrarToast('Impressora offline! Verifique o QZ Tray.', 'erro');
-    try { qz.websocket.disconnect(); setTimeout(function() { qz.websocket.connect().catch(function() {}); }, 2000); } catch (e) {}
+    try { qz.websocket.disconnect(); clearInterval(heartbeatTimer); heartbeatTimer = null; setTimeout(function() { qz.websocket.connect().catch(function() {}); }, 2000); } catch (e) {}
 }
 
 function iniciarHeartbeat() {
-    if (heartbeatTimer) clearInterval(heartbeatTimer);
+    if (heartbeatTimer) return;
     heartbeatTimer = setInterval(async function() {
         if (typeof qz === 'undefined') return;
         try {
             if (qz.websocket.isActive()) {
                 await qz.printers.find();
                 falhasConsecutivas = 0;
+            } else {
+                qzConectado = false;
+                clearInterval(heartbeatTimer);
+                heartbeatTimer = null;
+                atualizarStatusQZ('desconectado', 'Offline');
             }
         } catch (e) {
             qzConectado = false;
             falhasConsecutivas++;
+            clearInterval(heartbeatTimer);
+            heartbeatTimer = null;
             atualizarStatusQZ('desconectado', 'Offline');
         }
     }, 120000);
@@ -261,6 +277,7 @@ function salvarConfigImpressora() {
 }
 
 async function imprimirPedidoQZ(pedido) {
+    if (!pedido || !pedido.id) return false;
     if (pedidosImpressos.has(pedido.id)) return true;
     if (!qzConectado) { var c = await conectarQZ(); if (!c) return false; }
     if (!impressoraSelecionada) return false;
@@ -268,7 +285,7 @@ async function imprimirPedidoQZ(pedido) {
     logImpressao(pedido.id || pedido.numero, 'iniciado');
     try {
         atualizarStatusQZ('imprimindo', 'Imprimindo...');
-        var config = qz.configs.create(impressoraSelecionada, { encoding: 'CP860', copies: 1 });
+        var config = qz.configs.create(impressoraSelecionada, { encoding: 'CP1252', copies: 1 });
         var data = gerarComandosESCPOS(pedido);
         await Promise.race([
             qz.print(config, data),
@@ -335,6 +352,7 @@ async function testarImpressao() {
 }
 
 function adicionarFila(pedido) {
+    if (!pedido || !pedido.id) return;
     if (pedidosImpressos.has(pedido.id)) return;
     if (pedidosNaFila.has(pedido.id)) return;
     pedido._tentativas = 0;
@@ -378,7 +396,13 @@ function restaurarFilaSalva() {
         if (s) {
             var f = JSON.parse(s);
             if (f.length > 0) {
-                f.forEach(function(p) { if (!pedidosNaFila.has(p.id) && !pedidosImpressos.has(p.id)) { pedidosNaFila.add(p.id); filaImpressao.push(p); } });
+                f.forEach(function(p) {
+                    pedidosNaFila.delete(p.id);
+                    if (!pedidosImpressos.has(p.id)) {
+                        pedidosNaFila.add(p.id);
+                        filaImpressao.push(p);
+                    }
+                });
                 processarFila();
             }
         }
@@ -386,6 +410,8 @@ function restaurarFilaSalva() {
 }
 
 function aoReceberNovoPedido(pedido) {
+    if (!pedido || !pedido.id) return;
+    if (pedidosImpressos.has(pedido.id)) return;
     if (typeof tocarSomNovoPedido === 'function') tocarSomNovoPedido();
     if (impressaoAutomatica) adicionarFila(pedido);
 }
@@ -400,6 +426,7 @@ function ativarImpressaoAutomatica() {
     inicializarCaches();
     iniciarLimpezaCache();
     iniciarReconexaoAutomatica();
+    impressaoAutomatica = localStorage.getItem('qz_impressao_automatica') === 'true';
     conectarQZ();
 })();
 
@@ -412,3 +439,5 @@ window.imprimirPedidoQZ = imprimirPedidoQZ;
 window.conectarQZ = conectarQZ;
 window.aoReceberNovoPedido = aoReceberNovoPedido;
 window.ativarImpressaoAutomatica = ativarImpressaoAutomatica;
+
+} 
