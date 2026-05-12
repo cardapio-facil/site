@@ -138,9 +138,12 @@ function configurarSidebar() {
     // Itens que todos logados veem (WhatsApp, por exemplo)
 const itens = [
     { classe: 'wpp', icone: 'fab fa-whatsapp', texto: 'WhatsApp', onclick: 'abrirWhatsApp()' },
-    { classe: 'config', icone: 'fas fa-print', texto: 'Impressora', onclick: 'abrirModalImpressora()' },
 ];
 
+// Só adiciona botão Impressora se o módulo foi carregado
+if (typeof abrirModalImpressora === 'function') {
+    itens.push({ classe: 'config', icone: 'fas fa-print', texto: 'Impressora', onclick: 'abrirModalImpressora()' });
+}
     // Apenas master vê relatórios, bairros e mensagens
     if (nivelAcesso === 'master') {
         itens.push({ classe: 'entregador', icone: 'fas fa-chart-bar', texto: 'Relatórios', onclick: 'abrirRelatorio()' });
