@@ -594,7 +594,7 @@ async function excluirAdicional(categoria, index) {
 }
 
 // ============================================
-// ===== 🛠️ ADMIN MONTAGENS (COMPLETO - VISUAL PROFISSIONAL) ========
+// ===== 🛠️ ADMIN MONTAGENS (COMPLETO - VIEW E MASTER) ========
 // ============================================
 
 let montagemEditando = null;
@@ -686,6 +686,15 @@ function abrirModalNovaMontagem() {
     document.getElementById('montagemDisponivel').checked = true;
     document.getElementById('montagemDestaque').checked = false;
     
+    // Habilita campos para Master
+    document.getElementById('montagemNome').readOnly = false;
+    document.getElementById('montagemDesc').readOnly = false;
+    document.getElementById('montagemPrecoBase').readOnly = false;
+    document.getElementById('montagemImagem').readOnly = false;
+    document.getElementById('montagemDisponivel').disabled = false;
+    document.getElementById('montagemDestaque').disabled = false;
+    document.getElementById('montagemCategoria').disabled = false;
+    
     const selectCat = document.getElementById('montagemCategoria');
     selectCat.innerHTML = '';
     categorias.forEach(cat => {
@@ -698,6 +707,19 @@ function abrirModalNovaMontagem() {
     document.getElementById('gruposContainer').innerHTML = '';
     document.getElementById('tamanhosContainer').innerHTML = '';
     
+    // Botão salvar normal
+    const btnSalvar = document.querySelector('#modalCadastroMontagem .btn-adicionar-carrinho');
+    if (btnSalvar) {
+        btnSalvar.innerHTML = '💾 Salvar Montagem';
+        btnSalvar.style.background = 'var(--cor-primaria)';
+    }
+    
+    // Remove bloqueios de view
+    document.querySelectorAll('#tamanhosContainer input, #gruposContainer input[type="text"], #gruposContainer input[type="number"]').forEach(input => {
+        input.readOnly = false;
+        input.disabled = false;
+    });
+    
     const modal = document.getElementById('modalCadastroMontagem');
     modal.style.display = 'flex';
     requestAnimationFrame(() => {
@@ -706,16 +728,16 @@ function abrirModalNovaMontagem() {
 }
 
 function editarMontagem(id) {
-    if (nivelAcesso !== 'master') {
-        mostrarToast('Apenas Master pode editar montagens', 'alerta');
-        return;
-    }
-    
     const montagem = montagens.find(m => m.id === id);
     if (!montagem) return;
     
     montagemEditando = montagem;
-    document.getElementById('modalMontagemTitulo').innerHTML = '<i class="fas fa-pen-to-square"></i> Editar Montagem';
+    
+    const isView = nivelAcesso === 'view';
+    const tituloIcone = isView ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-pen-to-square"></i>';
+    const tituloTexto = isView ? 'Visualizar Disponibilidade' : 'Editar Montagem';
+    
+    document.getElementById('modalMontagemTitulo').innerHTML = `${tituloIcone} ${tituloTexto}`;
     document.getElementById('editMontagemId').value = montagem.id;
     document.getElementById('montagemNome').value = montagem.nome;
     document.getElementById('montagemDesc').value = montagem.descricao || '';
@@ -734,8 +756,64 @@ function editarMontagem(id) {
         selectCat.appendChild(option);
     });
     
-    renderizarTamanhosMontagem(montagem);
-    renderizarGruposMontagem(montagem);
+    // ===== BLOQUEIA CAMPOS PARA VIEW =====
+    if (isView) {
+        document.getElementById('montagemNome').readOnly = true;
+        document.getElementById('montagemDesc').readOnly = true;
+        document.getElementById('montagemPrecoBase').readOnly = true;
+        document.getElementById('montagemImagem').readOnly = true;
+        document.getElementById('montagemDisponivel').disabled = true;
+        document.getElementById('montagemDestaque').disabled = true;
+        document.getElementById('montagemCategoria').disabled = true;
+        
+        // Muda o botão salvar
+        const btnSalvar = document.querySelector('#modalCadastroMontagem .btn-adicionar-carrinho');
+        if (btnSalvar) {
+            btnSalvar.innerHTML = '💾 Salvar Disponibilidade';
+            btnSalvar.style.background = 'var(--cor-alerta)';
+        }
+    } else {
+        // Habilita para Master
+        document.getElementById('montagemNome').readOnly = false;
+        document.getElementById('montagemDesc').readOnly = false;
+        document.getElementById('montagemPrecoBase').readOnly = false;
+        document.getElementById('montagemImagem').readOnly = false;
+        document.getElementById('montagemDisponivel').disabled = false;
+        document.getElementById('montagemDestaque').disabled = false;
+        document.getElementById('montagemCategoria').disabled = false;
+        
+        const btnSalvar = document.querySelector('#modalCadastroMontagem .btn-adicionar-carrinho');
+        if (btnSalvar) {
+            btnSalvar.innerHTML = '💾 Salvar Montagem';
+            btnSalvar.style.background = 'var(--cor-primaria)';
+        }
+    }
+    
+    renderizarTamanhosMontagem(montagem, isView);
+    renderizarGruposMontagem(montagem, isView);
+
+      if (isView) {
+        const botoesContainer = document.createElement('div');
+        botoesContainer.style.cssText = 'display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;';
+        
+        const btnTodos = document.createElement('button');
+        btnTodos.className = 'admin-btn admin-btn-danger';
+        btnTodos.innerHTML = '<i class="fas fa-eye-slash"></i> Desativar Todos';
+        btnTodos.onclick = () => desativarTodosItens();
+        botoesContainer.appendChild(btnTodos);
+        
+        montagem.grupos.forEach((grupo, idx) => {
+            const btnGrupo = document.createElement('button');
+            btnGrupo.className = 'admin-btn admin-btn-soft';
+            btnGrupo.innerHTML = `<i class="fas fa-eye-slash"></i> Desativar: ${grupo.nome}`;
+            btnGrupo.style.cssText = 'background: rgba(220, 38, 38, 0.08); color: #dc2626; font-size: 0.8rem;';
+            btnGrupo.onclick = () => desativarItensGrupo(idx);
+            botoesContainer.appendChild(btnGrupo);
+        });
+        
+        const btnSalvar = document.querySelector('#modalCadastroMontagem .btn-adicionar-carrinho');
+        btnSalvar.parentNode.insertBefore(botoesContainer, btnSalvar);
+    }
     
     const modal = document.getElementById('modalCadastroMontagem');
     modal.style.display = 'flex';
@@ -757,6 +835,8 @@ function fecharModalCadastroMontagem() {
 // ============================================
 
 function adicionarTamanho() {
+    if (nivelAcesso === 'view') return;
+    
     const container = document.getElementById('tamanhosContainer');
     const div = document.createElement('div');
     div.className = 'admin-item';
@@ -773,7 +853,7 @@ function adicionarTamanho() {
     container.appendChild(div);
 }
 
-function renderizarTamanhosMontagem(montagem) {
+function renderizarTamanhosMontagem(montagem, isView = false) {
     const container = document.getElementById('tamanhosContainer');
     container.innerHTML = '';
     
@@ -782,17 +862,25 @@ function renderizarTamanhosMontagem(montagem) {
             const div = document.createElement('div');
             div.className = 'admin-item';
             div.innerHTML = `
-                <input type="text" value="${tamanho.nome}" class="admin-input">
+                <input type="text" value="${tamanho.nome}" class="admin-input" ${isView ? 'readonly' : ''}>
                 <div style="display:flex;align-items:center;gap:4px;">
                     <span style="color:var(--text-secondary);">R$</span>
-                    <input type="number" value="${centavosParaFloat(tamanho.preco)}" step="0.01" class="admin-input" style="text-align:right;">
+                    <input type="number" value="${centavosParaFloat(tamanho.preco)}" step="0.01" class="admin-input" style="text-align:right;" ${isView ? 'readonly' : ''}>
                 </div>
+                ${isView ? '' : `
                 <button onclick="this.parentElement.remove()" class="admin-icon-btn btn-delete">
                     <i class="fas fa-xmark"></i>
                 </button>
+                `}
             `;
             container.appendChild(div);
         });
+    }
+    
+    // Esconde botão adicionar para View
+    const btnAddTamanho = container.nextElementSibling;
+    if (btnAddTamanho && btnAddTamanho.tagName === 'BUTTON') {
+        btnAddTamanho.style.display = isView ? 'none' : 'inline-block';
     }
 }
 
@@ -801,6 +889,8 @@ function renderizarTamanhosMontagem(montagem) {
 // ============================================
 
 function adicionarGrupo() {
+    if (nivelAcesso === 'view') return;
+    
     const container = document.getElementById('gruposContainer');
     const grupoId = 'grp_' + Date.now();
     
@@ -833,6 +923,8 @@ function atualizarTituloGrupo(input) {
 }
 
 function adicionarItemGrupo(btn) {
+    if (nivelAcesso === 'view') return;
+    
     const container = btn.closest('.admin-group-card').querySelector('.admin-group-items');
     const itemDiv = document.createElement('div');
     itemDiv.className = 'admin-item';
@@ -852,7 +944,7 @@ function adicionarItemGrupo(btn) {
     container.appendChild(itemDiv);
 }
 
-function renderizarGruposMontagem(montagem) {
+function renderizarGruposMontagem(montagem, isView = false) {
     const container = document.getElementById('gruposContainer');
     container.innerHTML = '';
     
@@ -862,21 +954,25 @@ function renderizarGruposMontagem(montagem) {
         div.dataset.grupoId = grupo.id;
         div.innerHTML = `
             <div class="admin-group-header">
-                <input type="text" value="${grupo.nome}" class="admin-input">
-                <input type="number" value="${grupo.limite}" min="1" class="admin-input" style="width:80px;text-align:center;">
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;font-weight:600;">
-                    <input type="checkbox" ${grupo.obrigatorio ? 'checked' : ''} style="accent-color:var(--danger);"> Obrigatório
+                <input type="text" value="${grupo.nome}" class="admin-input" ${isView ? 'readonly' : ''}>
+                <input type="number" value="${grupo.limite}" min="1" class="admin-input" style="width:80px;text-align:center;" ${isView ? 'readonly' : ''}>
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.8rem;font-weight:600; ${isView ? 'opacity:0.6;' : ''}">
+                    <input type="checkbox" ${grupo.obrigatorio ? 'checked' : ''} style="accent-color:var(--danger);" ${isView ? 'disabled' : ''}> Obrigatório
                 </label>
+                ${isView ? '' : `
                 <button onclick="this.closest('.admin-group-card').remove()" class="admin-icon-btn btn-delete">
                     <i class="fas fa-trash-can"></i>
                 </button>
+                `}
             </div>
             <div class="admin-group-items"></div>
+            ${isView ? '' : `
             <div style="padding:10px;">
                 <button onclick="adicionarItemGrupo(this)" class="admin-btn admin-btn-soft" style="width:100%;">
                     <i class="fas fa-plus"></i> Adicionar Item
                 </button>
             </div>
+            `}
         `;
         
         const itensContainer = div.querySelector('.admin-group-items');
@@ -884,17 +980,19 @@ function renderizarGruposMontagem(montagem) {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'admin-item';
             itemDiv.innerHTML = `
-                <input type="text" value="${item.nome}" class="admin-input">
+                <input type="text" value="${item.nome}" class="admin-input" ${isView ? 'readonly' : ''}>
                 <div style="display:flex;align-items:center;gap:4px;">
                     <span style="color:var(--text-secondary);">R$</span>
-                    <input type="number" value="${centavosParaFloat(item.preco)}" step="0.01" class="admin-input" style="text-align:right;">
+                    <input type="number" value="${centavosParaFloat(item.preco)}" step="0.01" class="admin-input" style="text-align:right;" ${isView ? 'readonly' : ''}>
                 </div>
                 <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.78rem;font-weight:600;">
                     <input type="checkbox" ${item.disponivel !== false ? 'checked' : ''} style="accent-color:var(--success);"> Ativo
                 </label>
+                ${isView ? '' : `
                 <button onclick="this.parentElement.remove()" class="admin-icon-btn btn-delete">
                     <i class="fas fa-xmark"></i>
                 </button>
+                `}
             `;
             itensContainer.appendChild(itemDiv);
         });
@@ -908,6 +1006,38 @@ function renderizarGruposMontagem(montagem) {
 // ============================================
 
 async function salvarMontagem() {
+    // ===== VIEW: Só salva disponibilidade dos itens =====
+    if (nivelAcesso === 'view') {
+        if (!montagemEditando) {
+            mostrarToast('Nenhuma montagem para salvar', 'erro');
+            return;
+        }
+        
+        const gruposContainer = document.getElementById('gruposContainer');
+        const gruposCards = gruposContainer.querySelectorAll('.admin-group-card');
+        
+        gruposCards.forEach((box, grupoIdx) => {
+            const itensDivs = box.querySelectorAll('.admin-group-items .admin-item');
+            itensDivs.forEach((itemDiv, itemIdx) => {
+                const checkboxAtivo = itemDiv.querySelector('input[type="checkbox"]:last-of-type');
+                if (checkboxAtivo && montagemEditando.grupos[grupoIdx] && montagemEditando.grupos[grupoIdx].itens[itemIdx]) {
+                    montagemEditando.grupos[grupoIdx].itens[itemIdx].disponivel = checkboxAtivo.checked;
+                }
+            });
+        });
+        
+        const sucesso = await salvarMontagensFirebase(montagens);
+        if (sucesso) {
+            mostrarToast('Disponibilidade dos itens atualizada!', 'sucesso');
+            fecharModalCadastroMontagem();
+            renderizarProdutos();
+            carregarAdminMontagens();
+            abrirModalAdmin();
+        }
+        return;
+    }
+    
+    // ===== MASTER: Salva tudo =====
     if (nivelAcesso !== 'master') {
         mostrarToast('Apenas Master pode salvar montagens', 'alerta');
         return;
@@ -1782,6 +1912,28 @@ async function salvarDestaques() {
     }
 }
 
+function desativarTodosItens() {
+    if (!confirm('Desativar TODOS os itens desta montagem?')) return;
+    
+    const gruposContainer = document.getElementById('gruposContainer');
+    const checkboxes = gruposContainer.querySelectorAll('.admin-group-items input[type="checkbox"]:last-of-type');
+    checkboxes.forEach(cb => { cb.checked = false; });
+    mostrarToast('Todos os itens desativados!', 'info');
+}
+
+function desativarItensGrupo(grupoIdx) {
+    const gruposContainer = document.getElementById('gruposContainer');
+    const gruposCards = gruposContainer.querySelectorAll('.admin-group-card');
+    
+    if (!gruposCards[grupoIdx]) return;
+    
+    if (!confirm(`Desativar todos os itens do grupo?`)) return;
+    
+    const checkboxes = gruposCards[grupoIdx].querySelectorAll('.admin-group-items input[type="checkbox"]:last-of-type');
+    checkboxes.forEach(cb => { cb.checked = false; });
+    mostrarToast('Itens do grupo desativados!', 'info');
+}
+
 // ===== EXPOR =====
 window.abrirModalLogin = abrirModalLogin;
 window.fecharModalLogin = fecharModalLogin;
@@ -1835,7 +1987,6 @@ window.toggleCamposLimiteCupom = toggleCamposLimiteCupom;
 
 // ===== montagem  =====
 window.toggleDisponibilidadeMontagem = toggleDisponibilidadeMontagem;
-window.desmarcarTodosItensGrupo = desmarcarTodosItensGrupo;
 window.abrirModalNovaMontagem = abrirModalNovaMontagem;
 window.editarMontagem = editarMontagem;
 window.fecharModalCadastroMontagem = fecharModalCadastroMontagem;
@@ -1845,3 +1996,5 @@ window.adicionarTamanho = adicionarTamanho;
 window.adicionarGrupo = adicionarGrupo;
 window.adicionarItemGrupo = adicionarItemGrupo;
 window.atualizarTituloGrupo = atualizarTituloGrupo;
+window.desativarTodosItens = desativarTodosItens;
+window.desativarItensGrupo = desativarItensGrupo;
