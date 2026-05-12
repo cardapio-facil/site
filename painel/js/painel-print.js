@@ -1,5 +1,5 @@
 // ============================================
-// ===== PAINEL PRINT - QZ TRAY v4.0 =========
+// ===== PAINEL PRINT - QZ TRAY v4.1 =========
 // ============================================
 
 if (window.PAINEL_PRINT_QZ_CARREGADO) {
@@ -62,6 +62,7 @@ function iniciarLimpezaCache() {
         pedidosImpressos.forEach(function(timestamp, id) {
             if (agora - timestamp > 86400000) {
                 pedidosImpressos.delete(id);
+                pedidosNaFila.delete(id);
                 removidos++;
             }
         });
@@ -91,9 +92,9 @@ function logImpressao(pedidoId, status, erro) {
 
 function configurarSegurancaQZ() {
     if (typeof qz === 'undefined') return;
-    qz.security.setCertificatePromise(function(resolve) { resolve(null); });
+    qz.security.setCertificatePromise(function(resolve) { resolve(); });
     qz.security.setSignaturePromise(function() {
-        return function(resolve) { resolve(null); };
+        return function(resolve) { resolve(); };
     });
 }
 
@@ -135,19 +136,14 @@ async function conectarQZ() {
         if (!qz.websocket.isActive()) {
             configurarSegurancaQZ();
             await qz.websocket.connect();
-            qzConectado = true;
-            falhasConsecutivas = 0;
-            var salva = localStorage.getItem('qz_impressora');
-            if (salva) impressoraSelecionada = salva;
-            atualizarStatusQZ('conectado', 'Conectado');
-            iniciarHeartbeat();
-            restaurarFilaSalva();
-        } else {
-            qzConectado = true;
-            falhasConsecutivas = 0;
-            atualizarStatusQZ('conectado', 'Conectado');
-            iniciarHeartbeat();
         }
+        qzConectado = true;
+        falhasConsecutivas = 0;
+        var salva = localStorage.getItem('qz_impressora');
+        if (salva) impressoraSelecionada = salva;
+        atualizarStatusQZ('conectado', 'Conectado');
+        iniciarHeartbeat();
+        restaurarFilaSalva();
         conectando = false;
         return true;
     } catch (err) {
@@ -189,26 +185,19 @@ function iniciarReconexaoAutomatica() {
 function alertarOperador() {
     console.error('ALERTA: QZ Tray offline');
     mostrarToast('Impressora offline! Verifique o QZ Tray.', 'erro');
-    try { qz.websocket.disconnect(); clearInterval(heartbeatTimer); heartbeatTimer = null; setTimeout(function() { qz.websocket.connect().catch(function() {}); }, 2000); } catch (e) {}
+    clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+    qzConectado = false;
 }
 
 function iniciarHeartbeat() {
     if (heartbeatTimer) return;
-    heartbeatTimer = setInterval(async function() {
+    heartbeatTimer = setInterval(function() {
         if (typeof qz === 'undefined') return;
-        try {
-            if (qz.websocket.isActive()) {
-                await qz.printers.find();
-                falhasConsecutivas = 0;
-            } else {
-                qzConectado = false;
-                clearInterval(heartbeatTimer);
-                heartbeatTimer = null;
-                atualizarStatusQZ('desconectado', 'Offline');
-            }
-        } catch (e) {
+        if (qz.websocket.isActive()) {
+            falhasConsecutivas = 0;
+        } else {
             qzConectado = false;
-            falhasConsecutivas++;
             clearInterval(heartbeatTimer);
             heartbeatTimer = null;
             atualizarStatusQZ('desconectado', 'Offline');
@@ -298,9 +287,9 @@ async function imprimirPedidoQZ(pedido) {
         logImpressao(pedido.id || pedido.numero, 'concluido');
         return true;
     } catch (err) {
+        qzConectado = false;
         atualizarStatusQZ('desconectado', 'Erro');
         logImpressao(pedido.id || pedido.numero, 'erro', err);
-        try { await qz.websocket.disconnect(); await qz.websocket.connect(); } catch (e) {}
         return false;
     }
 }
@@ -399,8 +388,11 @@ function restaurarFilaSalva() {
                 f.forEach(function(p) {
                     pedidosNaFila.delete(p.id);
                     if (!pedidosImpressos.has(p.id)) {
-                        pedidosNaFila.add(p.id);
-                        filaImpressao.push(p);
+                        var existe = filaImpressao.some(function(x) { return x.id === p.id; });
+                        if (!existe) {
+                            pedidosNaFila.add(p.id);
+                            filaImpressao.push(p);
+                        }
                     }
                 });
                 processarFila();
@@ -421,6 +413,36 @@ function ativarImpressaoAutomatica() {
     localStorage.setItem('qz_impressao_automatica', 'true');
     mostrarToast('Impressao automatica ATIVADA', 'sucesso');
 }
+
+// ============================================
+// ===== DETECÇÃO DE ABA INATIVA ==============
+// ============================================
+
+document.addEventListener('visibilitychange', function() {
+    if (!document.hidden) {
+        if (typeof qz !== 'undefined' && !qz.websocket.isActive()) {
+            conectarQZ();
+        }
+        if (filaImpressao.length > 0) {
+            processarFila();
+        }
+    }
+});
+
+// ============================================
+// ===== LIMPEZA AO FECHAR ====================
+// ============================================
+
+window.addEventListener('beforeunload', function() {
+    clearInterval(heartbeatTimer);
+    clearInterval(reconnectTimer);
+    clearInterval(limpezaTimer);
+    try { qz.websocket.disconnect(); } catch(e) {}
+});
+
+// ============================================
+// ===== INICIALIZAÇÃO =========================
+// ============================================
 
 (function iniciar() {
     inicializarCaches();
