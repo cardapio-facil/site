@@ -218,6 +218,159 @@ async function carregarDadosFirebase() {
     }
 }
 
+// ============================================
+// ===== SISTEMA DE INATIVIDADE (OTIMIZADO) ===
+// ============================================
+
+const TEMPO_INATIVIDADE = 30000;
+const INTERVALO_VERIFICACAO = 5000;
+
+const inactivityManager = {
+    online: true,
+    ultimaAtividade: Date.now(),
+    intervaloId: null,
+    modalAberto: false,
+
+    iniciar() {
+        if (typeof adminLogado !== 'undefined' && adminLogado) return;
+
+        ['click', 'touchstart'].forEach(e => {
+            document.addEventListener(e, () => this.reset(), { passive: true });
+        });
+
+        document.addEventListener('keydown', () => this.reset());
+        document.addEventListener('visibilitychange', () => this.tratarVisibilidade());
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.modalAberto) {
+                this.reset();
+            }
+        });
+
+        this.intervaloId = setInterval(() => this.verificar(), INTERVALO_VERIFICACAO);
+        this.reset();
+    },
+
+    reset() {
+        if (typeof adminLogado !== 'undefined' && adminLogado) return;
+
+        this.ultimaAtividade = Date.now();
+
+        if (!this.online) {
+            console.log('🟢 Reconectando Firebase...');
+            try {
+                if (window.firebase && firebase.database) {
+                    firebase.database().goOnline();
+                    this.online = true;
+                }
+            } catch (e) {
+                console.error('Erro ao reconectar:', e);
+            }
+        }
+
+        if (this.modalAberto) {
+            this.esconderModal();
+        }
+    },
+
+    verificar() {
+        if (typeof adminLogado !== 'undefined' && adminLogado) return;
+        if (Date.now() - this.ultimaAtividade >= TEMPO_INATIVIDADE) {
+            this.entrarModoInativo();
+        }
+    },
+
+    entrarModoInativo() {
+        if (!this.online) return;
+
+        console.log('🔴 Modo inativo ativado');
+        try {
+            if (window.firebase && firebase.database) {
+                firebase.database().goOffline();
+                this.online = false;
+            }
+        } catch (e) {
+            console.error('Erro ao desconectar:', e);
+        }
+
+        this.mostrarModal();
+    },
+
+    mostrarModal() {
+        if (this.modalAberto) return;
+
+        let modal = document.getElementById('modalInatividade');
+
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'modalInatividade';
+            modal.className = 'modal-inatividade-overlay';
+            modal.setAttribute('aria-hidden', 'true');
+            modal.innerHTML = `
+                <div class="modal-inatividade-box">
+                    <div class="modal-inatividade-icone">😴</div>
+                    <h2 class="modal-inatividade-titulo">Estamos te esperando!</h2>
+                    <p class="modal-inatividade-texto">Tem coisa boa no cardápio...</p>
+                    <button class="modal-inatividade-btn" id="btnContinuar">
+                        <i class="fas fa-utensils"></i> VOLTAR AO CARDÁPIO
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) this.reset();
+            });
+        }
+
+        const btn = modal.querySelector('#btnContinuar');
+        if (btn) btn.onclick = () => this.reset();
+
+        modal.style.display = 'flex';
+        requestAnimationFrame(() => {
+            modal.classList.add('ativo');
+            this.modalAberto = true;
+        });
+    },
+
+    esconderModal() {
+        const modal = document.getElementById('modalInatividade');
+        if (modal) {
+            modal.classList.remove('ativo');
+            this.modalAberto = false;
+            setTimeout(() => {
+                if (!this.modalAberto) {
+                    modal.style.display = 'none';
+                }
+            }, 300);
+        }
+    },
+
+    tratarVisibilidade() {
+        if (document.hidden) return;
+
+        if (Date.now() - this.ultimaAtividade >= TEMPO_INATIVIDADE && 
+            !(typeof adminLogado !== 'undefined' && adminLogado)) {
+            this.entrarModoInativo();
+        } else {
+            this.ultimaAtividade = Date.now();
+            this.reset();
+        }
+    },
+
+    destruir() {
+        if (this.intervaloId) {
+            clearInterval(this.intervaloId);
+            this.intervaloId = null;
+        }
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    inactivityManager.iniciar();
+});
+
+
 // ===== EXPORT =====
 window.salvarProdutosFirebase = salvarProdutosFirebase;
 window.salvarCategoriasFirebase = salvarCategoriasFirebase;
@@ -232,3 +385,4 @@ window.salvarCuponsFirebase = salvarCuponsFirebase;
 window.carregarDadosFirebase = carregarDadosFirebase;
 window.dbRef = dbRef;
 window.database = database;
+window.inactivityManager = inactivityManager;
