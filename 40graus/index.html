@@ -200,10 +200,41 @@
         </div>
         
         <!-- Aba Produtos -->
-        <div id="adminProdutos">
-            <button class="btn-add-full" onclick="abrirModalCadastroProduto()">+ Novo Produto</button>
-            <div id="adminProdutosLista" class="admin-list"></div>
+<!-- Aba Produtos -->
+<div id="adminProdutos">
+    <button class="btn-add-full" onclick="abrirModalCadastroProduto()">
+        <i class="fas fa-plus"></i> Novo Produto
+    </button>
+    
+    <div class="admin-filtros">
+        <div class="admin-busca-wrapper">
+            <i class="fas fa-search admin-busca-icone"></i>
+            <input 
+                type="text" 
+                id="adminBuscaProduto" 
+                class="admin-busca-input" 
+                placeholder="Buscar produto por nome..."
+                autocomplete="off"
+            >
+            <button 
+                class="admin-busca-limpar" 
+                id="adminLimparBusca" 
+                title="Limpar busca"
+            >
+                <i class="fas fa-times"></i>
+            </button>
         </div>
+        
+        <div class="admin-categorias-filtro" id="adminCategoriasFiltro"></div>
+    </div>
+    
+    <div id="adminProdutosLista" class="admin-list"></div>
+    
+    <div id="adminProdutosVazio" class="admin-vazio">
+        <i class="fas fa-search"></i>
+        <p>Nenhum produto encontrado</p>
+    </div>
+</div>
         
         <!-- Aba Categorias -->
         <div id="adminCategorias" style="display: none;">
