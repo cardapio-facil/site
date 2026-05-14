@@ -385,21 +385,21 @@ function renderizarDestaques() {
     const statusLoja = verificarStatusLoja();
     const agora = new Date();
     
-    const produtosDestaque = produtos.filter(p => {
-        if (!p.destaque || !p.disponivel) return false;
-        if (!adminLogado) {
-            return statusLoja.aberto && isCategoriaDisponivel(p.categoria, agora);
-        }
-        return true;
-    });
-    
-    const montagensDestaque = montagens.filter(m => {
-        if (!m.destaque || !m.disponivel) return false;
-        if (!adminLogado) {
-            return statusLoja.aberto && isCategoriaDisponivel(m.categoria, agora);
-        }
-        return true;
-    });
+const produtosDestaque = produtos.filter(p => {
+    if (!p.destaque || !p.disponivel || p.exibirDestaque === false) return false;
+    if (!adminLogado) {
+        return statusLoja.aberto && isCategoriaDisponivel(p.categoria, agora);
+    }
+    return true;
+});
+
+const montagensDestaque = montagens.filter(m => {
+    if (!m.destaque || !m.disponivel || m.exibirDestaque === false) return false;
+    if (!adminLogado) {
+        return statusLoja.aberto && isCategoriaDisponivel(m.categoria, agora);
+    }
+    return true;
+});
     
     const totalDestaques = produtosDestaque.length + montagensDestaque.length;
     
