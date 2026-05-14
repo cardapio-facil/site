@@ -2,6 +2,9 @@
 // ===== FUNÇÕES DE ADMINISTRAÇÃO ============
 // ============================================
 
+let adminCategoriaAtual = 'todos';
+let adminTermoBusca = '';
+
 // ===== NOVAS FUNÇÕES DE LOGIN =====
 function abrirModalLogin() {
     document.getElementById('modalLogin').style.display = 'flex';
@@ -145,9 +148,6 @@ function mostrarAbaAdmin(aba) {
 
 // ===== ADMIN PRODUTOS =====
 function carregarAdminProdutos() {
-    const container = document.getElementById('adminProdutosLista');
-    container.innerHTML = '';
-    
     const selectCategoria = document.getElementById('produtoCategoria');
     selectCategoria.innerHTML = '';
     categorias.forEach(cat => {
@@ -157,77 +157,8 @@ function carregarAdminProdutos() {
         selectCategoria.appendChild(option);
     });
     
-    produtos.forEach(produto => {
-    const div = document.createElement('div');
-    div.style.cssText = `
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 15px;
-        border-bottom: 1px solid var(--cor-borda);
-        background: #ffffff;
-        transition: all 0.2s ease;
-    `;
-    div.addEventListener('mouseenter', () => {
-        div.style.background = '#fafafa';
-    });
-    div.addEventListener('mouseleave', () => {
-        div.style.background = '#ffffff';
-    });
-
-    div.innerHTML = `
-        <div style="flex: 1; min-width: 0;">
-            <strong style="display: block; margin-bottom: 3px;">${produto.nome}</strong>
-            <small style="color: var(--cor-texto-claro);">
-                ${getNomeCategoria(produto.categoria)} | ${formatarPreco(produto.preco)}
-            </small>
-        </div>
-        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-            <!-- Botão Disponibilidade -->
-            <button onclick="toggleDisponibilidadeProduto('${produto.id}')" 
-                    class="btn-disponibilidade-admin" 
-                    title="${produto.disponivel ? 'Disponível - Clique para indisponibilizar' : 'Indisponível - Clique para disponibilizar'}"
-                    style="
-                        width: 38px; height: 38px; border-radius: 50%; border: none;
-                        cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center;
-                        transition: all 0.3s ease;
-                        background: ${produto.disponivel ? 'rgba(76, 175, 80, 0.15)' : 'rgba(244, 67, 54, 0.15)'};
-                        color: ${produto.disponivel ? '#4CAF50' : '#f44336'};
-                    ">
-                <i class="fas ${produto.disponivel ? 'fa-eye' : 'fa-eye-slash'}"></i>
-            </button>
-            
-            <!-- Botão Editar -->
-            <button onclick="editarProduto('${produto.id}')" 
-                    class="btn-editar-admin" 
-                    title="Editar produto"
-                    style="
-                        width: 38px; height: 38px; border-radius: 50%; border: none;
-                        cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
-                        transition: all 0.3s ease;
-                        background: rgba(33, 150, 243, 0.1);
-                        color: #2196F3;
-                    ">
-                <i class="fas fa-pen-to-square"></i>
-            </button>
-            
-            <!-- Botão Excluir -->
-            <button onclick="excluirProduto('${produto.id}')" 
-                    class="btn-excluir-admin" 
-                    title="Excluir produto"
-                    style="
-                        width: 38px; height: 38px; border-radius: 50%; border: none;
-                        cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center;
-                        transition: all 0.3s ease;
-                        background: rgba(244, 67, 54, 0.1);
-                        color: #f44336;
-                    ">
-                <i class="fas fa-trash-can"></i>
-            </button>
-        </div>
-    `;
-    container.appendChild(div);
-});
+    inicializarFiltrosAdmin();
+    filtrarAdminProdutos();
 }
    
 function abrirModalCadastroProduto() {
@@ -1992,6 +1923,154 @@ function toggleSenhaAdmin() {
     }
 }
 
+// ============================================
+// ===== FILTRO ADMIN PRODUTOS ===============
+// ============================================
+
+function inicializarFiltrosAdmin() {
+    renderizarAbasAdminCategorias();
+    configurarBuscaAdmin();
+}
+
+function renderizarAbasAdminCategorias() {
+    const container = document.getElementById('adminCategoriasFiltro');
+    if (!container) return;
+    
+    container.innerHTML = '';
+    
+    const tabTodos = document.createElement('button');
+    tabTodos.className = 'admin-categoria-tab ativo';
+    tabTodos.textContent = 'Todos';
+    tabTodos.addEventListener('click', function() {
+        adminCategoriaAtual = 'todos';
+        atualizarAbasAtivas(tabTodos);
+        filtrarAdminProdutos();
+    });
+    container.appendChild(tabTodos);
+    
+    categorias.forEach(function(cat) {
+        const tab = document.createElement('button');
+        tab.className = 'admin-categoria-tab';
+        tab.textContent = getNomeCategoria(cat);
+        tab.addEventListener('click', function() {
+            adminCategoriaAtual = cat;
+            atualizarAbasAtivas(tab);
+            filtrarAdminProdutos();
+        });
+        container.appendChild(tab);
+    });
+}
+
+function atualizarAbasAtivas(tabAtiva) {
+    document.querySelectorAll('.admin-categoria-tab').forEach(function(tab) {
+        tab.classList.remove('ativo');
+    });
+    tabAtiva.classList.add('ativo');
+}
+
+function configurarBuscaAdmin() {
+    var inputBusca = document.getElementById('adminBuscaProduto');
+    var btnLimpar = document.getElementById('adminLimparBusca');
+    
+    if (!inputBusca || !btnLimpar) return;
+    
+    inputBusca.addEventListener('input', debounce(function() {
+        adminTermoBusca = inputBusca.value.trim().toLowerCase();
+        
+        if (adminTermoBusca.length > 0) {
+            btnLimpar.classList.add('visivel');
+        } else {
+            btnLimpar.classList.remove('visivel');
+        }
+        
+        filtrarAdminProdutos();
+    }, 300));
+    
+    btnLimpar.addEventListener('click', function() {
+        inputBusca.value = '';
+        adminTermoBusca = '';
+        btnLimpar.classList.remove('visivel');
+        filtrarAdminProdutos();
+        inputBusca.focus();
+    });
+}
+
+function filtrarAdminProdutos() {
+    var listaContainer = document.getElementById('adminProdutosLista');
+    var vazioContainer = document.getElementById('adminProdutosVazio');
+    
+    if (!listaContainer || !vazioContainer) return;
+    
+    var produtosFiltrados = produtos;
+    
+    if (adminCategoriaAtual !== 'todos') {
+        produtosFiltrados = produtosFiltrados.filter(function(p) {
+            return p.categoria === adminCategoriaAtual;
+        });
+    }
+    
+    if (adminTermoBusca.length > 0) {
+        produtosFiltrados = produtosFiltrados.filter(function(p) {
+            return p.nome.toLowerCase().includes(adminTermoBusca);
+        });
+    }
+    
+    listaContainer.innerHTML = '';
+    
+    if (produtosFiltrados.length === 0) {
+        listaContainer.style.display = 'none';
+        vazioContainer.style.display = 'block';
+        return;
+    }
+    
+    listaContainer.style.display = 'block';
+    vazioContainer.style.display = 'none';
+    
+    produtosFiltrados.forEach(function(produto) {
+        var div = document.createElement('div');
+        div.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 12px 15px; border-bottom: 1px solid var(--cor-borda); background: #ffffff; transition: all 0.2s ease;';
+        
+        div.addEventListener('mouseenter', function() {
+            div.style.background = '#fafafa';
+        });
+        
+        div.addEventListener('mouseleave', function() {
+            div.style.background = '#ffffff';
+        });
+        
+        div.innerHTML = 
+            '<div style="flex: 1; min-width: 0;">' +
+                '<strong style="display: block; margin-bottom: 3px;">' + produto.nome + '</strong>' +
+                '<small style="color: var(--cor-texto-claro);">' +
+                    getNomeCategoria(produto.categoria) + ' | ' + formatarPreco(produto.preco) +
+                '</small>' +
+            '</div>' +
+            '<div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">' +
+                '<button onclick="toggleDisponibilidadeProduto(\'' + produto.id + '\')" ' +
+                    'class="btn-disponibilidade-admin" ' +
+                    'title="' + (produto.disponivel ? 'Disponivel - Clique para indisponibilizar' : 'Indisponivel - Clique para disponibilizar') + '" ' +
+                    'style="width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; font-size: 1rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; background: ' + (produto.disponivel ? 'rgba(76, 175, 80, 0.15)' : 'rgba(244, 67, 54, 0.15)') + '; color: ' + (produto.disponivel ? '#4CAF50' : '#f44336') + ';">' +
+                    '<i class="fas ' + (produto.disponivel ? 'fa-eye' : 'fa-eye-slash') + '"></i>' +
+                '</button>' +
+                '<button onclick="editarProduto(\'' + produto.id + '\')" ' +
+                    'class="btn-editar-admin" ' +
+                    'title="Editar produto" ' +
+                    'style="width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; background: rgba(33, 150, 243, 0.1); color: #2196F3;">' +
+                    '<i class="fas fa-pen-to-square"></i>' +
+                '</button>' +
+                '<button onclick="excluirProduto(\'' + produto.id + '\')" ' +
+                    'class="btn-excluir-admin" ' +
+                    'title="Excluir produto" ' +
+                    'style="width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; background: rgba(244, 67, 54, 0.1); color: #f44336;">' +
+                    '<i class="fas fa-trash-can"></i>' +
+                '</button>' +
+            '</div>';
+        
+        listaContainer.appendChild(div);
+    });
+}
+
+
 // ===== EXPOR =====
 window.abrirModalLogin = abrirModalLogin;
 window.fecharModalLogin = fecharModalLogin;
@@ -2056,3 +2135,6 @@ window.adicionarItemGrupo = adicionarItemGrupo;
 window.atualizarTituloGrupo = atualizarTituloGrupo;
 window.desativarTodosItens = desativarTodosItens;
 window.desativarItensGrupo = desativarItensGrupo;
+
+window.filtrarAdminProdutos = filtrarAdminProdutos;
+window.inicializarFiltrosAdmin = inicializarFiltrosAdmin;
