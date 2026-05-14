@@ -1979,6 +1979,19 @@ function desativarItensGrupo(grupoIdx) {
     mostrarToast('Itens do grupo desativados!', 'info');
 }
 
+function toggleSenhaAdmin() {
+    const input = document.getElementById('senhaAdmin');
+    const icon = document.getElementById('toggleSenhaIcon');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.className = 'fas fa-eye';
+    } else {
+        input.type = 'password';
+        icon.className = 'fas fa-eye-slash';
+    }
+}
+
 // ===== EXPOR =====
 window.abrirModalLogin = abrirModalLogin;
 window.fecharModalLogin = fecharModalLogin;
@@ -2005,6 +2018,7 @@ window.salvarDestaques = salvarDestaques;
 window.toggleHorarioLoja = toggleHorarioLoja;
 window.toggleDisponibilidadeProduto = toggleDisponibilidadeProduto;
 window.toggleDisponibilidadeAdicional = toggleDisponibilidadeAdicional;
+window.toggleSenhaAdmin = toggleSenhaAdmin;
 // 🆕 Horários
 window.abrirModalGerenciarHorarios = abrirModalGerenciarHorarios;
 window.fecharModalGerenciarHorarios = fecharModalGerenciarHorarios;
