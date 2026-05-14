@@ -1823,38 +1823,50 @@ function abrirGerenciarDestaques() {
     const container = document.getElementById('listaProdutosDestaques');
     container.innerHTML = '';
     
-    produtos.forEach(produto => {
-        const div = document.createElement('div');
-        div.style.cssText = `
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border-bottom: 1px solid var(--cor-borda);
-        `;
-        div.innerHTML = `
-            <input type="checkbox" id="destaque_${produto.id}" ${produto.destaque ? 'checked' : ''}>
-            <label for="destaque_${produto.id}">📦 ${produto.nome} - ${formatarPreco(produto.preco)}</label>
-        `;
-        container.appendChild(div);
+    const produtosDestaque = produtos.filter(function(p) {
+        return p.destaque === true;
     });
     
-    montagens.forEach(montagem => {
-        const div = document.createElement('div');
-        div.style.cssText = `
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px;
-            border-bottom: 1px solid var(--cor-borda);
-            background: #fff8e1;
-        `;
-        div.innerHTML = `
-            <input type="checkbox" id="destaque_mont_${montagem.id}" ${montagem.destaque ? 'checked' : ''}>
-            <label for="destaque_mont_${montagem.id}">🧩 ${montagem.nome} - A partir de ${formatarPreco(montagem.precoBase)}</label>
-        `;
-        container.appendChild(div);
+    const montagensDestaque = montagens.filter(function(m) {
+        return m.destaque === true;
     });
+    
+    if (produtosDestaque.length === 0 && montagensDestaque.length === 0) {
+        container.innerHTML = 
+            '<div style="text-align: center; padding: 40px; color: var(--cor-texto-claro);">' +
+                '<i class="fas fa-star" style="font-size: 2.5rem; opacity: 0.3; margin-bottom: 12px; display: block;"></i>' +
+                '<p style="font-size: 0.95rem;">Nenhum produto em destaque</p>' +
+                '<p style="font-size: 0.8rem; margin-top: 5px;">Marque "Em destaque" ao editar um produto</p>' +
+            '</div>';
+    } else {
+        produtosDestaque.forEach(function(produto) {
+            const card = document.createElement('div');
+            card.className = 'destaque-admin-card';
+            card.innerHTML = 
+                '<div class="destaque-admin-check">' +
+                    '<input type="checkbox" id="destaque_' + produto.id + '" checked>' +
+                '</div>' +
+                '<div class="destaque-admin-info">' +
+                    '<label for="destaque_' + produto.id + '" class="destaque-admin-nome">' + produto.nome + '</label>' +
+                    '<span class="destaque-admin-preco">' + formatarPreco(produto.preco) + '</span>' +
+                '</div>';
+            container.appendChild(card);
+        });
+        
+        montagensDestaque.forEach(function(montagem) {
+            const card = document.createElement('div');
+            card.className = 'destaque-admin-card montagem';
+            card.innerHTML = 
+                '<div class="destaque-admin-check">' +
+                    '<input type="checkbox" id="destaque_mont_' + montagem.id + '" checked>' +
+                '</div>' +
+                '<div class="destaque-admin-info">' +
+                    '<label for="destaque_mont_' + montagem.id + '" class="destaque-admin-nome">' + montagem.nome + '</label>' +
+                    '<span class="destaque-admin-preco">A partir de ' + formatarPreco(montagem.precoBase) + '</span>' +
+                '</div>';
+            container.appendChild(card);
+        });
+    }
     
     document.getElementById('modalGerenciarDestaques').style.display = 'flex';
 }
@@ -1869,20 +1881,27 @@ async function salvarDestaques() {
         return;
     }
     
-    produtos.forEach(produto => {
-        const checkbox = document.getElementById(`destaque_${produto.id}`);
-        if (checkbox) produto.destaque = checkbox.checked;
+    produtos.forEach(function(produto) {
+        const checkbox = document.getElementById('destaque_' + produto.id);
+        if (checkbox) {
+            produto.destaque = checkbox.checked;
+        }
     });
     
-    montagens.forEach(montagem => {
-        const checkbox = document.getElementById(`destaque_mont_${montagem.id}`);
-        if (checkbox) montagem.destaque = checkbox.checked;
+    montagens.forEach(function(montagem) {
+        const checkbox = document.getElementById('destaque_mont_' + montagem.id);
+        if (checkbox) {
+            montagem.destaque = checkbox.checked;
+        }
     });
     
     await salvarProdutosFirebase(produtos);
     const sucesso = await salvarMontagensFirebase(montagens);
+    
     if (sucesso) {
-        mostrarToast('Destaques atualizados!', 'sucesso');
+        const totalAtivos = produtos.filter(function(p) { return p.destaque; }).length +
+                           montagens.filter(function(m) { return m.destaque; }).length;
+        mostrarToast('Destaques atualizados!', totalAtivos + ' produto(s) em destaque', 'sucesso');
         fecharModalGerenciarDestaques();
         renderizarProdutos();
     }
