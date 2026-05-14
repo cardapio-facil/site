@@ -1060,9 +1060,9 @@ body {
 }
 
 .montagem-lista {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-    gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .montagem-item,
