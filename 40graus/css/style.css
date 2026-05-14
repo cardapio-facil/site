@@ -1069,12 +1069,12 @@ body {
 .montagem-item-radio {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 12px;
+    gap: 10px;
+    padding: 12px 14px;
     border: 1px solid var(--cinza-medio);
     border-radius: 10px;
     background: #fafafa;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     cursor: pointer;
     transition: all var(--transition-fast) ease;
     user-select: none;
