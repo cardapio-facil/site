@@ -14,6 +14,18 @@ function fecharModalLogin() {
     document.getElementById('modalLogin').style.display = 'none';
 }
 
+// ===== NOVAS FUNÇÕES DE LOGIN =====
+function abrirModalLogin() {
+    document.getElementById('modalLogin').style.display = 'flex';
+    document.getElementById('emailAdmin').value = '';
+    document.getElementById('senhaAdmin').value = '';
+    document.getElementById('erroLogin').style.display = 'none';
+}
+
+function fecharModalLogin() {
+    document.getElementById('modalLogin').style.display = 'none';
+}
+
 async function verificarLogin() {
     const email = document.getElementById('emailAdmin').value.trim();
     const senha = document.getElementById('senhaAdmin').value;
@@ -34,6 +46,13 @@ async function verificarLogin() {
         } else if (email === 'view@40graus.com') {
             nivelAcesso = 'view';
             mostrarToast('Modo visualização', 'info');
+        } else {
+            // Email não autorizado para admin
+            await firebase.auth().signOut();
+            adminLogado = false;
+            document.getElementById('erroLogin').style.display = 'block';
+            mostrarToast('Email não autorizado!', 'erro');
+            return;
         }
         
         fecharModalLogin();
@@ -59,28 +78,6 @@ function fecharModalLogin() {
 }
 
 
-async function verificarLogin() {
-    const email = document.getElementById('emailAdmin').value.trim();
-    const senha = document.getElementById('senhaAdmin').value;
-    
-    if (!email || !senha) {
-        mostrarToast('Preencha email e senha!', 'alerta');
-        return;
-    }
-    
-    try {
-        await firebase.auth().signInWithEmailAndPassword(email, senha);
-        adminLogado = true;
-        nivelAcesso = 'master';
-        fecharModalLogin();
-        mostrarToast('Bem-vindo, Admin!', 'sucesso');
-        atualizarInterfaceAdmin();
-        abrirModalAdmin();
-    } catch (error) {
-        document.getElementById('erroLogin').style.display = 'block';
-        mostrarToast('Email ou senha incorretos!', 'erro');
-    }
-}
 
 function atualizarInterfaceAdmin() {
     const adminBtn = document.getElementById('adminBtn');
