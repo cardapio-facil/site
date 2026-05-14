@@ -3996,3 +3996,85 @@ select:focus {
 [data-theme="dark"] .admin-busca-limpar:hover {
     background: #333333;
 }
+
+/* ============================================ */
+/* ===== MODAL DESTAQUES ADMIN ================ */
+/* ============================================ */
+
+.destaques-admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.destaque-admin-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--cinza-medio);
+    border-radius: 12px;
+    background: #ffffff;
+    transition: all var(--transition-fast) ease;
+    cursor: pointer;
+}
+
+.destaque-admin-card:hover {
+    border-color: var(--cor-primaria);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.destaque-admin-card.montagem {
+    background: #fafafa;
+    border-style: dashed;
+}
+
+.destaque-admin-check {
+    flex-shrink: 0;
+}
+
+.destaque-admin-check input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--cor-primaria);
+    cursor: pointer;
+}
+
+.destaque-admin-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.destaque-admin-nome {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--cor-texto);
+    cursor: pointer;
+    margin-bottom: 2px;
+}
+
+.destaque-admin-preco {
+    font-size: 0.8rem;
+    color: var(--cor-texto-claro);
+}
+
+/* Tema escuro */
+[data-theme="dark"] .destaque-admin-card {
+    background: #2a2a2a;
+    border-color: #444444;
+}
+
+[data-theme="dark"] .destaque-admin-card.montagem {
+    background: #252525;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+    .destaques-admin-grid {
+        grid-template-columns: 1fr;
+    }
+}
