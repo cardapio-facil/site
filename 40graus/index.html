@@ -545,18 +545,18 @@
 <div class="modal" id="modalGerenciarDestaques">
     <div class="modal-content">
         <div class="modal-header">
-            <h3>⭐ Gerenciar Destaques</h3>
+            <h3>Gerenciar Destaques</h3>
             <button class="close-modal" onclick="fecharModalGerenciarDestaques()">&times;</button>
         </div>
         
-        <p style="margin-bottom: 15px; color: var(--cor-texto-claro);">
-            Selecione até 4 produtos ou montagens para aparecer na seção de destaques
+        <p style="margin-bottom: 15px; color: var(--cor-texto-claro); font-size: 0.85rem;">
+            Produtos marcados como destaque. Desmarque para remover.
         </p>
         
-        <div id="listaProdutosDestaques"></div>
+        <div id="listaProdutosDestaques" class="destaques-admin-grid"></div>
         
-        <button class="btn-adicionar-carrinho" onclick="salvarDestaques()" style="background: var(--cor-secundaria);">
-            💾 Salvar Destaques
+        <button class="btn-adicionar-carrinho" onclick="salvarDestaques()" style="background: var(--cor-secundaria); margin-top: 15px;">
+            <i class="fas fa-save"></i> Salvar Destaques
         </button>
     </div>
 </div>
