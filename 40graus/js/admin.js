@@ -40,10 +40,10 @@ async function verificarLogin() {
         adminLogado = true;
         
         // Verificar nível de acesso pelo email
-        if (email === 'master@40graus.com') {
+        if (email === 'teste@gmail.com') {
             nivelAcesso = 'master';
             mostrarToast('Bem-vindo, Master!', 'sucesso');
-        } else if (email === 'view@40graus.com') {
+        } else if (email === 'view@gmail.com') {
             nivelAcesso = 'view';
             mostrarToast('Modo visualização', 'info');
         } else {
