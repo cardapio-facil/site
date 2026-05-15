@@ -372,10 +372,15 @@ function renderizarProdutos() {
 function getCorClasseSelo(corHex) {
     const mapa = {
         '#f39c12': 'laranja',
+        '#e67e22': 'laranja',
         '#3498db': 'azul',
+        '#2980b9': 'azul',
         '#9b59b6': 'roxo',
+        '#8e44ad': 'roxo',
         '#e74c3c': 'vermelho',
-        '#607d8b': 'cinza'
+        '#c0392b': 'vermelho',
+        '#607d8b': 'cinza',
+        '#7f8c8d': 'cinza'
     };
     return mapa[corHex] || 'cinza';
 }
