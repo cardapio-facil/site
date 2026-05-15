@@ -602,6 +602,16 @@ function registrarUsoCupom(codigo, userId, descontoCentavos, pedidoId) {
     if (!cupom) return false;
     
     cupom.usos = (cupom.usos || 0) + 1;
+
+    // Se atingiu o limite, desativa o cupom
+if (cupom.tipoLimiteUso === 'limitado' && cupom.usos >= cupom.limiteUso) {
+    cupom.ativo = false;
+    cupom.exibirNoSite = false;
+}
+if (cupom.tipoLimiteUso === 'unico' && cupom.usos >= 1) {
+    cupom.ativo = false;
+    cupom.exibirNoSite = false;
+}
     
     if (!cupom.historicoUso) {
         cupom.historicoUso = [];
