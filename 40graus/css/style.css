@@ -4199,3 +4199,133 @@ select:focus {
 .status-horario i {
     margin-right: 4px;
 }
+
+/* ============================================ */
+/* ===== CUPONS NO HEADER ===================== */
+/* ============================================ */
+
+.cupons-header {
+    position: relative;
+}
+
+.cupons-header-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--cor-primaria);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--cor-primaria);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-base) ease;
+    white-space: nowrap;
+}
+
+.cupons-header-btn:hover {
+    background: var(--cor-primaria);
+    color: #ffffff;
+}
+
+.cupons-header-tooltip {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    z-index: 1001;
+    margin-top: 8px;
+    min-width: 260px;
+    padding: 14px;
+    border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid var(--cinza-medio);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    animation: tooltipSlide 0.25s ease;
+}
+
+.cupons-header-tooltip.visivel {
+    display: block;
+}
+
+@keyframes tooltipSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cupons-header-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: #ffffff;
+    border-left: 1px solid var(--cinza-medio);
+    border-top: 1px solid var(--cinza-medio);
+    transform: rotate(45deg);
+}
+
+.cupom-tooltip-item {
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.cupom-tooltip-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.cupom-tooltip-codigo {
+    display: block;
+    font-weight: 700;
+    color: var(--cor-primaria);
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.cupom-tooltip-info {
+    font-size: 0.78rem;
+    color: var(--cor-texto-claro);
+    line-height: 1.5;
+}
+
+.cupom-tooltip-info i {
+    width: 16px;
+    color: var(--cor-primaria);
+    margin-right: 4px;
+}
+
+/* Tema escuro */
+[data-theme="dark"] .cupons-header-tooltip {
+    background: #1e1e1e;
+    border-color: #333333;
+}
+
+[data-theme="dark"] .cupons-header-tooltip::before {
+    background: #1e1e1e;
+    border-color: #333333;
+}
+
+[data-theme="dark"] .cupom-tooltip-item {
+    border-bottom-color: #333333;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .cupons-header-tooltip {
+        right: -40px;
+        min-width: 240px;
+    }
+    
+    .cupons-header-tooltip::before {
+        right: 52px;
+    }
+}
