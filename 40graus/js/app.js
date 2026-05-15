@@ -52,6 +52,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (data.horarios) horarios = data.horarios;
     if (data.feriados) feriados = data.feriados;
     if (data.cupons) cupons = data.cupons;
+    if (data.usoCupons && data.cupons) {
+        cupons.forEach(function(cupom) {
+            if (data.usoCupons[cupom.id]) {
+                cupom.usos = data.usoCupons[cupom.id].usos || cupom.usos;
+            }
+        });
+    }
     
     if (produtos.length === 0) criarProdutosExemplo();
     if (montagens.length === 0) {
