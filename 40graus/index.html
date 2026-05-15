@@ -24,6 +24,13 @@
     </div>
     <div class="header-info">
         <div class="status-horario" id="statusHorarioHeader">🟢 ABERTO</div>
+
+            <div class="cupons-header" id="cuponsHeader" style="display: none;">
+        <button class="cupons-header-btn" id="cuponsHeaderBtn">
+            <i class="fas fa-gift"></i> Cupons ativos
+        </button>
+        <div class="cupons-header-tooltip" id="cuponsHeaderTooltip"></div>
+    </div>
 <!--
 <button class="theme-toggle-btn" onclick="toggleTema()">
     <i class="fas fa-moon" id="themeIcon"></i>
@@ -693,6 +700,7 @@
                 <input type="checkbox" id="cupomAtivo" checked>
                 Cupom ativo
             </label>
+             <small style="color: var(--cor-texto-claro); display: block; margin-top: 4px;">Mostra o cupom no topo do site para todos os clientes</small>
         </div>
         
         <div class="checkout-row">
