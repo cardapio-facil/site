@@ -1370,8 +1370,14 @@ function atualizarCuponsHeader() {
     if (!cuponsHeader || !tooltip) return;
     
     const cuponsExibir = cupons.filter(function(c) {
-        return c.ativo && c.exibirNoSite === true;
-    });
+    if (!c.ativo || c.exibirNoSite !== true) return false;
+    
+    // Verifica se atingiu limite
+    if (c.tipoLimiteUso === 'limitado' && c.usos >= c.limiteUso) return false;
+    if (c.tipoLimiteUso === 'unico' && c.usos >= 1) return false;
+    
+    return true;
+});
     
     if (cuponsExibir.length === 0) {
         cuponsHeader.style.display = 'none';
