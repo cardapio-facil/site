@@ -327,8 +327,30 @@ function renderizarProdutos() {
     });
     
     // Produtos normais
-    produtosFiltrados.forEach(produto => {
-        const card = document.createElement('div');
+ // Ordenar: disponíveis primeiro, bloqueados (fora horário + indisponíveis) depois
+produtosFiltrados.sort(function(a, b) {
+    const aDisponivel = a.disponivel !== false;
+    const bDisponivel = b.disponivel !== false;
+    
+    if (aDisponivel && !bDisponivel) return -1;
+    if (!aDisponivel && bDisponivel) return 1;
+    return 0;
+});
+
+// Ordenar: disponíveis primeiro, bloqueados (fora horário + indisponíveis) depois
+produtosFiltrados.sort(function(a, b) {
+    const aDisponivel = a.disponivel !== false;
+    const bDisponivel = b.disponivel !== false;
+    
+    if (aDisponivel && !bDisponivel) return -1;
+    if (!aDisponivel && bDisponivel) return 1;
+    return 0;
+});
+
+produtosFiltrados.forEach(produto => {
+    const card = document.createElement('div');
+    // ...
+});
         
         const catDisponivel = !adminLogado ? isCategoriaDisponivel(produto.categoria, agora) : true;
         const lojaDisponivel = statusLoja.aberto;
