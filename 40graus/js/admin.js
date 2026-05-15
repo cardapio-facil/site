@@ -1842,10 +1842,10 @@ async function salvarConfiguracoes() {
 
 // ===== ADMIN DESTAQUES =====
 function abrirGerenciarDestaques() {
-    if (nivelAcesso !== 'master') {
-        mostrarToast('Apenas Master pode gerenciar destaques', 'alerta');
-        return;
-    }
+if (!adminLogado) {
+    mostrarToast('Faça login para gerenciar destaques', 'alerta');
+    return;
+}
     
     const container = document.getElementById('listaProdutosDestaques');
     container.innerHTML = '';
@@ -1903,10 +1903,10 @@ function fecharModalGerenciarDestaques() {
 }
 
 async function salvarDestaques() {
-    if (nivelAcesso !== 'master') {
-        mostrarToast('Apenas Master pode salvar destaques', 'alerta');
-        return;
-    }
+if (!adminLogado) {
+    mostrarToast('Faça login para salvar destaques', 'alerta');
+    return;
+}
     
     produtos.forEach(function(produto) {
         const checkbox = document.getElementById('destaque_' + produto.id);
