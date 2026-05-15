@@ -1688,8 +1688,7 @@ const cupom = {
     tipoDesconto: tipoDesconto,
     valorDesconto: valorDesconto,
     ativo: document.getElementById('cupomAtivo').checked,
-    const cupomExibirSite = document.getElementById('cupomExibirSite');
-    if (cupomExibirSite) cupomExibirSite.checked = cupom.exibirNoSite || false;
+    exibirNoSite: document.getElementById('cupomExibirSite') ? document.getElementById('cupomExibirSite').checked : false,
     tipoLimiteUso: document.getElementById('cupomTipoLimite').value,
     limiteUso: parseInt(document.getElementById('cupomLimiteUso').value) || 50,
     limitePorUsuario: parseInt(document.getElementById('cupomLimitePorUsuario').value) || null,
