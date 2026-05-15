@@ -306,8 +306,8 @@ function renderizarProdutos() {
         }
         
         card.innerHTML = `
-            <div class="badge-montagem">🧩 Você Escolhe</div>
-            ${montagem.destaque ? '<div class="badge-destaque direita">🔥 Destaque</div>' : ''}
+           <div class="badge-montagem"><i class="fas fa-puzzle-piece"></i> Monte você</div>
+            ${montagem.destaque ? '<div class="badge-destaque direita"><i class="fas fa-fire"></i> Destaque</div>' : ''}
             ${seloHtml}
             <img class="produto-img" src="${imagemUrl}" alt="${montagem.nome}" onerror="this.src='${LOGO_PADRAO}';">
             <div class="produto-info">
@@ -346,7 +346,7 @@ function renderizarProdutos() {
         }
         
         card.innerHTML = `
-            ${produto.destaque ? '<div class="badge-destaque">🔥 Destaque</div>' : ''}
+            ${produto.destaque ? '<div class="badge-destaque"><i class="fas fa-fire"></i> Destaque</div>' : ''}
             ${seloHtml}
             <img class="produto-img" src="${imagemUrl}" alt="${produto.nome}" onerror="this.src='${LOGO_PADRAO}';">
             <div class="produto-info">
@@ -421,7 +421,7 @@ const montagensDestaque = montagens.filter(m => {
             card.onclick = () => abrirModalMontagem(montagem.id);
             
             card.innerHTML = `
-                <div class="badge-montagem" style="font-size: 0.6rem; padding: 2px 8px;">🧩 Você Escolhe</div>
+               <div class="badge-montagem" style="font-size: 0.6rem; padding: 2px 8px;"><i class="fas fa-puzzle-piece"></i> Você escolhe </div>
                 <img class="produto-img" src="${montagem.imagem || LOGO_PADRAO}" alt="${montagem.nome}" style="height: 120px;" onerror="this.src='${LOGO_PADRAO}'">
                 <div class="produto-info">
                     <div class="produto-nome" style="color: white;">${montagem.nome}</div>
