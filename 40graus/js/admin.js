@@ -1573,7 +1573,8 @@ function limparFormCupom() {
     document.getElementById('cupomTipoDesconto').value = 'percentual';
     document.getElementById('cupomValorDesconto').value = '';
     document.getElementById('cupomAtivo').checked = true;
-    document.getElementById('cupomExibirSite').checked = false;
+    const cupomExibirSite = document.getElementById('cupomExibirSite');
+    if (cupomExibirSite) cupomExibirSite.checked = false;
     document.getElementById('cupomTipoLimite').value = 'ilimitado';
     document.getElementById('cupomLimiteUso').value = '50';
     document.getElementById('cupomLimitePorUsuario').value = '1';
@@ -1681,23 +1682,25 @@ async function salvarCupom() {
     
     const valorDesconto = parseValorDesconto(valorDescontoStr, tipoDesconto);
     
-    const cupom = {
-        id: cupomEditando ? cupomEditando.id : 'cup_' + gerarId(),
-        codigo: codigo,
-        tipoDesconto: tipoDesconto,
-        valorDesconto: valorDesconto,
-        ativo: document.getElementById('cupomAtivo').checked,
-        tipoLimiteUso: document.getElementById('cupomTipoLimite').value,
-        limiteUso: parseInt(document.getElementById('cupomLimiteUso').value) || 50,
-        limitePorUsuario: parseInt(document.getElementById('cupomLimitePorUsuario').value) || null,
-        valorMinimoPedido: document.getElementById('cupomValorMinimo').value 
-            ? floatParaCentavos(parseFloat(document.getElementById('cupomValorMinimo').value)) 
-            : null,
-        dataInicio: document.getElementById('cupomDataInicio').value || null,
-        dataExpiracao: document.getElementById('cupomDataExpiracao').value || null,
-        usos: cupomEditando ? (cupomEditando.usos || 0) : 0,
-        historicoUso: cupomEditando ? (cupomEditando.historicoUso || []) : []
-    };
+const cupom = {
+    id: cupomEditando ? cupomEditando.id : 'cup_' + gerarId(),
+    codigo: codigo,
+    tipoDesconto: tipoDesconto,
+    valorDesconto: valorDesconto,
+    ativo: document.getElementById('cupomAtivo').checked,
+    const cupomExibirSite = document.getElementById('cupomExibirSite');
+    if (cupomExibirSite) cupomExibirSite.checked = cupom.exibirNoSite || false;
+    tipoLimiteUso: document.getElementById('cupomTipoLimite').value,
+    limiteUso: parseInt(document.getElementById('cupomLimiteUso').value) || 50,
+    limitePorUsuario: parseInt(document.getElementById('cupomLimitePorUsuario').value) || null,
+    valorMinimoPedido: document.getElementById('cupomValorMinimo').value 
+        ? floatParaCentavos(parseFloat(document.getElementById('cupomValorMinimo').value)) 
+        : null,
+    dataInicio: document.getElementById('cupomDataInicio').value || null,
+    dataExpiracao: document.getElementById('cupomDataExpiracao').value || null,
+    usos: cupomEditando ? (cupomEditando.usos || 0) : 0,
+    historicoUso: cupomEditando ? (cupomEditando.historicoUso || []) : []
+};
     
     if (cupomEditando) {
         const index = cupons.findIndex(c => c.id === cupomEditando.id);
