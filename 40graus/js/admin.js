@@ -268,6 +268,35 @@ async function excluirProduto(id) {
     }
 }
 
+function copiarProduto(id) {
+    if (nivelAcesso !== 'master') {
+        mostrarToast('Apenas Master pode copiar produtos', 'alerta');
+        return;
+    }
+    
+    const produto = produtos.find(function(p) {
+        return p.id === id;
+    });
+    
+    if (!produto) return;
+    
+    produtoEditando = null;
+    
+    document.getElementById('cadastroProdutoTitulo').textContent = 'Novo Produto (copia)';
+    document.getElementById('editProdutoId').value = '';
+    document.getElementById('produtoNome').value = produto.nome;
+    document.getElementById('produtoDesc').value = produto.descricao || '';
+    document.getElementById('produtoPreco').value = centavosParaFloat(produto.preco);
+    document.getElementById('produtoImagem').value = produto.imagem || '';
+    document.getElementById('produtoDisponivel').checked = true;
+    document.getElementById('produtoDestaque').checked = false;
+    document.getElementById('produtoCategoria').value = produto.categoria;
+    
+    document.getElementById('modalCadastroProduto').style.display = 'flex';
+    
+    mostrarToast('Produto copiado!', 'Edite e salve como novo produto', 'info');
+}
+
 
 // ===== ADMIN CATEGORIAS =====
 function carregarAdminCategorias() {
@@ -2073,6 +2102,12 @@ function filtrarAdminProdutos() {
                     'style="width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; font-size: 0.95rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; background: rgba(33, 150, 243, 0.1); color: #2196F3;">' +
                     '<i class="fas fa-pen-to-square"></i>' +
                 '</button>' +
+            '<button onclick="copiarProduto(\'' + produto.id + '\')" ' +
+    'class="btn-copiar-admin" ' +
+    'title="Copiar produto" ' +
+    'style="width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; background: rgba(156, 39, 176, 0.1); color: #9c27b0;">' +
+    '<i class="fas fa-copy"></i>' +
+'</button>' +
                 '<button onclick="excluirProduto(\'' + produto.id + '\')" ' +
                     'class="btn-excluir-admin" ' +
                     'title="Excluir produto" ' +
@@ -2099,6 +2134,7 @@ window.fecharModalCadastroProduto = fecharModalCadastroProduto;
 window.salvarProduto = salvarProduto;
 window.editarProduto = editarProduto;
 window.excluirProduto = excluirProduto;
+window.copiarProduto = copiarProduto;
 window.adicionarCategoria = adicionarCategoria;
 window.excluirCategoria = excluirCategoria;
 window.toggleVisibilidadeCategoria = toggleVisibilidadeCategoria;
