@@ -733,37 +733,35 @@ if (adminLogado) {
     });
     
     // ===== BLOQUEIA CAMPOS PARA VIEW =====
-    if (adminLogado) {
-        document.getElementById('montagemNome').readOnly = true;
-        document.getElementById('montagemDesc').readOnly = true;
-        document.getElementById('montagemPrecoBase').readOnly = true;
-        document.getElementById('montagemImagem').readOnly = true;
-        document.getElementById('montagemDisponivel').disabled = true;
-        document.getElementById('montagemDestaque').disabled = true;
-        document.getElementById('montagemCategoria').disabled = true;
-        
-        // Muda o botão salvar
-        const btnSalvar = document.querySelector('#modalCadastroMontagem .btn-adicionar-carrinho');
-        if (btnSalvar) {
-            btnSalvar.innerHTML = '💾 Salvar Disponibilidade';
-            btnSalvar.style.background = 'var(--cor-alerta)';
-        }
-    } else {
-        // Habilita para Master
-        document.getElementById('montagemNome').readOnly = false;
-        document.getElementById('montagemDesc').readOnly = false;
-        document.getElementById('montagemPrecoBase').readOnly = false;
-        document.getElementById('montagemImagem').readOnly = false;
-        document.getElementById('montagemDisponivel').disabled = false;
-        document.getElementById('montagemDestaque').disabled = false;
-        document.getElementById('montagemCategoria').disabled = false;
-        
-        const btnSalvar = document.querySelector('#modalCadastroMontagem .btn-adicionar-carrinho');
-        if (btnSalvar) {
-            btnSalvar.innerHTML = '💾 Salvar Montagem';
-            btnSalvar.style.background = 'var(--cor-primaria)';
-        }
+ if (nivelAcesso === 'view') {
+    document.getElementById('montagemNome').readOnly = true;
+    document.getElementById('montagemDesc').readOnly = true;
+    document.getElementById('montagemPrecoBase').readOnly = true;
+    document.getElementById('montagemImagem').readOnly = true;
+    document.getElementById('montagemDisponivel').disabled = true;
+    document.getElementById('montagemDestaque').disabled = true;
+    document.getElementById('montagemCategoria').disabled = true;
+    
+    const btnSalvar = document.querySelector('#modalCadastroMontagem .btn-adicionar-carrinho');
+    if (btnSalvar) {
+        btnSalvar.innerHTML = '<i class="fas fa-save"></i> Salvar Disponibilidade';
+        btnSalvar.style.background = 'var(--cor-alerta)';
     }
+} else {
+    document.getElementById('montagemNome').readOnly = false;
+    document.getElementById('montagemDesc').readOnly = false;
+    document.getElementById('montagemPrecoBase').readOnly = false;
+    document.getElementById('montagemImagem').readOnly = false;
+    document.getElementById('montagemDisponivel').disabled = false;
+    document.getElementById('montagemDestaque').disabled = false;
+    document.getElementById('montagemCategoria').disabled = false;
+    
+    const btnSalvar = document.querySelector('#modalCadastroMontagem .btn-adicionar-carrinho');
+    if (btnSalvar) {
+        btnSalvar.innerHTML = '<i class="fas fa-save"></i> Salvar Montagem';
+        btnSalvar.style.background = 'var(--cor-primaria)';
+    }
+}
     
     renderizarTamanhosMontagem(montagem, isView);
     renderizarGruposMontagem(montagem, isView);
