@@ -594,21 +594,44 @@ function validarCupom(codigo, subtotalCentavos, userId = null) {
     };
 }
 
-function registrarUsoCupom(codigo, userId = null, descontoCentavos = 0, pedidoId = null) {
-    const cupom = cupons.find(c => c.codigo === codigo.toUpperCase().trim());
+function registrarUsoCupom(codigo, userId, descontoCentavos, pedidoId) {
+    var cupom = cupons.find(function(c) {
+        return c.codigo === codigo.toUpperCase().trim();
+    });
+    
     if (!cupom) return false;
     
     cupom.usos = (cupom.usos || 0) + 1;
-    if (!cupom.historicoUso) cupom.historicoUso = [];
+    
+    if (!cupom.historicoUso) {
+        cupom.historicoUso = [];
+    }
     
     cupom.historicoUso.push({
         userId: userId || 'anonimo',
         data: new Date().toISOString(),
-        descontoCentavos: descontoCentavos,
-        pedidoId: pedidoId
+        descontoCentavos: descontoCentavos || 0,
+        pedidoId: pedidoId || ''
     });
     
-    salvarCuponsFirebase(cupons);
+    // Salvar contador de usos em nó separado (permissão pública)
+    var usoRef = database.ref('restaurantes/' + RESTAURANTE_ID + '/usoCupons/' + cupom.id);
+    usoRef.set({
+        usos: cupom.usos,
+        ultimoUso: {
+            userId: userId || 'anonimo',
+            data: new Date().toISOString(),
+            pedidoId: pedidoId || ''
+        }
+    }).catch(function(error) {
+        console.error('Erro ao registrar uso do cupom:', error);
+    });
+    
+    // Atualizar cupom no admin (se admin logado)
+    if (typeof adminLogado !== 'undefined' && adminLogado) {
+        salvarCuponsFirebase(cupons);
+    }
+    
     return true;
 }
 
