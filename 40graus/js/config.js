@@ -419,15 +419,15 @@ function getTextoSeloTempo(proximo) {
     const amanha = new Date(hoje);
     amanha.setDate(amanha.getDate() + 1);
     
-    const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const diasSemana = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sab'];
     
     if (proximo.data.toDateString() === hoje.toDateString()) {
-        return { texto: `🕐 A partir das ${proximo.horaInicio}`, cor: '#f39c12' };
+        return { texto: '<i class="fas fa-clock"></i> A partir das ' + proximo.horaInicio, cor: '#e67e22' };
     } else if (proximo.data.toDateString() === amanha.toDateString()) {
-        return { texto: `🕐 Amanhã às ${proximo.horaInicio}`, cor: '#3498db' };
+        return { texto: '<i class="fas fa-clock"></i> Amanha as ' + proximo.horaInicio, cor: '#2980b9' };
     } else {
         const nomeDia = diasSemana[proximo.data.getDay()];
-        return { texto: `🕐 ${nomeDia} às ${proximo.horaInicio}`, cor: '#9b59b6' };
+        return { texto: '<i class="fas fa-clock"></i> ' + nomeDia + ' as ' + proximo.horaInicio, cor: '#8e44ad' };
     }
 }
 
