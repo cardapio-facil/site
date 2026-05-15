@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 }, 500);
     renderizarCarrinho();
     verificarHorario();
+    atualizarCuponsHeader();
     setupAtalhoSecreto();
 
     let isMobile = window.innerWidth <= 900;
@@ -1349,6 +1350,79 @@ function atualizarCarrinhoMobileBar() {
     } else {
         barra.classList.remove('show');
     }
+}
+
+// ============================================
+// ===== CUPONS NO HEADER =====================
+// ============================================
+
+function atualizarCuponsHeader() {
+    const cuponsHeader = document.getElementById('cuponsHeader');
+    const tooltip = document.getElementById('cuponsHeaderTooltip');
+    
+    if (!cuponsHeader || !tooltip) return;
+    
+    const cuponsExibir = cupons.filter(function(c) {
+        return c.ativo && c.exibirNoSite === true;
+    });
+    
+    if (cuponsExibir.length === 0) {
+        cuponsHeader.style.display = 'none';
+        return;
+    }
+    
+    cuponsHeader.style.display = 'block';
+    
+    tooltip.innerHTML = '';
+    
+    cuponsExibir.forEach(function(cupom) {
+        const item = document.createElement('div');
+        item.className = 'cupom-tooltip-item';
+        
+        let descontoTexto = '';
+        if (cupom.tipoDesconto === 'percentual') {
+            descontoTexto = cupom.valorDesconto + '% de desconto';
+        } else {
+            descontoTexto = formatarPreco(cupom.valorDesconto) + ' de desconto';
+        }
+        
+        let infoHtml = 
+            '<span class="cupom-tooltip-codigo">' + cupom.codigo + '</span>' +
+            '<div class="cupom-tooltip-info">' +
+                '<i class="fas fa-tag"></i> ' + descontoTexto;
+        
+        if (cupom.dataExpiracao) {
+            infoHtml += '<br><i class="fas fa-calendar"></i> Valido ate ' + cupom.dataExpiracao;
+        }
+        
+        if (cupom.valorMinimoPedido) {
+            infoHtml += '<br><i class="fas fa-shopping-cart"></i> Pedido minimo: ' + formatarPreco(cupom.valorMinimoPedido);
+        }
+        
+        infoHtml += '</div>';
+        
+        item.innerHTML = infoHtml;
+        tooltip.appendChild(item);
+    });
+    
+    const btnCupons = document.getElementById('cuponsHeaderBtn');
+    
+    btnCupons.addEventListener('click', function(e) {
+        e.stopPropagation();
+        tooltip.classList.toggle('visivel');
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!cuponsHeader.contains(e.target)) {
+            tooltip.classList.remove('visivel');
+        }
+    });
+    
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            tooltip.classList.remove('visivel');
+        }
+    });
 }
 
 // ===== EXPOR =====
