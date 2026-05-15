@@ -337,6 +337,7 @@ produtosFiltrados.sort(function(a, b) {
     return 0;
 });
 
+
 // Ordenar: disponíveis primeiro, bloqueados (fora horário + indisponíveis) depois
 produtosFiltrados.sort(function(a, b) {
     const aDisponivel = a.disponivel !== false;
@@ -349,44 +350,41 @@ produtosFiltrados.sort(function(a, b) {
 
 produtosFiltrados.forEach(produto => {
     const card = document.createElement('div');
-    // ...
-});
-        
-        const catDisponivel = !adminLogado ? isCategoriaDisponivel(produto.categoria, agora) : true;
-        const lojaDisponivel = statusLoja.aberto;
-        const disponivel = lojaDisponivel && catDisponivel && produto.disponivel;
-        
-        card.className = `produto-card ${!disponivel && !adminLogado ? 'fora-horario' : ''} ${!produto.disponivel ? 'indisponivel' : ''}`;
-        card.dataset.categoria = produto.categoria;
-        
-        const imagemUrl = produto.imagem || LOGO_PADRAO;
-        
-        let seloHtml = '';
-        if (!disponivel && !adminLogado && produto.disponivel) {
-            const selo = getSeloForaHorario(produto.categoria);
-            seloHtml = `<div class="selo-horario ${getCorClasseSelo(selo.cor)}">${selo.texto}</div>`;
-        }
-        
-        card.innerHTML = `
-            ${produto.destaque ? '<div class="badge-destaque"><i class="fas fa-fire"></i> Destaque</div>' : ''}
-            ${seloHtml}
-            <img class="produto-img" src="${imagemUrl}" alt="${produto.nome}" onerror="this.src='${LOGO_PADRAO}';">
-            <div class="produto-info">
-                <div class="produto-nome">${produto.nome}</div>
-                <div class="produto-desc">${produto.descricao || ''}</div>
-                <div class="produto-footer">
-                    <span class="produto-preco">${formatarPreco(produto.preco)}</span>
-                    ${disponivel ? `<button class="btn-add" onclick="event.stopPropagation(); abrirModalProduto('${produto.id}')">+</button>` : '<button class="btn-add" disabled style="background:#ccc;">🕐</button>'}
-                </div>
-            </div>
-        `;
-        
-        if (disponivel) {
-            card.onclick = () => abrirModalProduto(produto.id);
-        }
-        container.appendChild(card);
-    });
     
+    const catDisponivel = !adminLogado ? isCategoriaDisponivel(produto.categoria, agora) : true;
+    const lojaDisponivel = statusLoja.aberto;
+    const disponivel = lojaDisponivel && catDisponivel && produto.disponivel;
+    
+    card.className = `produto-card ${!disponivel && !adminLogado ? 'fora-horario' : ''} ${!produto.disponivel ? 'indisponivel' : ''}`;
+    card.dataset.categoria = produto.categoria;
+    
+    const imagemUrl = produto.imagem || LOGO_PADRAO;
+    
+    let seloHtml = '';
+    if (!disponivel && !adminLogado && produto.disponivel) {
+        const selo = getSeloForaHorario(produto.categoria);
+        seloHtml = `<div class="selo-horario ${getCorClasseSelo(selo.cor)}">${selo.texto}</div>`;
+    }
+    
+    card.innerHTML = `
+        ${produto.destaque ? '<div class="badge-destaque"><i class="fas fa-fire"></i> Destaque</div>' : ''}
+        ${seloHtml}
+        <img class="produto-img" src="${imagemUrl}" alt="${produto.nome}" onerror="this.src='${LOGO_PADRAO}';">
+        <div class="produto-info">
+            <div class="produto-nome">${produto.nome}</div>
+            <div class="produto-desc">${produto.descricao || ''}</div>
+            <div class="produto-footer">
+                <span class="produto-preco">${formatarPreco(produto.preco)}</span>
+                ${disponivel ? `<button class="btn-add" onclick="event.stopPropagation(); abrirModalProduto('${produto.id}')">+</button>` : '<button class="btn-add" disabled style="background:#ccc;">🕐</button>'}
+            </div>
+        </div>
+    `;
+    
+    if (disponivel) {
+        card.onclick = () => abrirModalProduto(produto.id);
+    }
+    container.appendChild(card);
+});
     renderizarDestaques();
     initMobileFixes();
 }
