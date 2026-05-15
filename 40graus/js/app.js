@@ -1049,13 +1049,13 @@ function verificarHorario() {
     const status = verificarStatusLoja();
     
     const statusDiv = document.getElementById('statusHorarioHeader');
-    if (status.aberto) {
-        statusDiv.innerHTML = '🟢 ABERTO';
-        statusDiv.className = 'status-horario aberto';
-    } else {
-        statusDiv.innerHTML = '🔴 FECHADO';
-        statusDiv.className = 'status-horario fechado';
-    }
+if (status.aberto) {
+    statusDiv.innerHTML = '<i class="fas fa-door-open"></i> ABERTO';
+    statusDiv.className = 'status-horario aberto';
+} else {
+    statusDiv.innerHTML = '<i class="fas fa-door-closed"></i> FECHADO';
+    statusDiv.className = 'status-horario fechado';
+}
     
     // Atualiza cards visíveis
     atualizarInterfaceHorarios();
