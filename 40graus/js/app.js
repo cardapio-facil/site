@@ -339,13 +339,17 @@ produtosFiltrados.sort(function(a, b) {
 
 
 // Ordenar: disponíveis primeiro, bloqueados (fora horário + indisponíveis) depois
+const agora = new Date();
+const statusLoja = verificarStatusLoja();
+
 produtosFiltrados.sort(function(a, b) {
-    const aDisponivel = a.disponivel !== false;
-    const bDisponivel = b.disponivel !== false;
+    function getPrioridade(produto) {
+        if (produto.disponivel === false) return 2; // Indisponível = último
+        if (!adminLogado && statusLoja.aberto && !isCategoriaDisponivel(produto.categoria, agora)) return 1; // Fora do horário = meio
+        return 0; // Disponível = primeiro
+    }
     
-    if (aDisponivel && !bDisponivel) return -1;
-    if (!aDisponivel && bDisponivel) return 1;
-    return 0;
+    return getPrioridade(a) - getPrioridade(b);
 });
 
 produtosFiltrados.forEach(produto => {
