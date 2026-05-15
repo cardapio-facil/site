@@ -4195,3 +4195,7 @@ select:focus {
     color: #ffffff !important;
     transform: scale(1.1);
 }
+
+.status-horario i {
+    margin-right: 4px;
+}
