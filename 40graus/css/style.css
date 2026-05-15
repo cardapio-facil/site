@@ -300,49 +300,36 @@ body {
     box-shadow: var(--shadow-hover);
 }
 
-.produto-card.indisponivel {
-    opacity: 0.6;
-    filter: grayscale(0.5);
-    pointer-events: none;
-}
 
-.produto-card.indisponivel::after {
-    content: "🔴 INDISPONÍVEL";
+/* ============================================ */
+/* ===== SELOS/BADGES DOS CARDS =============== */
+/* ============================================ */
+
+.badge-destaque,
+.badge-montagem,
+.selo-horario,
+.produto-card.indisponivel::after,
+.produto-card.fora-horario::after {
     position: absolute;
     top: 10px;
-    right: 10px;
     z-index: 2;
-    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
     border-radius: 20px;
-    background: var(--cor-erro);
     color: #ffffff;
     font-size: 0.7rem;
     font-weight: 600;
+    letter-spacing: 0.3px;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* 🆕 Card fora do horário */
-.produto-card.fora-horario {
-    opacity: 0.5;
-    filter: grayscale(0.3);
-    pointer-events: none;
-}
-
-.produto-card.fora-horario .btn-add {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
+/* Destaque */
 .badge-destaque {
-    position: absolute;
-    top: 10px;
     left: 10px;
-    z-index: 1;
-    padding: 4px 10px;
-    border-radius: 20px;
     background: #f39c12;
-    color: #ffffff;
-    font-size: 0.7rem;
-    font-weight: 600;
 }
 
 .badge-destaque.direita {
@@ -350,39 +337,71 @@ body {
     right: 10px;
 }
 
+/* Montagem */
 .badge-montagem {
-    position: absolute;
-    top: 10px;
     left: 10px;
-    z-index: 1;
-    padding: 4px 10px;
-    border-radius: 20px;
-    background: #9c27b0;
-    color: #ffffff;
-    font-size: 0.7rem;
-    font-weight: 600;
+    background: #8e44ad;
 }
 
-/* 🆕 Selo de horário */
+/* Selo de horário */
 .selo-horario {
-    position: absolute;
+    right: 10px;
+}
+
+.selo-horario.laranja { background: #e67e22; }
+.selo-horario.azul { background: #2980b9; }
+.selo-horario.roxo { background: #8e44ad; }
+.selo-horario.vermelho { background: #c0392b; }
+.selo-horario.cinza { background: #7f8c8d; }
+
+/* Indisponível */
+.produto-card.indisponivel::after {
+    content: "Indisponivel";
     top: 10px;
     right: 10px;
-    z-index: 2;
-    padding: 5px 10px;
-    border-radius: 20px;
-    color: #ffffff;
-    font-size: 0.7rem;
-    font-weight: 600;
-    backdrop-filter: blur(4px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    background: #c0392b;
 }
 
-.selo-horario.laranja { background: rgba(243, 156, 18, 0.9); }
-.selo-horario.azul { background: rgba(52, 152, 219, 0.9); }
-.selo-horario.roxo { background: rgba(155, 89, 182, 0.9); }
-.selo-horario.vermelho { background: rgba(231, 76, 60, 0.9); }
-.selo-horario.cinza { background: rgba(96, 125, 139, 0.9); }
+.produto-card.indisponivel {
+    opacity: 0.6;
+    filter: grayscale(0.5);
+    pointer-events: none;
+}
+
+/* Fora do horário */
+.produto-card.fora-horario {
+    opacity: 0.5;
+    filter: grayscale(0.3);
+    pointer-events: none;
+}
+
+.produto-card.fora-horario .btn-add {
+    background: #bdc3c7;
+    cursor: not-allowed;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .badge-destaque,
+    .badge-montagem,
+    .selo-horario,
+    .produto-card.indisponivel::after {
+        font-size: 0.65rem;
+        padding: 4px 8px;
+        top: 6px;
+    }
+}
+
+@media (max-width: 480px) {
+    .badge-destaque,
+    .badge-montagem,
+    .selo-horario,
+    .produto-card.indisponivel::after {
+        font-size: 0.6rem;
+        padding: 3px 7px;
+        top: 5px;
+    }
+}
 
 .produto-card.montagem-card {
     border: 2px solid #e1bee7;
