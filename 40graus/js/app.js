@@ -306,7 +306,7 @@ function renderizarProdutos() {
         }
         
         card.innerHTML = `
-           <div class="badge-montagem"><i class="fas fa-puzzle-piece"></i> Monte você</div>
+           <div class="badge-montagem"><i class="fas fa-puzzle-piece"></i> Você escolhe</div>
             ${montagem.destaque ? '<div class="badge-destaque direita"><i class="fas fa-fire"></i> Destaque</div>' : ''}
             ${seloHtml}
             <img class="produto-img" src="${imagemUrl}" alt="${montagem.nome}" onerror="this.src='${LOGO_PADRAO}';">
