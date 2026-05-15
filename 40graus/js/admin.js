@@ -1573,6 +1573,7 @@ function limparFormCupom() {
     document.getElementById('cupomTipoDesconto').value = 'percentual';
     document.getElementById('cupomValorDesconto').value = '';
     document.getElementById('cupomAtivo').checked = true;
+    document.getElementById('cupomExibirSite').checked = false;
     document.getElementById('cupomTipoLimite').value = 'ilimitado';
     document.getElementById('cupomLimiteUso').value = '50';
     document.getElementById('cupomLimitePorUsuario').value = '1';
@@ -1645,6 +1646,7 @@ function editarCupom(id) {
     }
     
     document.getElementById('cupomAtivo').checked = cupom.ativo;
+    document.getElementById('cupomExibirSite').checked = cupom.exibirNoSite || false;
     document.getElementById('cupomTipoLimite').value = cupom.tipoLimiteUso || 'ilimitado';
     document.getElementById('cupomLimiteUso').value = cupom.limiteUso || 50;
     document.getElementById('cupomLimitePorUsuario').value = cupom.limitePorUsuario || 1;
