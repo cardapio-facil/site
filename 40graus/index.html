@@ -666,88 +666,98 @@
     </div>
 </div>
 
-     <!-- ========== 🆕 MODAL GERENCIAR CUPONS ========== -->
-<input type="hidden" id="editCupomId">
+   
+<!-- ========== MODAL GERENCIAR CUPONS ========== -->
+<div class="modal" id="modalGerenciarCupons">
+    <div class="modal-content modal-content-large">
+        <div class="modal-header">
+            <h3>Gerenciar Cupons</h3>
+            <button class="close-modal" onclick="fecharModalGerenciarCupons()">&times;</button>
+        </div>
+        
+        <input type="hidden" id="editCupomId">
 
-<div class="checkout-row">
-    <div class="form-group">
-        <label class="checkbox-label" for="cupomAtivo">
-            <input type="checkbox" id="cupomAtivo" checked>
-            Cupom ativo
-        </label>
-    </div>
-    <div class="form-group">
-        <label class="checkbox-label" for="cupomExibirSite">
-            <input type="checkbox" id="cupomExibirSite">
-            Exibir no site
-        </label>
+        <div class="checkout-row">
+            <div class="form-group">
+                <label class="checkbox-label" for="cupomAtivo">
+                    <input type="checkbox" id="cupomAtivo" checked>
+                    Cupom ativo
+                </label>
+            </div>
+            <div class="form-group">
+                <label class="checkbox-label" for="cupomExibirSite">
+                    <input type="checkbox" id="cupomExibirSite">
+                    Exibir no site
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Codigo do cupom *</label>
+            <input type="text" id="cupomCodigo" class="checkout-input" placeholder="Ex: DESCONTO10" style="text-transform: uppercase;">
+        </div>
+
+        <div class="checkout-row">
+            <div class="form-group">
+                <label>Tipo de desconto</label>
+                <select id="cupomTipoDesconto" class="checkout-select">
+                    <option value="percentual">Percentual (%)</option>
+                    <option value="fixo">Valor fixo (R$)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Valor do desconto *</label>
+                <input type="text" id="cupomValorDesconto" class="checkout-input" placeholder="Ex: 10 ou 10%">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Tipo de limite de uso</label>
+            <select id="cupomTipoLimite" class="checkout-select" onchange="toggleCamposLimiteCupom()">
+                <option value="ilimitado">Ilimitado</option>
+                <option value="unico">Uso unico (global)</option>
+                <option value="limitado">Limitado</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="campoLimiteUso" style="display: none;">
+            <label>Quantidade maxima</label>
+            <input type="number" id="cupomLimiteUso" class="checkout-input" value="50" min="1">
+        </div>
+
+        <div class="checkout-row">
+            <div class="form-group">
+                <label>Limite por usuario</label>
+                <input type="number" id="cupomLimitePorUsuario" class="checkout-input" placeholder="1 = cada usuario usa 1x" value="1" min="1">
+                <small style="color: var(--cor-texto-claro);">Deixe vazio para sem limite por usuario</small>
+            </div>
+            <div class="form-group">
+                <label>Valor minimo do pedido</label>
+                <input type="number" id="cupomValorMinimo" class="checkout-input" placeholder="R$ 0,00" step="0.01">
+            </div>
+        </div>
+
+        <div class="checkout-row">
+            <div class="form-group">
+                <label>Data de inicio</label>
+                <input type="date" id="cupomDataInicio" class="checkout-input">
+            </div>
+            <div class="form-group">
+                <label>Data de expiracao</label>
+                <input type="date" id="cupomDataExpiracao" class="checkout-input">
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="salvarCupom()">
+            <i class="fas fa-save"></i> Salvar Cupom
+        </button>
+
+        <div class="section-divider"></div>
+
+        <h4 style="margin-bottom: 15px;">Cupons cadastrados</h4>
+        <div id="listaCuponsCadastrados" class="lista-cards"></div>
     </div>
 </div>
-
-<div class="form-group">
-    <label>Codigo do cupom *</label>
-    <input type="text" id="cupomCodigo" class="checkout-input" placeholder="Ex: DESCONTO10" style="text-transform: uppercase;">
-</div>
-
-<div class="checkout-row">
-    <div class="form-group">
-        <label>Tipo de desconto</label>
-        <select id="cupomTipoDesconto" class="checkout-select">
-            <option value="percentual">Percentual (%)</option>
-            <option value="fixo">Valor fixo (R$)</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label>Valor do desconto *</label>
-        <input type="text" id="cupomValorDesconto" class="checkout-input" placeholder="Ex: 10 ou 10%">
-    </div>
-</div>
-
-<div class="form-group">
-    <label>Tipo de limite de uso</label>
-    <select id="cupomTipoLimite" class="checkout-select" onchange="toggleCamposLimiteCupom()">
-        <option value="ilimitado">Ilimitado</option>
-        <option value="unico">Uso unico (global)</option>
-        <option value="limitado">Limitado</option>
-    </select>
-</div>
-
-<div class="form-group" id="campoLimiteUso" style="display: none;">
-    <label>Quantidade maxima</label>
-    <input type="number" id="cupomLimiteUso" class="checkout-input" value="50" min="1">
-</div>
-
-<div class="checkout-row">
-    <div class="form-group">
-        <label>Limite por usuario</label>
-        <input type="number" id="cupomLimitePorUsuario" class="checkout-input" placeholder="1 = cada usuario usa 1x" value="1" min="1">
-        <small style="color: var(--cor-texto-claro);">Deixe vazio para sem limite por usuario</small>
-    </div>
-    <div class="form-group">
-        <label>Valor minimo do pedido</label>
-        <input type="number" id="cupomValorMinimo" class="checkout-input" placeholder="R$ 0,00" step="0.01">
-    </div>
-</div>
-
-<div class="checkout-row">
-    <div class="form-group">
-        <label>Data de inicio</label>
-        <input type="date" id="cupomDataInicio" class="checkout-input">
-    </div>
-    <div class="form-group">
-        <label>Data de expiracao</label>
-        <input type="date" id="cupomDataExpiracao" class="checkout-input">
-    </div>
-</div>
-
-<button class="btn-primary" onclick="salvarCupom()">
-    <i class="fas fa-save"></i> Salvar Cupom
-</button>
-
-<div class="section-divider"></div>
-
-<h4 style="margin-bottom: 15px;">Cupons cadastrados</h4>
-<div id="listaCuponsCadastrados" class="lista-cards"></div>
 
 
 <!-- 🛒 Barra flutuante do carrinho (mobile) -->
