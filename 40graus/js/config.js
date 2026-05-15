@@ -346,38 +346,34 @@ function getProximoHorarioDaCategoria(categoria, agora) {
 function getSeloForaHorario(categoria) {
     const agora = new Date();
     
-    // 1. Status manual fechado
     if (configRestaurante.statusManual === 'fechado') {
-        return { texto: '🔒 Fechado', cor: '#e74c3c' };
+        return { texto: '<i class="fas fa-lock"></i> Fechado', cor: '#c0392b' };
     }
     
-    // 2. Feriado
     if (isFeriadoHoje()) {
         const feriado = feriados.find(f => {
             const mesDia = String(agora.getMonth() + 1).padStart(2, '0') + '-' +
                            String(agora.getDate()).padStart(2, '0');
             return f.recorrente ? f.data === mesDia : f.data === agora.toISOString().split('T')[0];
         });
-        return { texto: `📅 ${feriado?.nome || 'Feriado'}`, cor: '#607d8b' };
+        return { texto: '<i class="fas fa-calendar"></i> ' + (feriado ? feriado.nome : 'Feriado'), cor: '#7f8c8d' };
     }
     
-    // 3. Loja fora do horário
     const lojaAberta = configRestaurante.horariosLoja.some(id => isDentroHorario(id, agora));
     if (!lojaAberta) {
         const proximoLoja = getProximoHorarioLoja(agora);
         if (proximoLoja) {
             return getTextoSeloTempo(proximoLoja);
         }
-        return { texto: '🔒 Fechado hoje', cor: '#e74c3c' };
+        return { texto: '<i class="fas fa-lock"></i> Fechado hoje', cor: '#c0392b' };
     }
     
-    // 4. Categoria fora do horário
     const proximoCat = getProximoHorarioDaCategoria(categoria, agora);
     if (proximoCat) {
         return getTextoSeloTempo(proximoCat);
     }
     
-    return { texto: '🔒 Indisponível', cor: '#e74c3c' };
+    return { texto: '<i class="fas fa-lock"></i> Indisponivel', cor: '#c0392b' };
 }
 
 function getProximoHorarioLoja(agora) {
