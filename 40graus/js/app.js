@@ -482,7 +482,6 @@ function abrirModalProduto(produtoId) {
     produtoSelecionado = produtos.find(p => p.id === produtoId);
     if (!produtoSelecionado) return;
     
-    // ✅ LIMPA MONTAGEM
     montagemSelecionada = null;
     tamanhoSelecionado = null;
     itensMontagemSelecionados = [];
@@ -490,6 +489,7 @@ function abrirModalProduto(produtoId) {
     quantidadeSelecionada = 1;
     saboresSelecionados = [];
     adicionaisSelecionados = [];
+    if (produtoSelecionado) produtoSelecionado._tamanhoSelecionado = null;
     
     document.getElementById('modalProdutoNome').innerText = produtoSelecionado.nome;
     document.getElementById('modalProdutoDesc').innerText = produtoSelecionado.descricao || '';
@@ -501,40 +501,56 @@ function abrirModalProduto(produtoId) {
     img.src = produtoSelecionado.imagem || LOGO_PADRAO;
     img.onerror = () => { img.src = LOGO_PADRAO; };
     
-    // Sabores pizza
-    const saboresDiv = document.getElementById('saboresPizzaDiv');
+    // Esconder tudo primeiro
+    document.getElementById('saboresPizzaDiv').style.display = 'none';
+    document.getElementById('adicionaisDiv').style.display = 'none';
+    document.getElementById('montagemDiv').style.display = 'none';
+    
+    // Tamanhos para Pizza
     if (produtoSelecionado.categoria === 'pizza') {
-        saboresDiv.style.display = 'block';
-        const lista = document.getElementById('saboresLista');
-        lista.innerHTML = '';
+        const tamanhos = [];
+        if (produtoSelecionado.precoP) tamanhos.push({ id: 'P', nome: 'Pequeno (P)', preco: produtoSelecionado.precoP });
+        if (produtoSelecionado.precoM) tamanhos.push({ id: 'M', nome: 'Medio (M)', preco: produtoSelecionado.precoM });
+        if (produtoSelecionado.precoG) tamanhos.push({ id: 'G', nome: 'Grande (G)', preco: produtoSelecionado.precoG });
+        if (produtoSelecionado.precoGG) tamanhos.push({ id: 'GG', nome: 'Gigante (GG)', preco: produtoSelecionado.precoGG });
         
-        const pizzasDisponiveis = produtos.filter(p =>
-            p.categoria === 'pizza' && p.disponivel !== false && p.id !== produtoSelecionado.id
-        );
-        
-        if (pizzasDisponiveis.length === 0) {
-            lista.innerHTML = '<p style="color: #c62828;">⚠️ Nenhum sabor disponível no momento</p>';
-        } else {
-            pizzasDisponiveis.forEach(pizza => {
+        if (tamanhos.length > 0) {
+            const montagemDiv = document.getElementById('montagemDiv');
+            montagemDiv.style.display = 'block';
+            montagemDiv.innerHTML = '';
+            
+            const tamanhoSection = document.createElement('div');
+            tamanhoSection.className = 'montagem-section';
+            tamanhoSection.innerHTML = '<h4>Escolha o tamanho</h4>';
+            
+            const tamanhoLista = document.createElement('div');
+            tamanhoLista.className = 'montagem-lista';
+            
+            tamanhos.forEach((tamanho, idx) => {
                 const div = document.createElement('div');
-                div.className = 'sabor-item';
+                div.className = 'montagem-item-radio';
                 div.innerHTML = `
-                    <span>🍕 ${pizza.nome} - <strong>${formatarPreco(pizza.preco)}</strong></span>
-                    <input type="checkbox" value="${pizza.id}" data-nome="${pizza.nome}" data-preco="${pizza.preco}" onchange="toggleSaborPizza(this, '${pizza.id}', '${pizza.nome.replace(/'/g, "\\'")}', ${pizza.preco})">
+                    <input type="radio" name="tamanhoPizza" value="${tamanho.id}" data-preco="${tamanho.preco}" ${idx === 0 ? 'checked' : ''} onchange="selecionarTamanhoPizza(this)">
+                    <span>${tamanho.nome} - ${formatarPreco(tamanho.preco)}</span>
                 `;
                 div.style.cursor = 'pointer';
                 div.onclick = function(e) {
                     if (e.target.tagName !== 'INPUT') {
-                        const cb = this.querySelector('input[type="checkbox"]');
-                        cb.checked = !cb.checked;
-                        cb.dispatchEvent(new Event('change'));
+                        const radio = this.querySelector('input[type="radio"]');
+                        radio.checked = true;
+                        radio.dispatchEvent(new Event('change'));
                     }
                 };
-                lista.appendChild(div);
+                tamanhoLista.appendChild(div);
             });
+            
+            tamanhoSection.appendChild(tamanhoLista);
+            montagemDiv.appendChild(tamanhoSection);
+            
+            // Atualiza preço com o primeiro tamanho
+            document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(tamanhos[0].preco);
+            produtoSelecionado._tamanhoSelecionado = tamanhos[0];
         }
-    } else {
-        saboresDiv.style.display = 'none';
     }
     
     // Adicionais
@@ -561,98 +577,27 @@ function abrirModalProduto(produtoId) {
             };
             lista.appendChild(div);
         });
-    } else {
-        adicionaisDiv.style.display = 'none';
     }
     
-    document.getElementById('montagemDiv').style.display = 'none';
     document.getElementById('modalProduto').style.display = 'flex';
 }
 
-function fecharModalProduto() {
-    document.getElementById('modalProduto').style.display = 'none';
-    window.editandoCarrinhoIndex = null;
-    
-    // ✅ LIMPA TUDO
-    produtoSelecionado = null;
-    montagemSelecionada = null;
-    tamanhoSelecionado = null;
-    itensMontagemSelecionados = [];
-    saboresSelecionados = [];
-    adicionaisSelecionados = [];
-    
-    const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
-    if (btnAdicionar) btnAdicionar.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
-}
-
-function toggleSaborPizza(checkbox, pizzaId, pizzaNome, pizzaPreco) {
-    if (checkbox.checked) {
-        if (saboresSelecionados.length >= 2) {
-            checkbox.checked = false;
-            mostrarToast('Máximo 2 sabores', 'Você já escolheu 2 sabores para meio a meio', 'alerta');
-            return;
-        }
-        saboresSelecionados.push({ id: pizzaId, nome: pizzaNome, preco: pizzaPreco });
-    } else {
-        saboresSelecionados = saboresSelecionados.filter(s => s.id !== pizzaId);
-    }
-    atualizarPrecoPizza();
-}
-
-function atualizarPrecoPizza() {
+function selecionarTamanhoPizza(radio) {
     if (!produtoSelecionado || produtoSelecionado.categoria !== 'pizza') return;
     
-    let precoBase = produtoSelecionado.preco;
-    if (saboresSelecionados.length > 0) {
-        const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => s.preco));
-        precoBase = Math.max(precoBase, maiorPrecoSabor);
-    }
+    const preco = parseInt(radio.dataset.preco);
+    const tamanho = {
+        id: radio.value,
+        nome: radio.parentElement.querySelector('span').textContent.split(' - ')[0],
+        preco: preco
+    };
     
-    let precoFinal = precoBase;
-    adicionaisSelecionados.forEach(adicional => { precoFinal += adicional.preco; });
+    produtoSelecionado._tamanhoSelecionado = tamanho;
+    
+    let precoFinal = preco;
+    adicionaisSelecionados.forEach(a => { precoFinal += a.preco; });
     
     document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(precoFinal);
-}
-
-function toggleAdicional(checkbox, nome, preco) {
-    if (checkbox.checked) {
-        adicionaisSelecionados.push({ nome, preco });
-    } else {
-        adicionaisSelecionados = adicionaisSelecionados.filter(
-            adicional => adicional.nome !== nome
-        );
-    }
-
-    // Atualiza o preço visual
-    if (!produtoSelecionado) return;
-
-    if (produtoSelecionado.categoria === 'pizza') {
-        atualizarPrecoPizza();
-        return;
-    }
-
-    // Recalcula preço final
-    let precoFinal = produtoSelecionado.preco;
-    adicionaisSelecionados.forEach(adicional => {
-        precoFinal += adicional.preco;
-    });
-
-    const modalPreco = document.getElementById('modalProdutoPreco');
-    if (modalPreco) {
-        modalPreco.innerHTML = formatarPreco(precoFinal);
-    }
-}
-
-function aumentarQuantidade() {
-    quantidadeSelecionada++;
-    document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
-}
-
-function diminuirQuantidade() {
-    if (quantidadeSelecionada > 1) {
-        quantidadeSelecionada--;
-        document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
-    }
 }
 
 // ============================================
@@ -796,7 +741,7 @@ function adicionarAoCarrinho() {
             if (grupo.obrigatorio) {
                 const selecionados = itensMontagemSelecionados.filter(i => i.grupoId === grupo.id);
                 if (selecionados.length === 0) {
-                    mostrarToast('Item obrigatório', `Selecione pelo menos 1 item em "${grupo.nome}"`, 'alerta');
+                    mostrarToast('Item obrigatorio', 'Selecione pelo menos 1 item em "' + grupo.nome + '"', 'alerta');
                     return;
                 }
             }
@@ -807,25 +752,25 @@ function adicionarAoCarrinho() {
         itensMontagemSelecionados.forEach(item => { precoFinal += item.preco || 0; });
         
         let descricaoMontagem = [];
-        if (tamanhoSelecionado) descricaoMontagem.push(`📏 ${tamanhoSelecionado.nome}`);
+        if (tamanhoSelecionado) descricaoMontagem.push(tamanhoSelecionado.nome);
         
-montagemSelecionada.grupos.forEach(grupo => {
-    const itensDoGrupo = itensMontagemSelecionados.filter(i => i.grupoId === grupo.id);
-    if (itensDoGrupo.length > 0) {
-        descricaoMontagem.push(`${grupo.nome}: ${itensDoGrupo.map(i => i.nome + (i.preco > 0 ? ' (+' + formatarPreco(i.preco) + ')' : '')).join(', ')}`);
-    }
-});
+        montagemSelecionada.grupos.forEach(grupo => {
+            const itensDoGrupo = itensMontagemSelecionados.filter(i => i.grupoId === grupo.id);
+            if (itensDoGrupo.length > 0) {
+                descricaoMontagem.push(grupo.nome + ': ' + itensDoGrupo.map(i => i.nome + (i.preco > 0 ? ' (+' + formatarPreco(i.preco) + ')' : '')).join(', '));
+            }
+        });
         
-        const nomeFinal = `${montagemSelecionada.nome}${tamanhoSelecionado ? ' (' + tamanhoSelecionado.nome + ')' : ''}`;
+        const nomeFinal = montagemSelecionada.nome + (tamanhoSelecionado ? ' (' + tamanhoSelecionado.nome + ')' : '');
         
-      const itemCarrinho = {
-    id: montagemSelecionada.id + '-' + Date.now(),
-    produtoId: montagemSelecionada.id,
-    tipo: 'montagem',
-    nome: nomeFinal,
-    precoUnitario: precoFinal,
-    precoBase: montagemSelecionada.precoBase,
-    quantidade: quantidadeSelecionada,
+        const itemCarrinho = {
+            id: montagemSelecionada.id + '-' + Date.now(),
+            produtoId: montagemSelecionada.id,
+            tipo: 'montagem',
+            nome: nomeFinal,
+            precoUnitario: precoFinal,
+            precoBase: montagemSelecionada.precoBase,
+            quantidade: quantidadeSelecionada,
             observacao: document.getElementById('obsItem').value,
             montagemDetalhes: {
                 montagemId: montagemSelecionada.id,
@@ -841,59 +786,54 @@ montagemSelecionada.grupos.forEach(grupo => {
             mostrarToast('Item atualizado!', 'sucesso');
         } else {
             carrinho.push(itemCarrinho);
-            mostrarToast(`${nomeFinal} adicionado ao carrinho!`, 'sucesso');
+            mostrarToast(nomeFinal + ' adicionado ao carrinho!', 'sucesso');
         }
         
         montagemSelecionada = null;
         tamanhoSelecionado = null;
         itensMontagemSelecionados = [];
+        
+    } else if (produtoSelecionado) {
+        let precoFinal;
+        let nomeFinal = produtoSelecionado.nome;
+        
+        // Pizza com tamanho
+        if (produtoSelecionado.categoria === 'pizza' && produtoSelecionado._tamanhoSelecionado) {
+            precoFinal = produtoSelecionado._tamanhoSelecionado.preco;
+            nomeFinal = produtoSelecionado.nome + ' ' + produtoSelecionado._tamanhoSelecionado.id;
+        } else {
+            precoFinal = produtoSelecionado.preco;
+        }
+        
+        adicionaisSelecionados.forEach(adicional => {
+            precoFinal += adicional.preco;
+        });
+        
+        const itemCarrinho = {
+            id: produtoSelecionado.id + '-' + Date.now(),
+            produtoId: produtoSelecionado.id,
+            tipo: 'produto',
+            nome: nomeFinal,
+            precoUnitario: precoFinal,
+            precoBase: produtoSelecionado.preco,
+            quantidade: quantidadeSelecionada,
+            observacao: document.getElementById('obsItem').value,
+            adicionais: adicionaisSelecionados.map(a => ({
+                nome: a.nome,
+                preco: a.preco
+            })),
+            tamanhoPizza: produtoSelecionado._tamanhoSelecionado || null
+        };
+        
+        if (window.editandoCarrinhoIndex !== undefined && window.editandoCarrinhoIndex !== null) {
+            carrinho[window.editandoCarrinhoIndex] = itemCarrinho;
+            window.editandoCarrinhoIndex = null;
+            mostrarToast('Item atualizado!', 'sucesso');
+        } else {
+            carrinho.push(itemCarrinho);
+            mostrarToast(nomeFinal + ' adicionado ao carrinho!', 'sucesso');
+        }
     }
- else if (produtoSelecionado) {
-    let precoFinal = produtoSelecionado.preco;
-    
-    if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length > 0) {
-        const maiorPrecoSabor = Math.max(...saboresSelecionados.map(s => {
-            return s.preco < 100 ? s.preco * 100 : s.preco;
-        }));
-        precoFinal = Math.max(precoFinal, maiorPrecoSabor);
-    }
-    
-    adicionaisSelecionados.forEach(adicional => {
-        const precoAdicional = adicional.preco < 100 ? adicional.preco * 100 : adicional.preco;
-        precoFinal += precoAdicional;
-    });
-    
-    let nomeFinal = produtoSelecionado.nome;
-    
-if (produtoSelecionado.categoria === 'pizza' && saboresSelecionados.length === 1) {
-    nomeFinal = `${produtoSelecionado.nome} meia ${saboresSelecionados[0].nome}`;
-}
-    
-    const itemCarrinho = {
-        id: produtoSelecionado.id + '-' + Date.now(),
-        produtoId: produtoSelecionado.id,
-        tipo: 'produto',
-        nome: nomeFinal,
-        precoUnitario: precoFinal,
-        precoBase: produtoSelecionado.preco,
-        quantidade: quantidadeSelecionada,
-        observacao: document.getElementById('obsItem').value,
-        adicionais: adicionaisSelecionados.map(a => ({
-            nome: a.nome,
-            preco: a.preco < 100 ? a.preco * 100 : a.preco
-        })),
-        sabores: [...saboresSelecionados]
-    };
-    
-    if (window.editandoCarrinhoIndex !== undefined && window.editandoCarrinhoIndex !== null) {
-        carrinho[window.editandoCarrinhoIndex] = itemCarrinho;
-        window.editandoCarrinhoIndex = null;
-        mostrarToast('Item atualizado!', 'sucesso');
-    } else {
-        carrinho.push(itemCarrinho);
-        mostrarToast(`${nomeFinal} adicionado ao carrinho!`, 'sucesso');
-    }
-}
     
     renderizarCarrinho();
     fecharModalProduto();
@@ -1464,4 +1404,4 @@ window.atualizarResumoCupom = atualizarResumoCupom;
 window.abrirCarrinhoMobile = abrirCarrinhoMobile;
 window.fecharCarrinhoMobile = fecharCarrinhoMobile;
 window.atualizarCarrinhoMobileBar = atualizarCarrinhoMobileBar;
-
+window.selecionarTamanhoPizza = selecionarTamanhoPizza;
