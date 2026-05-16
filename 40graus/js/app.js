@@ -898,13 +898,19 @@ if (item.tipo === 'montagem' && item.montagemDetalhes) {
 }
         
         let adicionaisHtml = '';
-        if (item.adicionais && item.adicionais.length) {
-            adicionaisHtml = `<div class="item-adicionais">➕ ${item.adicionais.map(a => {
-                const precoExibicao = a.preco < 100 ? a.preco * 100 : a.preco;
-                return `${a.nome}${a.preco > 0 ? ` (+${formatarPreco(precoExibicao)})` : ''}`;
-            }).join(', ')}</div>`;
+if (item.adicionais && item.adicionais.length) {
+    adicionaisHtml = '<div class="item-adicionais">';
+    adicionaisHtml += item.adicionais.map(function(a) {
+        var precoUnit = a.preco < 100 ? a.preco * 100 : a.preco;
+        var precoTotal = precoUnit * item.quantidade;
+        if (a.preco > 0 && item.quantidade > 1) {
+            return '➕ ' + a.nome + ' (' + item.quantidade + 'x ' + formatarPreco(precoUnit) + ' = ' + formatarPreco(precoTotal) + ')';
+        } else {
+            return '➕ ' + a.nome + (a.preco > 0 ? ' (+' + formatarPreco(precoUnit) + ')' : '');
         }
-        
+    }).join('<br>');
+    adicionaisHtml += '</div>';
+}
       div.innerHTML = `
     <div class="item-header">
         <span class="item-nome">${item.quantidade}x ${item.nome}</span>
