@@ -768,7 +768,7 @@ function adicionarAoCarrinho() {
         itensMontagemSelecionados.forEach(item => { precoFinal += item.preco || 0; });
         
         let descricaoMontagem = [];
-        if (tamanhoSelecionado) descricaoMontagem.push(tamanhoSelecionado.nome);
+        
         
         montagemSelecionada.grupos.forEach(grupo => {
             const itensDoGrupo = itensMontagemSelecionados.filter(i => i.grupoId === grupo.id);
