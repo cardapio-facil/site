@@ -489,8 +489,7 @@ function abrirModalProduto(produtoId) {
     quantidadeSelecionada = 1;
     saboresSelecionados = [];
     adicionaisSelecionados = [];
-    if (produtoSelecionado) produtoSelecionado._tamanhoSelecionado = null;
-    
+        
     document.getElementById('modalProdutoNome').innerText = produtoSelecionado.nome;
     document.getElementById('modalProdutoDesc').innerText = produtoSelecionado.descricao || '';
     document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(produtoSelecionado.preco);
@@ -600,6 +599,23 @@ function selecionarTamanhoPizza(radio) {
     document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(precoFinal);
 }
 
+
+function fecharModalProduto() {
+    document.getElementById('modalProduto').style.display = 'none';
+    window.editandoCarrinhoIndex = null;
+    
+    if (produtoSelecionado) produtoSelecionado._tamanhoSelecionado = null;
+    
+    produtoSelecionado = null;
+    montagemSelecionada = null;
+    tamanhoSelecionado = null;
+    itensMontagemSelecionados = [];
+    saboresSelecionados = [];
+    adicionaisSelecionados = [];
+    
+    const btnAdicionar = document.querySelector('#modalProduto .btn-adicionar-carrinho');
+    if (btnAdicionar) btnAdicionar.innerHTML = '<i class="fas fa-cart-plus"></i> Adicionar ao Carrinho';
+}
 // ============================================
 // ===== MODAL DE MONTAGEM ===================
 // ============================================
@@ -1376,6 +1392,37 @@ function atualizarCuponsHeader() {
             tooltip.classList.remove('visivel');
         }
     });
+}
+
+function toggleAdicional(checkbox, nome, preco) {
+    if (checkbox.checked) {
+        adicionaisSelecionados.push({ nome, preco });
+    } else {
+        adicionaisSelecionados = adicionaisSelecionados.filter(
+            adicional => adicional.nome !== nome
+        );
+    }
+
+    if (!produtoSelecionado) return;
+
+    // Se for pizza, recalcula com o tamanho selecionado
+    if (produtoSelecionado.categoria === 'pizza' && produtoSelecionado._tamanhoSelecionado) {
+        let precoFinal = produtoSelecionado._tamanhoSelecionado.preco;
+        adicionaisSelecionados.forEach(a => { precoFinal += a.preco; });
+        document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(precoFinal);
+        return;
+    }
+
+    // Outros produtos
+    let precoFinal = produtoSelecionado.preco;
+    adicionaisSelecionados.forEach(adicional => {
+        precoFinal += adicional.preco;
+    });
+
+    const modalPreco = document.getElementById('modalProdutoPreco');
+    if (modalPreco) {
+        modalPreco.innerHTML = formatarPreco(precoFinal);
+    }
 }
 
 // ===== EXPOR =====
