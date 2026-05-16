@@ -445,7 +445,7 @@ const montagensDestaque = montagens.filter(m => {
                 <img class="produto-img" src="${montagem.imagem || LOGO_PADRAO}" alt="${montagem.nome}" style="height: 120px;" onerror="this.src='${LOGO_PADRAO}'">
                 <div class="produto-info">
                     <div class="produto-nome" style="color: white;">${montagem.nome}</div>
-                    <div class="produto-preco" style="color: white;">${produto.categoria === 'pizza' && (produto.precoP || produto.precoM || produto.precoG || produto.precoGG) ? 'A partir de ' + formatarPreco(obterMenorPreco(produto)) : formatarPreco(produto.preco)}</div>
+                   <div class="produto-preco" style="color: white;">A partir de ${formatarPreco(obterMenorPrecoMontagem(montagem))}</div>
                     <button class="btn-add" style="background: white; color: var(--cor-primaria);" onclick="event.stopPropagation(); abrirModalMontagem('${montagem.id}')">+</button>
                 </div>
             `;
@@ -1436,6 +1436,18 @@ function obterMenorPreco(produto) {
     
     if (precos.length > 0) return Math.min(...precos);
     return produto.preco;
+}
+
+function aumentarQuantidade() {
+    quantidadeSelecionada++;
+    document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
+}
+
+function diminuirQuantidade() {
+    if (quantidadeSelecionada > 1) {
+        quantidadeSelecionada--;
+        document.getElementById('quantidadeProduto').innerText = quantidadeSelecionada;
+    }
 }
 
 
