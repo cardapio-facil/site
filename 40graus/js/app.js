@@ -887,14 +887,12 @@ total += subtotal;
 if (item.tipo === 'montagem' && item.montagemDetalhes) {
     detalhesHtml = '<div class="item-adicionais" style="font-size: 0.75rem;">';
     if (item.montagemDetalhes.tamanho) {
-        const t = item.montagemDetalhes.tamanho;
-        detalhesHtml += `${t.nome}${t.preco > 0 ? ` (+${formatarPreco(t.preco)})` : ''}<br>`;
+        var t = item.montagemDetalhes.tamanho;
+        detalhesHtml += t.nome + (t.preco > 0 ? ' (+' + formatarPreco(t.preco) + ')' : '') + '<br>';
     }
-    const descricao = item.montagemDetalhes.descricao || [];
-    descricao.forEach(linha => {
-        if (!linha.startsWith('📏')) {
-            detalhesHtml += `${linha}<br>`;
-        }
+    var descricao = item.montagemDetalhes.descricao || [];
+    descricao.forEach(function(linha) {
+        detalhesHtml += linha + '<br>';
     });
     detalhesHtml += '</div>';
 }
