@@ -573,9 +573,13 @@ function abrirModalProduto(produtoId) {
                     cb.dispatchEvent(new Event('change'));
                 }
             };
-            lista.appendChild(div);
+             lista.appendChild(div);
         });
     }
+    
+    document.getElementById('modalProduto').style.display = 'flex';
+}
+
 
 function selecionarTamanhoPizza(radio) {
     if (!produtoSelecionado || produtoSelecionado.categoria !== 'pizza') return;
