@@ -176,6 +176,8 @@ function abrirModalCadastroProduto() {
     document.getElementById('produtoImagem').value = '';
     document.getElementById('produtoDisponivel').checked = true;
     document.getElementById('produtoDestaque').checked = false;
+    document.getElementById('precosPizza').style.display = 'none';
+    document.getElementById('produtoPreco').style.display = 'block';
     
     document.getElementById('modalCadastroProduto').style.display = 'flex';
 }
@@ -187,7 +189,8 @@ function editarProduto(id) {
     }
     
     const produto = produtos.find(p => p.id === id);
-    if (!produto) return;
+    
+    if (!produto) return;  // ← PRIMEIRO verifica se existe!
     
     produtoEditando = produto;
     document.getElementById('cadastroProdutoTitulo').innerHTML = '✏️ Editar Produto';
@@ -199,6 +202,19 @@ function editarProduto(id) {
     document.getElementById('produtoDisponivel').checked = produto.disponivel;
     document.getElementById('produtoDestaque').checked = produto.destaque || false;
     document.getElementById('produtoCategoria').value = produto.categoria;
+
+    // Mostrar/esconder preços de pizza ← DEPOIS de preencher tudo
+    if (produto.categoria === 'pizza') {
+        document.getElementById('precosPizza').style.display = 'block';
+        document.getElementById('produtoPreco').style.display = 'none';
+        document.getElementById('precoP').value = produto.precoP ? centavosParaFloat(produto.precoP) : '';
+        document.getElementById('precoM').value = produto.precoM ? centavosParaFloat(produto.precoM) : '';
+        document.getElementById('precoG').value = produto.precoG ? centavosParaFloat(produto.precoG) : '';
+        document.getElementById('precoGG').value = produto.precoGG ? centavosParaFloat(produto.precoGG) : '';
+    } else {
+        document.getElementById('precosPizza').style.display = 'none';
+        document.getElementById('produtoPreco').style.display = 'block';
+    }
     
     document.getElementById('modalCadastroProduto').style.display = 'flex';
 }
@@ -214,15 +230,23 @@ async function salvarProduto() {
     }
     
     const nome = document.getElementById('produtoNome').value.trim();
-    const precoInput = parseFloat(document.getElementById('produtoPreco').value);
     const categoria = document.getElementById('produtoCategoria').value;
+    let precoCentavos = 0;
     
-    if (!nome || isNaN(precoInput)) {
-        mostrarToast('Preencha nome e preço corretamente', 'alerta');
-        return;
+    if (categoria === 'pizza') {
+        // Para pizza, não precisa de precoInput
+        if (!nome) {
+            mostrarToast('Preencha o nome do produto', 'alerta');
+            return;
+        }
+    } else {
+        const precoInput = parseFloat(document.getElementById('produtoPreco').value);
+        if (!nome || isNaN(precoInput)) {
+            mostrarToast('Preencha nome e preço corretamente', 'alerta');
+            return;
+        }
+        precoCentavos = floatParaCentavos(precoInput);
     }
-    
-    const precoCentavos = floatParaCentavos(precoInput);
     
     const produto = {
         id: produtoEditando ? produtoEditando.id : gerarId(),
@@ -232,7 +256,11 @@ async function salvarProduto() {
         categoria: categoria,
         imagem: document.getElementById('produtoImagem').value,
         disponivel: document.getElementById('produtoDisponivel').checked,
-        destaque: document.getElementById('produtoDestaque').checked
+        destaque: document.getElementById('produtoDestaque').checked,
+        precoP: categoria === 'pizza' ? floatParaCentavos(parseFloat(document.getElementById('precoP').value) || 0) : null,
+        precoM: categoria === 'pizza' ? floatParaCentavos(parseFloat(document.getElementById('precoM').value) || 0) : null,
+        precoG: categoria === 'pizza' ? floatParaCentavos(parseFloat(document.getElementById('precoG').value) || 0) : null,
+        precoGG: categoria === 'pizza' ? floatParaCentavos(parseFloat(document.getElementById('precoGG').value) || 0) : null
     };
     
     if (produtoEditando) {
@@ -2124,6 +2152,19 @@ function filtrarAdminProdutos() {
     });
 }
 
+function togglePrecosPizza() {
+    const categoria = document.getElementById('produtoCategoria').value;
+    const precosPizza = document.getElementById('precosPizza');
+    const precoNormal = document.getElementById('produtoPreco');
+    
+    if (categoria === 'pizza') {
+        precosPizza.style.display = 'block';
+        precoNormal.style.display = 'none';
+    } else {
+        precosPizza.style.display = 'none';
+        precoNormal.style.display = 'block';
+    }
+}
 
 // ===== EXPOR =====
 window.abrirModalLogin = abrirModalLogin;
@@ -2153,6 +2194,7 @@ window.toggleHorarioLoja = toggleHorarioLoja;
 window.toggleDisponibilidadeProduto = toggleDisponibilidadeProduto;
 window.toggleDisponibilidadeAdicional = toggleDisponibilidadeAdicional;
 window.toggleSenhaAdmin = toggleSenhaAdmin;
+window.togglePrecosPizza = togglePrecosPizza;
 // 🆕 Horários
 window.abrirModalGerenciarHorarios = abrirModalGerenciarHorarios;
 window.fecharModalGerenciarHorarios = fecharModalGerenciarHorarios;
