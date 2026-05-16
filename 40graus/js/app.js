@@ -374,7 +374,7 @@ function renderizarProdutos() {
                 <div class="produto-nome">${produto.nome}</div>
                 <div class="produto-desc">${produto.descricao || ''}</div>
                 <div class="produto-footer">
-                    <span class="produto-preco">${formatarPreco(obterMenorPreco(produto))}</span>
+                    <span class="produto-preco">${produto.categoria === 'pizza' && (produto.precoP || produto.precoM || produto.precoG || produto.precoGG) ? 'A partir de ' + formatarPreco(obterMenorPreco(produto)) : formatarPreco(produto.preco)}</span>
                     ${disponivel ? `<button class="btn-add" onclick="event.stopPropagation(); abrirModalProduto('${produto.id}')">+</button>` : '<button class="btn-add" disabled style="background:#ccc;">🕐</button>'}
                 </div>
             </div>
@@ -445,7 +445,7 @@ const montagensDestaque = montagens.filter(m => {
                 <img class="produto-img" src="${montagem.imagem || LOGO_PADRAO}" alt="${montagem.nome}" style="height: 120px;" onerror="this.src='${LOGO_PADRAO}'">
                 <div class="produto-info">
                     <div class="produto-nome" style="color: white;">${montagem.nome}</div>
-                    <div class="produto-preco" style="color: white;">A partir de ${formatarPreco(montagem.precoBase)}</div>
+                    <div class="produto-preco" style="color: white;">${produto.categoria === 'pizza' && (produto.precoP || produto.precoM || produto.precoG || produto.precoGG) ? 'A partir de ' + formatarPreco(obterMenorPreco(produto)) : formatarPreco(produto.preco)}</div>
                     <button class="btn-add" style="background: white; color: var(--cor-primaria);" onclick="event.stopPropagation(); abrirModalMontagem('${montagem.id}')">+</button>
                 </div>
             `;
