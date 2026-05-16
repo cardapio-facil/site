@@ -1450,6 +1450,15 @@ function diminuirQuantidade() {
     }
 }
 
+function obterMenorPrecoMontagem(montagem) {
+    if (!montagem.tamanhos || montagem.tamanhos.length === 0) return montagem.precoBase;
+    
+    const precos = montagem.tamanhos.map(function(t) {
+        return montagem.precoBase + t.preco;
+    });
+    
+    return Math.min.apply(null, precos);
+}
 
 // ===== EXPOR =====
 window.obterMenorPreco = obterMenorPreco;
