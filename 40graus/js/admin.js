@@ -17,18 +17,6 @@ function fecharModalLogin() {
     document.getElementById('modalLogin').style.display = 'none';
 }
 
-// ===== NOVAS FUNÇÕES DE LOGIN =====
-function abrirModalLogin() {
-    document.getElementById('modalLogin').style.display = 'flex';
-    document.getElementById('emailAdmin').value = '';
-    document.getElementById('senhaAdmin').value = '';
-    document.getElementById('erroLogin').style.display = 'none';
-}
-
-function fecharModalLogin() {
-    document.getElementById('modalLogin').style.display = 'none';
-}
-
 async function verificarLogin() {
     const email = document.getElementById('emailAdmin').value.trim();
     const senha = document.getElementById('senhaAdmin').value;
@@ -102,13 +90,6 @@ function atualizarInterfaceAdmin() {
     renderizarProdutos();
 }
 
-function logout() {
-    adminLogado = false;
-    nivelAcesso = null;
-    atualizarInterfaceAdmin();
-    fecharModalAdmin();
-    mostrarToast('Logout realizado', 'info');
-}
 
 // ===== MODAL ADMIN =====
 function abrirModalAdmin() {
