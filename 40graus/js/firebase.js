@@ -222,8 +222,8 @@ async function carregarDadosFirebase() {
 // ===== SISTEMA DE INATIVIDADE (OTIMIZADO) ===
 // ============================================
 
-const TEMPO_INATIVIDADE = 30000;
-const INTERVALO_VERIFICACAO = 5000;
+const TEMPO_INATIVIDADE = 360000;
+const INTERVALO_VERIFICACAO = 60000;
 
 const inactivityManager = {
     online: true,
