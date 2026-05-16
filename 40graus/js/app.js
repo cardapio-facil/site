@@ -374,7 +374,7 @@ function renderizarProdutos() {
                 <div class="produto-nome">${produto.nome}</div>
                 <div class="produto-desc">${produto.descricao || ''}</div>
                 <div class="produto-footer">
-                    <span class="produto-preco">${formatarPreco(produto.preco)}</span>
+                    <span class="produto-preco">${formatarPreco(obterMenorPreco(produto))}</span>
                     ${disponivel ? `<button class="btn-add" onclick="event.stopPropagation(); abrirModalProduto('${produto.id}')">+</button>` : '<button class="btn-add" disabled style="background:#ccc;">🕐</button>'}
                 </div>
             </div>
@@ -463,7 +463,7 @@ const montagensDestaque = montagens.filter(m => {
                 <img class="produto-img" src="${produto.imagem || LOGO_PADRAO}" alt="${produto.nome}" style="height: 120px;" onerror="this.src='${LOGO_PADRAO}'">
                 <div class="produto-info">
                     <div class="produto-nome" style="color: white;">${produto.nome}</div>
-                    <div class="produto-preco" style="color: white;">${formatarPreco(produto.preco)}</div>
+                   <div class="produto-preco" style="color: white;">${formatarPreco(obterMenorPreco(produto))}</div>
                     <button class="btn-add" style="background: white; color: var(--cor-primaria);" onclick="event.stopPropagation(); abrirModalProduto('${produto.id}')">+</button>
                 </div>
             `;
@@ -1425,7 +1425,22 @@ function toggleAdicional(checkbox, nome, preco) {
     }
 }
 
+function obterMenorPreco(produto) {
+    if (produto.categoria !== 'pizza') return produto.preco;
+    
+    const precos = [];
+    if (produto.precoP) precos.push(produto.precoP);
+    if (produto.precoM) precos.push(produto.precoM);
+    if (produto.precoG) precos.push(produto.precoG);
+    if (produto.precoGG) precos.push(produto.precoGG);
+    
+    if (precos.length > 0) return Math.min(...precos);
+    return produto.preco;
+}
+
+
 // ===== EXPOR =====
+window.obterMenorPreco = obterMenorPreco;
 window.toggleTema = toggleTema;
 window.abrirModalProduto = abrirModalProduto;
 window.fecharModalProduto = fecharModalProduto;
