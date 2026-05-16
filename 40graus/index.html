@@ -461,8 +461,35 @@
         <label>Descrição</label>
         <textarea id="produtoDesc" rows="2" class="checkout-input"></textarea>
         
-        <label>Preço *</label>
-        <input type="number" id="produtoPreco" step="0.01" class="checkout-input">
+       <label>Preço *</label>
+<input type="number" id="produtoPreco" step="0.01" class="checkout-input" placeholder="Preço normal do produto">
+
+<!-- Preços para Pizza (aparece só quando categoria for pizza) -->
+<div id="precosPizza" style="display: none;">
+    <label style="margin-top: 10px; color: var(--cor-primaria); font-weight: 700;">🍕 Preços por tamanho (Pizza)</label>
+    
+    <div class="checkout-row">
+        <div>
+            <label>Preço P</label>
+            <input type="number" id="precoP" step="0.01" class="checkout-input" placeholder="R$ 0,00">
+        </div>
+        <div>
+            <label>Preço M</label>
+            <input type="number" id="precoM" step="0.01" class="checkout-input" placeholder="R$ 0,00">
+        </div>
+    </div>
+    
+    <div class="checkout-row">
+        <div>
+            <label>Preço G</label>
+            <input type="number" id="precoG" step="0.01" class="checkout-input" placeholder="R$ 0,00">
+        </div>
+        <div>
+            <label>Preço GG</label>
+            <input type="number" id="precoGG" step="0.01" class="checkout-input" placeholder="R$ 0,00">
+        </div>
+    </div>
+</div>
         
         <label>Categoria *</label>
         <select id="produtoCategoria" class="checkout-select"></select>
