@@ -500,12 +500,12 @@ function abrirModalProduto(produtoId) {
     img.src = produtoSelecionado.imagem || LOGO_PADRAO;
     img.onerror = () => { img.src = LOGO_PADRAO; };
     
-    // Esconder tudo primeiro
+      // Esconder tudo primeiro
     document.getElementById('saboresPizzaDiv').style.display = 'none';
     document.getElementById('adicionaisDiv').style.display = 'none';
     document.getElementById('montagemDiv').style.display = 'none';
     
-    // Tamanhos para Pizza
+    // Tamanhos para Pizza (PRIMEIRO)
     if (produtoSelecionado.categoria === 'pizza') {
         const tamanhos = [];
         if (produtoSelecionado.precoP) tamanhos.push({ id: 'P', nome: 'Pequeno (P)', preco: produtoSelecionado.precoP });
@@ -546,13 +546,12 @@ function abrirModalProduto(produtoId) {
             tamanhoSection.appendChild(tamanhoLista);
             montagemDiv.appendChild(tamanhoSection);
             
-            // Atualiza preço com o primeiro tamanho
             document.getElementById('modalProdutoPreco').innerHTML = formatarPreco(tamanhos[0].preco);
             produtoSelecionado._tamanhoSelecionado = tamanhos[0];
         }
     }
     
-    // Adicionais
+    // Adicionais (DEPOIS)
     const adicionaisDiv = document.getElementById('adicionaisDiv');
     const adicionaisCat = adicionaisPorCategoria[produtoSelecionado.categoria] || [];
     if (adicionaisCat.length > 0) {
@@ -563,7 +562,7 @@ function abrirModalProduto(produtoId) {
             const div = document.createElement('div');
             div.className = 'adicional-item';
             div.innerHTML = `
-                <span>${adicional.nome} ${adicional.preco > 0 ? `(+${formatarPreco(adicional.preco)})` : ''}</span>
+                <span>${adicional.nome} ${adicional.preco > 0 ? '(+' + formatarPreco(adicional.preco) + ')' : ''}</span>
                 <input type="checkbox" value='${JSON.stringify(adicional)}' onchange="toggleAdicional(this, '${adicional.nome}', ${adicional.preco})">
             `;
             div.style.cursor = 'pointer';
@@ -577,9 +576,6 @@ function abrirModalProduto(produtoId) {
             lista.appendChild(div);
         });
     }
-    
-    document.getElementById('modalProduto').style.display = 'flex';
-}
 
 function selecionarTamanhoPizza(radio) {
     if (!produtoSelecionado || produtoSelecionado.categoria !== 'pizza') return;
